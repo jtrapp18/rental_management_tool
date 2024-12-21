@@ -26,7 +26,7 @@ class MenuTree:
         print("[magenta]Hello! Welcome to [/magenta][bold cyan] My App![/bold cyan]")
 
     def display_goodbye(self):
-        print("[cyan]Thanks for using Pet Minder! Goodbye![/cyan]")
+        print("[cyan]Goodbye![/cyan]")
 
     def invalid_option(self):
         print("[red]Error: selected option not available. Please try again[/red]")
@@ -46,6 +46,7 @@ class Node:
         self.children = []
 
         self.procedure = None
+        self.last_selection = None
 
     @property
     def label(self):
@@ -93,7 +94,7 @@ class Node:
         else:
             raise ValueError("Children must be of type list with all values from the Node class")
         
-    def add_procedure(self, prompt, func, input_req=False, lowerBound=None, upperBound=None):
+    def add_procedure(self, prompt, func, input_req=False):
         # validate inputs
         if isinstance(prompt, str) and len(prompt) > 0:
             _prompt = prompt
@@ -105,28 +106,13 @@ class Node:
             raise ValueError("Function parameter must be a function")
         if isinstance(input_req, bool):
             _input_req = input_req
-
-            if input_req == True: # lower and upper bounds are only used when user input is required
-                if isinstance(lowerBound, int) and lowerBound > 0:
-                    _lowerBound = lowerBound
-                else:
-                    raise ValueError("Lower bound must be an integer > 0")
-                if isinstance(upperBound, int) and upperBound > lowerBound:
-                    _upperBound = upperBound
-                else:
-                    raise ValueError("Upper bound must be an integer > lower bound")
-            else:
-                _lowerBound = None
-                _upperBound = None
         else:
             raise ValueError("Input required must be either True or False")
         
         self.procedure = {
             "prompt": _prompt,
             "func": _func,
-            "input_req": _input_req,
-            "lowerBound": _lowerBound,
-            "upperBound": _upperBound
+            "input_req": _input_req
         }
 
     def validate_child(self, node):
@@ -145,8 +131,8 @@ class Node:
         for node in nodes:
             self.add_child(node)
 
-    def show_menu(self, prompt="What is your command?"):
-        print(f"[bold]{self.label}[/bold]")
+    def show_menu(self, prompt="Enter id from menu options above"):
+        print(f"[bold][yellow]{self.label}[/yellow][/bold]")
 
         for i, child in enumerate(self.children, start=1):
             print(f"[i]{i}. {child.label}[/i]")
@@ -154,24 +140,26 @@ class Node:
             return self.children[int(input(prompt))-1]
         except:
             self.menu_tree.invalid_option()
-
             return self
     
     def run_procedure(self):
-        prompt, func, input_req, lowerBound, upperBound  = self.procedure.values()
+        prompt, func, input_req  = self.procedure.values()
 
         print(prompt)
 
         if input_req:
-            user_selection = int(input(f"select an option between {lowerBound} and {upperBound}"))
-            if (lowerBound <= user_selection <= upperBound):
-                next_mode = func(user_selection)
-                return next_mode if next_mode else self.parent
-            else:
-                raise ValueError(f"Value must be an integer between {lowerBound} and {upperBound}")
+            try:
+                user_selection = int(input(f"select an option"))
+                self.last_selection = user_selection
+
+                next_node = func(user_selection)
+                return next_node if next_node else self
+            except:
+                self.menu_tree.invalid_option()
+                return self
         else:
-            next_mode = func()
-            return next_mode if next_mode else self.parent
+            next_node = func()
+            return next_node if next_node else self.parent
         
     def go_back(self):
-        return self.parent
+        return self.parent.parent

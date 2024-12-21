@@ -47,11 +47,9 @@ def my_menu_tree():
     view_units.add_procedure(**procedure)
 
     select_unit = Node(label="Select Unit")
-    procedure = {"prompt": "Choose a unit",
+    procedure = {"prompt": f"Choose a unit from the following options: \n{Unit.get_dataframe()}",
                 "func": lambda x: print(Unit.find_by_id(x)),
-                "input_req": True,
-                "lowerBound": 1,
-                "upperBound": 2
+                "input_req": True
                 }
     select_unit.add_procedure(**procedure)
     edit_unit = Node(label="Edit Unit")
@@ -63,16 +61,39 @@ def my_menu_tree():
     # ///////////////////////////////////////////////////////////////
     # SET UP TENANT OPERATIONS
 
-    # view_units = Node(label="View All")
-    # edit_unit = Node(label="Edit Unit Information")
+    view_tenants = Node(label="View All")
+    procedure = {"prompt": "View all tenants",
+                "func": lambda: print(Tenant.get_dataframe())
+                }
+    view_tenants.add_procedure(**procedure)
 
-    # procedure = {"prompt": "Choose a unit",
-    #             "func": lambda x: print(f"view_units procedure run with input {x}"),
-    #             "input_req": True,
-    #             "lowerBound": 1,
-    #             "upperBound": 2
-    #             }
-    # view_units.add_procedure(**procedure)
+    select_tenant = Node(label="Select Tenant")
+    procedure = {"prompt": f"Choose a tenant from the following options: \n{Tenant.get_dataframe()}",
+                "func": lambda x: print(Tenant.find_by_id(x)),
+                "input_req": True
+                }
+    select_tenant.add_procedure(**procedure)
+
+    view_payments = Node(label="View Payments History")
+    procedure = {"prompt": f"Choose a tenant from the following options: \n{Tenant.get_dataframe()}",
+                "func": lambda: print(Tenant.find_by_id(select_tenant.last_selection).payments()),
+                }
+    view_payments.add_procedure(**procedure)
+
+    print_payments = Node(label="Print Payment History")
+    procedure = {"prompt": f"Choose a tenant from the following options: \n{Tenant.get_dataframe()}",
+                "func": lambda x: print(Tenant.find_by_id(x)),
+                "input_req": True
+                }
+    print_payments.add_procedure(**procedure)
+    
+    view_payments.add_children([print_payments, go_back, to_main, exit_app])
+
+    edit_tenant = Node(label="Edit Tenant")
+
+    select_tenant.add_children([view_payments, edit_tenant, go_back, to_main, exit_app])
+
+    tenants.add_children([view_tenants, select_tenant, to_main, exit_app])
 
     # ///////////////////////////////////////////////////////////////
     # SET UP PAYMENT OPERATIONS
