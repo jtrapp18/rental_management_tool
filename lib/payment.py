@@ -3,8 +3,11 @@ from unit import Unit
 from tenant import Tenant
 import validation as val
 import sql_helper as sql
+import pandas as pd
 
 class Payment:
+
+    DF_COLUMNS = ("id", "Payment Type", "Amount", "Date", "Method", "Tenant ID")
 
     # Dictionary of objects saved to the database.
     all = {}
@@ -82,17 +85,24 @@ class Payment:
         """Return an Payment instance having the attribute values from the table row."""
         # Check the dictionary for  existing instance using the row's primary key
         payment = cls.all.get(row[0])
+
+        id = row[0]
+        pmt_type = row[1]
+        amount = row[2]
+        pmt_date = row[3]
+        method = row[4]
+        tenant_id = row[5]
+        
         if payment:
             # ensure attributes match row values in case local object was modified
-            payment.pmt_type = row[1]
-            payment.amount = row[2]
-            payment.pmt_date = row[3]
-            payment.method = row[4]
-            payment.tenant_id = row[5]
+            payment.pmt_type = pmt_type
+            payment.amount = amount
+            payment.pmt_date = pmt_date
+            payment.method = method
+            payment.tenant_id = tenant_id
         else:
             # not in dictionary, create new instance and add to dictionary
-            payment = cls(row[1], row[2], row[3], row[4], row[5])
-            payment.id = row[0]
+            payment = cls(amount, pmt_date, method, tenant_id, pmt_type, id) # reordering due to optional values
             cls.all[payment.id] = payment
         return payment
     
@@ -116,9 +126,14 @@ class Payment:
         sql.delete(CURSOR, CONN, "payments", self.id)
 
     @classmethod
-    def get_all(cls):
+    def get_all_instances(cls):
         """Return a list containing one Review instance per table row"""
-        return sql.get_all(cls, CURSOR, "payments")
+        return sql.get_all_instances(cls, CURSOR, "payments")
+    
+    @classmethod
+    def get_dataframe(cls):
+        """Return a list containing one Review instance per table row"""
+        return sql.get_dataframe(cls, CURSOR, "payments")
 
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS

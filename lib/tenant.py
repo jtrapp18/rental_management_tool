@@ -3,8 +3,11 @@ from __init__ import CURSOR, CONN
 from unit import Unit
 import validation as val
 import sql_helper as sql
+import pandas as pd
 
 class Tenant:
+
+    DF_COLUMNS = ("id", "Name", "Email Address", "Phone Number", "Move In Date", "Move Out Date", "Unit ID")
 
     # Dictionary of objects saved to the database.
     all = {}
@@ -70,7 +73,7 @@ class Tenant:
         
         if move_out_date is None:
             self._move_out_date = move_out_date
-        else:  
+        else:
             self._move_out_date = val.date_validation(move_out_date)
 
     @property
@@ -97,18 +100,26 @@ class Tenant:
 
         # Check the dictionary for  existing instance using the row's primary key
         tenant = cls.all.get(row[0])
+
+        id = row[0]
+        name = row[1]
+        email_address = row[2]
+        phone_number = row[3]
+        move_in_date = row[4]
+        move_out_date = row[5]
+        unit_id = row[6]
+    
         if tenant:
             # ensure attributes match row values in case local instance was modified
-            tenant.name = row[1]
-            tenant.email_address = row[2]
-            tenant.phone_number = row[3]
-            tenant.move_in_date = row[4]
-            tenant.move_out_date = row[5]
-            tenant.unit_id = row[6]
+            tenant.name = name
+            tenant.email_address = email_address
+            tenant.phone_number = phone_number
+            tenant.move_in_date = move_in_date
+            tenant.move_out_date = move_out_date
+            tenant.unit_id = unit_id
         else:
             # not in dictionary, create new instance and add to dictionary
-            tenant = cls(row[1], row[2], row[3], row[4], row[5], row[6])
-            tenant.id = row[0]
+            tenant = cls(name, email_address, phone_number, unit_id, move_in_date, move_out_date, id) # reordering due to optional values
             cls.all[tenant.id] = tenant
         return tenant
     
@@ -132,9 +143,14 @@ class Tenant:
         sql.delete(CURSOR, CONN, "tenants", self.id)
 
     @classmethod
-    def get_all(cls):
+    def get_all_instances(cls):
         """Return a list containing one Tenant object per table row"""
-        sql.get_all(cls, CURSOR, "tenants")
+        sql.get_all_instances(cls, CURSOR, "tenants")
+
+    @classmethod
+    def get_dataframe(cls):
+        """Return a list containing one Tenant object per table row"""
+        sql.get_dataframe(cls, CURSOR, "tenants")
     
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS
@@ -212,9 +228,8 @@ class Tenant:
         CURSOR.execute(sql, (self.id,),)
 
         rows = CURSOR.fetchall()
-        return [
-            Payment.instance_from_db(row) for row in rows
-        ]
+
+        return pd.DataFrame(rows, columns=Payment.DF_COLUMNS)
     
     def unit_information(self):
         """Return list of payments associated with current tenant"""
@@ -227,8 +242,4 @@ class Tenant:
 
         rows = CURSOR.fetchall()
 
-        # return [
-        #     Unit.instance_from_db(row) for row in rows
-        # ]
-
-        return rows[0]
+        return dict(zip(Unit.DF_COLUMNS, rows[0]))

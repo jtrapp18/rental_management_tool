@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
         pmt_start_date = datetime.strptime(tenant.move_in_date, '%Y-%m-%d')
         pmt_stop_date = datetime.strptime(tenant.move_out_date, '%Y-%m-%d') if tenant.move_out_date else datetime.now()
-        monthly_rent = unit_info[2]
+        monthly_rent = unit_info["Monthly Rent"]
         preferred_pmt_method = random.choice(approved_methods)
 
         pmt_date = pmt_start_date

@@ -2,9 +2,6 @@ import sys
 import types
 
 from rich import print
-from unit import Unit
-from tenant import Tenant
-from payment import Payment
 
 # ///////////////////////////////////////////////////////////////
 # MENU DISPLAYS
@@ -31,6 +28,9 @@ class MenuTree:
     def display_goodbye(self):
         print("[cyan]Thanks for using Pet Minder! Goodbye![/cyan]")
 
+    def invalid_option(self):
+        print("[red]Error: selected option not available. Please try again[/red]")
+
     def exit_app(self):
         self.display_goodbye()
         sys.exit()
@@ -45,13 +45,7 @@ class Node:
         self.parent = None
         self.children = []
 
-        self.procedure = {
-            "prompt": "",
-            "func": None,
-            "input_req": False,
-            "lowerBound": None,
-            "upperBound": None
-        }
+        self.procedure = None
 
     @property
     def label(self):
@@ -156,9 +150,12 @@ class Node:
 
         for i, child in enumerate(self.children, start=1):
             print(f"[i]{i}. {child.label}[/i]")
+        try:
+            return self.children[int(input(prompt))-1]
+        except:
+            self.menu_tree.invalid_option()
 
-        selected_child = self.children[int(input(prompt))-1]
-        return selected_child
+            return self
     
     def run_procedure(self):
         prompt, func, input_req, lowerBound, upperBound  = self.procedure.values()
@@ -175,14 +172,6 @@ class Node:
         else:
             next_mode = func()
             return next_mode if next_mode else self.parent
-
-# ///////////////////////////////////////////////////////////////
-# UNIT OPERATIONS
-def view_unit_information(unit):
-    print(f"This does something for {unit}")
-
-# ///////////////////////////////////////////////////////////////
-# TENANT OPERATIONS
-
-# ///////////////////////////////////////////////////////////////
-# PAYMENT OPERATIONS
+        
+    def go_back(self):
+        return self.parent

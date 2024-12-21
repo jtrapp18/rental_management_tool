@@ -1,0 +1,93 @@
+from menu_tree import MenuTree, Node
+from unit import Unit
+from tenant import Tenant
+from payment import Payment
+
+def my_menu_tree():
+    main = Node(label="Main Menu")
+    menu = MenuTree(main)
+
+    # ///////////////////////////////////////////////////////////////
+    # BASIC OPERATIONS
+
+    to_main = Node(label="Back to main menu")
+    procedure = {"prompt": "Entering main menu...",
+                "func": menu.to_main,
+                }
+    to_main.add_procedure(**procedure)
+
+    go_back = Node(label="Back to previous menu")
+    procedure = {"prompt": "Going back one level...",
+                "func": go_back.go_back,
+                }
+    go_back.add_procedure(**procedure)
+
+    exit_app = Node(label="Exit App")
+    procedure = {"prompt": "Exiting application...",
+                "func": menu.exit_app,
+                }
+    exit_app.add_procedure(**procedure)
+
+    # ///////////////////////////////////////////////////////////////
+    # SET UP MAIN MENU
+
+    rentals = Node(label="Rental Units")
+    tenants = Node(label="Tenants")
+    payments = Node(label="Payments")
+
+    main.add_children([rentals, tenants, payments, exit_app])
+
+    # ///////////////////////////////////////////////////////////////
+    # SET UP RENTAL UNIT OPERATIONS
+
+    view_units = Node(label="View All")
+    procedure = {"prompt": "View all units",
+                "func": lambda: print(Unit.get_dataframe())
+                }
+    view_units.add_procedure(**procedure)
+
+    select_unit = Node(label="Select Unit")
+    procedure = {"prompt": "Choose a unit",
+                "func": lambda x: print(Unit.find_by_id(x)),
+                "input_req": True,
+                "lowerBound": 1,
+                "upperBound": 2
+                }
+    select_unit.add_procedure(**procedure)
+    edit_unit = Node(label="Edit Unit")
+
+    select_unit.add_children([edit_unit, go_back, to_main, exit_app])
+
+    rentals.add_children([view_units, select_unit, to_main, exit_app])
+
+    # ///////////////////////////////////////////////////////////////
+    # SET UP TENANT OPERATIONS
+
+    # view_units = Node(label="View All")
+    # edit_unit = Node(label="Edit Unit Information")
+
+    # procedure = {"prompt": "Choose a unit",
+    #             "func": lambda x: print(f"view_units procedure run with input {x}"),
+    #             "input_req": True,
+    #             "lowerBound": 1,
+    #             "upperBound": 2
+    #             }
+    # view_units.add_procedure(**procedure)
+
+    # ///////////////////////////////////////////////////////////////
+    # SET UP PAYMENT OPERATIONS
+
+    # view_units = Node(label="View All")
+    # edit_unit = Node(label="Edit Unit Information")
+
+    # procedure = {"prompt": "Choose a unit",
+    #             "func": lambda x: print(f"view_units procedure run with input {x}"),
+    #             "input_req": True,
+    #             "lowerBound": 1,
+    #             "upperBound": 2
+    #             }
+    # view_units.add_procedure(**procedure)
+
+    payments.add_children([to_main, exit_app])
+
+    return menu

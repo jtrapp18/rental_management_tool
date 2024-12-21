@@ -1,4 +1,4 @@
-
+import pandas as pd
 
 def find_by_id(cls, CURSOR, table, id):
     """Return a Class instance having the attribute values from the table row."""
@@ -44,7 +44,7 @@ def delete(CURSOR, CONN, table, id):
     # Set the id to None
     id = None
 
-def get_all(cls, CURSOR, table):
+def get_all(CURSOR, table):
     """Return a list containing one Review instance per table row"""
 
     # Validate the table name to prevent SQL injection
@@ -53,6 +53,18 @@ def get_all(cls, CURSOR, table):
 
     sql = "SELECT * FROM " + table + ";"
 
-    rows = CURSOR.execute(sql).fetchall()
+    return CURSOR.execute(sql).fetchall()
+
+def get_all_instances(cls, CURSOR, table):
+    """Return a list containing one Review instance per table row"""
+
+    rows = get_all(CURSOR, table)
 
     return [cls.instance_from_db(row) for row in rows]
+
+def get_dataframe(cls, CURSOR, table):
+    """Return a list containing one Review instance per table row"""
+
+    rows = get_all(CURSOR, table)
+
+    return pd.DataFrame(rows, columns=cls.DF_COLUMNS)

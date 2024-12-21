@@ -2,8 +2,11 @@
 from __init__ import CURSOR, CONN
 import sql_helper as sql
 import validation as val
+import pandas as pd
 
 class Unit:
+
+    DF_COLUMNS = ("id", "Address", "Monthly Rent", "Late Fee")
 
     # Dictionary of objects saved to the database.
     all = {}
@@ -56,19 +59,24 @@ class Unit:
     
     @classmethod
     def instance_from_db(cls, row):
-        """Return a Department object having the attribute values from the table row."""
+        """Return a Unit object having the attribute values from the table row."""
 
         # Check the dictionary for an existing instance using the row's primary key
         unit = cls.all.get(row[0])
+
+        id = row[0]
+        address = row[1]
+        monthly_rent = row[2]
+        late_fee = row[3]
+        
         if unit:
             # ensure attributes match row values in case local instance was modified
-            unit.address = row[1]
-            unit.monthly_rent = row[2]
-            unit.late_fee = row[3]
+            unit.address = address
+            unit.monthly_rent = monthly_rent
+            unit.late_fee = late_fee
         else:
             # not in dictionary, create new instance and add to dictionary
-            unit = cls(row[1], row[2], row[3])
-            unit.id = row[0]
+            unit = cls(address, monthly_rent, late_fee, id)
             cls.all[unit.id] = unit
         return unit
     
@@ -92,10 +100,15 @@ class Unit:
         sql.delete(CURSOR, CONN, "units", self.id)
 
     @classmethod
-    def get_all(cls):
+    def get_all_instances(cls):
         """Return a list containing one Unit instance per table row"""
-        return sql.get_all(cls, CURSOR, "payments")
+        return sql.get_all_instances(cls, CURSOR, "units")
 
+    @classmethod
+    def get_dataframe(cls):
+        """Return a list containing one Unit instance per table row"""
+        return sql.get_dataframe(cls, CURSOR, "units")
+    
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS
 
@@ -149,6 +162,5 @@ class Unit:
         CURSOR.execute(sql, (self.id,),)
 
         rows = CURSOR.fetchall()
-        return [
-            Tenant.instance_from_db(row) for row in rows
-        ]
+
+        return pd.DataFrame(rows, columns=Tenant.DF_COLUMNS)
