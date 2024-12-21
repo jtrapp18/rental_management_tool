@@ -39,6 +39,8 @@ class MenuTree:
         return self.root
 
 class Node:
+    last_node = None
+
     def __init__(self, label):
         self.label = label
         self.menu_tree = None
@@ -46,7 +48,12 @@ class Node:
         self.children = []
 
         self.procedure = None
-        self.last_selection = None
+        self.last_input = None
+
+    def __repr__(self):
+        return (
+            f"<Node: {self.label}>"
+        )
 
     @property
     def label(self):
@@ -132,6 +139,8 @@ class Node:
             self.add_child(node)
 
     def show_menu(self, prompt="Enter id from menu options above"):
+        Node.last_node = self
+
         print(f"[bold][yellow]{self.label}[/yellow][/bold]")
 
         for i, child in enumerate(self.children, start=1):
@@ -150,7 +159,7 @@ class Node:
         if input_req:
             try:
                 user_selection = int(input(f"select an option"))
-                self.last_selection = user_selection
+                self.last_input = user_selection
 
                 next_node = func(user_selection)
                 return next_node if next_node else self
@@ -158,8 +167,10 @@ class Node:
                 self.menu_tree.invalid_option()
                 return self
         else:
+            default_next = self if len(self.children) > 0 else self.parent
             next_node = func()
-            return next_node if next_node else self.parent
+
+            return next_node if next_node else default_next
         
     def go_back(self):
-        return self.parent.parent
+        return Node.last_node.parent

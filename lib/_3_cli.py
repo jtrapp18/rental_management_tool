@@ -8,6 +8,10 @@ if __name__ == "__main__":
     while True:
         if node.procedure:
             node = node.run_procedure() # invoke callback function if user is at the end of the menu tree
+
+            print("from function switched to", node)
         
         if len(node.children) > 0:
             node = node.show_menu() # show next menu if the user is not at the end of the menu tree
+
+            print("from menu switched to", node)

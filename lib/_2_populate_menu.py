@@ -52,6 +52,7 @@ def my_menu_tree():
                 "input_req": True
                 }
     select_unit.add_procedure(**procedure)
+
     edit_unit = Node(label="Edit Unit")
 
     select_unit.add_children([edit_unit, go_back, to_main, exit_app])
@@ -75,21 +76,22 @@ def my_menu_tree():
     select_tenant.add_procedure(**procedure)
 
     view_payments = Node(label="View Payments History")
-    procedure = {"prompt": f"Choose a tenant from the following options: \n{Tenant.get_dataframe()}",
-                "func": lambda: print(Tenant.find_by_id(select_tenant.last_selection).payments()),
+    # this one is not appropriately going to the child... it is going up a level
+    procedure = {"prompt": f"Showing payment history...",
+                "func": lambda: print(Tenant.find_by_id(select_tenant.last_input).payments()),
                 }
     view_payments.add_procedure(**procedure)
 
     print_payments = Node(label="Print Payment History")
-    procedure = {"prompt": f"Choose a tenant from the following options: \n{Tenant.get_dataframe()}",
-                "func": lambda x: print(Tenant.find_by_id(x)),
-                "input_req": True
+    procedure = {"prompt": f"Printing payment history...",
+                "func": lambda: print(Tenant.find_by_id(select_tenant.last_input).print_payments()),
                 }
     print_payments.add_procedure(**procedure)
     
     view_payments.add_children([print_payments, go_back, to_main, exit_app])
 
     edit_tenant = Node(label="Edit Tenant")
+    edit_tenant.add_children([go_back, to_main, exit_app])
 
     select_tenant.add_children([view_payments, edit_tenant, go_back, to_main, exit_app])
 
