@@ -1,46 +1,14 @@
 import cli_ops as ops
-
-# ///////////////////////////////////////////////////////////////
-# MENU OBJECTS
-
-unit_menu = {"title": "Main Menu", 
-             "options": [
-                 {"label": "Units", "func": lambda: print(1)}, 
-                 {"label": "Add a pet", "func": lambda: print(2)}, 
-                 {"label": "Exit app", "func": lambda: print(3)}
-                 ]}
-
-tenant_menu = {"title": "Main Menu", 
-             "options": [
-                 {"label": "Units", "func": lambda: print(1)}, 
-                 {"label": "Add a pet", "func": lambda: print(2)}, 
-                 {"label": "Exit app", "func": lambda: print(3)}
-                 ]}
-
-payment_menu = {"title": "Main Menu", 
-             "options": [
-                 {"label": "Units", "func": lambda: print(1)}, 
-                 {"label": "Add a pet", "func": lambda: print(2)}, 
-                 {"label": "Exit app", "func": lambda: print(3)}
-                 ]}
-
-main_menu = {"title": "Main Menu", 
-             "options": [
-                 {"label": "Units", "func": lambda: ops.formatted_menu(unit_menu)}, 
-                 {"label": "Add a pet", "func": lambda: ops.formatted_menu(tenant_menu)}, 
-                 {"label": "Exit app", "func": lambda: ops.formatted_menu(payment_menu)}
-                 ]}
-
-# ///////////////////////////////////////////////////////////////
-# INTERFACE MAIN
+from populate_menu import my_menu_tree
 
 if __name__ == "__main__":
-    ops.display_welcome()  # this could be abstracted into a main() fn called here
+    menu = my_menu_tree() # create feedback loop by populating tree
+    menu.display_welcome()
+
+    node = menu.root # set initial node to root
     while True:
-        ops.formatted_menu(main_menu)
-
-        option_id = ops.get_user_option()
-        selected_option = main_menu["options"][option_id]
-        selected_option["func"]() # invoke callback function
-
-        ops.exit_app()
+        if len(node.children) == 0:
+            set_node = node.run_procedure() # invoke callback function if user is at the end of the menu tree
+        else:
+            set_node = node.show_menu() # show next menu if the user is not at the end of the menu tree
+        node = set_node # update node based on user interaction
