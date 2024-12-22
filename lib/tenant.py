@@ -231,12 +231,6 @@ class Tenant:
 
         return pd.DataFrame(rows, columns=Payment.DF_COLUMNS)
     
-    def print_payments(self):
-        file_name = f"./outputs/PMT_HISTORY_{self.name}.csv"
-        df = self.payments()
-
-        df.to_csv(file_name, index=False)
-    
     def unit_information(self):
         """Return list of payments associated with current tenant"""
         from payment import Payment

@@ -29,7 +29,10 @@ class MenuTree:
         print("[cyan]Goodbye![/cyan]")
 
     def invalid_option(self):
-        print("[red]Error: selected option not available. Please try again[/red]")
+        print("[red]ERROR: Input not valid. Please try again.[/red]")
+
+    def print_message(self, filename):
+        print(f"[pink]Output data to: {filename}[/pink]")
 
     def exit_app(self):
         self.display_goodbye()
@@ -37,6 +40,25 @@ class MenuTree:
 
     def to_main(self):
         return self.root
+    
+    def new_itm_validation(self, val_dict):
+        new_obj = {}
+
+        for key, val_func in val_dict.items():
+            user_input = input(f"Enter {key}")
+    
+            while True:
+                try:
+                    user_input = float(user_input) if key=="amount" else user_input
+                    value = val_func(user_input)
+                    new_obj[key] = value
+
+                    break
+                except:
+                    self.invalid_option()
+                    user_input = input(f"Enter {key}")  
+
+        return new_obj
 
 class Node:
     last_node = None

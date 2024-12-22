@@ -152,6 +152,10 @@ class Unit:
                              self.late_fee, self.id))
         CONN.commit()
 
+    
+    # ///////////////////////////////////////////////////////////////
+    # LOOKUPS FROM LINKED TABLES
+
     def tenants(self):
         """Return list of tenants associated with current unit"""
         from tenant import Tenant
@@ -164,3 +168,16 @@ class Unit:
         rows = CURSOR.fetchall()
 
         return pd.DataFrame(rows, columns=Tenant.DF_COLUMNS)
+
+    def expenses(self):
+        """Return list of expenses associated with current tenant"""
+        from expense import Expense
+        sql = """
+            SELECT * FROM expenses
+            WHERE unit_id = ?
+        """
+        CURSOR.execute(sql, (self.id,),)
+
+        rows = CURSOR.fetchall()
+
+        return pd.DataFrame(rows, columns=Expense.DF_COLUMNS)

@@ -6,6 +6,7 @@ from faker import Faker
 from unit import Unit
 from tenant import Tenant
 from payment import Payment
+from expense import Expense
 
 if __name__ == "__main__":
 
@@ -14,10 +15,12 @@ if __name__ == "__main__":
     Unit.drop_table()
     Tenant.drop_table()
     Payment.drop_table()
+    Expense.drop_table()
 
     Unit.create_table()
     Tenant.create_table()
     Payment.create_table()
+    Expense.create_table()
 
     print("Creating constants...")
 
@@ -37,6 +40,53 @@ if __name__ == "__main__":
         )
         unit.save()
         units.append(unit)
+
+    print("Seeding expense table...")
+
+    maintenance_expenses = ["repairs", "regular maintenance", "home improvements", "cleaning fee"]
+
+    expenses = []
+
+    for unit in units:
+
+        monthly_rent = unit.monthly_rent
+        exp_date = datetime.now() - timedelta(10 * 365)
+
+        while exp_date <= datetime.now():
+
+            # Monthly property management fee
+            expense = Expense(
+                descr="property mgmt fee",
+                amount=monthly_rent*0.1,
+                exp_date=exp_date.strftime('%Y-%m-%d'),
+                unit_id=unit.id,
+            )
+            expense.save()
+            expenses.append(expense)
+
+            # Miscellaneous expenses
+            setfwd = random.randint(1, 30)
+            misc_date = exp_date + timedelta(days=setfwd)
+            misc_num = random.choices([0, 1, 2], weights=[0.7, 0.2, 0.1], k=1)[0]
+
+            for i in range(0, misc_num):
+                expense = Expense(
+                    descr=random.choice(maintenance_expenses),
+                    amount=monthly_rent*0.1,
+                    exp_date=misc_date.strftime('%Y-%m-%d'),
+                    unit_id=unit.id,
+                )
+                expense.save()
+                expenses.append(expense)
+            
+                setfwd = random.randint(1, 30)
+
+                if (30 - setfwd) < 1:
+                    break
+
+                misc_date += timedelta(days=(30-setfwd))
+
+            exp_date += relativedelta(months=1)
 
     print("Seeding tenant table...")
 

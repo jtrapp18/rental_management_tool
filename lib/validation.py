@@ -2,16 +2,22 @@ import re
 from datetime import datetime
 
 def name_validation(name):
-    if isinstance(name, str) and len(name):
+    if isinstance(name, str) and len(name) > 0:
         return name
     else:
         raise ValueError("Name must be a non-empty string")
 
 def address_validation(address):
-    if isinstance(address, str) and len(address):
+    if isinstance(address, str) and len(address) > 0:
         return address
     else:
         raise ValueError("Address must be a non-empty string")
+    
+def descr_validation(descr):
+    if isinstance(descr, str) and len(descr) > 1:
+        return descr
+    else:
+        raise ValueError("Description must be a string greater than one character")
     
 def email_validation(email_address):
     email_pattern = r"[A-z][A-z0-9._-]+@\w+\.[a-z]+"

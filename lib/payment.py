@@ -127,12 +127,12 @@ class Payment:
 
     @classmethod
     def get_all_instances(cls):
-        """Return a list containing one Review instance per table row"""
+        """Return a list containing one Payment instance per table row"""
         return sql.get_all_instances(cls, CURSOR, "payments")
     
     @classmethod
     def get_dataframe(cls):
-        """Return a list containing one Review instance per table row"""
+        """Return a list containing one Payment instance per table row"""
         return sql.get_dataframe(cls, CURSOR, "payments")
 
     # ///////////////////////////////////////////////////////////////
@@ -140,7 +140,7 @@ class Payment:
 
     @classmethod
     def create_table(cls):
-        """ Create a new table to persist the attributes of Review instances """
+        """ Create a new table to persist the attributes of Payment instances """
         sql = """
             CREATE TABLE IF NOT EXISTS payments (
             id INTEGER PRIMARY KEY,

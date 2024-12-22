@@ -1,7 +1,7 @@
 from _2_populate_menu import populate_menu
 
 if __name__ == "__main__":
-    menu = populate_menu() # create feedback loop by populating tree
+    menu = populate_menu() # populate tree to create feedback loop
 
     node = menu.root # set initial node to root
     while True:
