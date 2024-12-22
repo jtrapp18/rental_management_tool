@@ -68,3 +68,44 @@ def get_dataframe(cls, CURSOR, table):
     rows = get_all(CURSOR, table)
 
     return pd.DataFrame(rows, columns=cls.DF_COLUMNS)
+
+def get_all_transactions(unit_id=None):
+    from __init__ import CURSOR
+
+    """Return a list of transactions"""
+
+    columns = ["ID", "Type", "Amount", "Date", "Detail", "Unit"]
+
+    sql_expenses = """
+    SELECT 
+        e.id AS ID, 
+        'expense' AS Type, 
+        e.amount AS Amount, 
+        e.exp_date AS Date, 
+        e.descr AS Detail, 
+        e.unit_id AS Unit
+    FROM expenses AS e"""
+
+    sql_expenses += " WHERE e.unit_id = ?" if unit_id else ""
+
+    sql_payments = """
+    SELECT 
+        p.id AS ID, 
+        'payment' AS Type, 
+        p.amount AS Amount, 
+        p.pmt_date AS Date, 
+        p.pmt_type AS Detail, 
+        t.unit_id AS Unit
+    FROM payments AS p
+    JOIN tenants AS t
+    ON p.tenant_id = t.id"""
+
+    sql_payments += " WHERE t.unit_id = ?" if unit_id else ""
+
+    sql = f"{sql_expenses} UNION {sql_payments} ORDER BY Unit, Date"
+
+    filt = (unit_id, unit_id) if unit_id else ()
+    rows = CURSOR.execute(sql, filt).fetchall()
+
+    return pd.DataFrame(rows, columns=columns)
+

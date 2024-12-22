@@ -181,3 +181,8 @@ class Unit:
         rows = CURSOR.fetchall()
 
         return pd.DataFrame(rows, columns=Expense.DF_COLUMNS)
+    
+    def transactions(self):
+        """Return list of expenses associated with current tenant"""
+
+        return sql.get_all_transactions(self.id)

@@ -1,4 +1,5 @@
 import validation as val
+import sql_helper as sql
 
 from menu_tree import MenuTree, Node
 from rich import print
@@ -58,7 +59,7 @@ class PopulateMenu:
 
     def print_expense_history(self, ref_node):
         unit = ref_node.data_ref
-        df = unit.expenses()
+        df = unit.transactions()
         print(df)
               
         confirm = input(f"Print expense history for unit {str(unit.id)} to CSV? (Y/N)")
@@ -144,13 +145,9 @@ class PopulateMenu:
                     }
         add_expense.add_procedure(**procedure)
 
-        # edit units
-
-        edit_unit = Node(label="Edit Unit")
-
         # attach nodes to parent elements
 
-        select_unit.add_children([view_expenses, add_expense, edit_unit, self.go_back, self.to_main, self.exit_app])
+        select_unit.add_children([view_expenses, add_expense, self.go_back, self.to_main, self.exit_app])
         rentals.add_children([view_units, select_unit, self.to_main, self.exit_app])
         self.main.add_child(rentals)
 
@@ -254,7 +251,7 @@ class PopulateMenu:
     # SET UP SUMMARY OPERATIONS
 
     def generate_transactions(self):
-        return Payment.payment_summary()
+        return sql.get_all_transactions()
 
     def print_transactions(self):
         df = self.generate_transactions()
