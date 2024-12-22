@@ -49,6 +49,7 @@ class Node:
 
         self.procedure = None
         self.last_input = None
+        self.data_ref = None # used to store references to objects or instances for ease of reference in app
 
     def __repr__(self):
         return (
@@ -174,3 +175,5 @@ class Node:
         
     def go_back(self):
         return Node.last_node.parent
+    
+    

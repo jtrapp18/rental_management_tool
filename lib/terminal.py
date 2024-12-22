@@ -7,10 +7,10 @@ import os
 # plt.ylabel('some numbers')
 # plt.savefig('temp.png')
 
-optimizer = img2unicode.FastGenericDualOptimizer("block")
-renderer = img2unicode.Renderer(default_optimizer=optimizer, max_h=60, max_w=160)
+# optimizer = img2unicode.FastGenericDualOptimizer("block")
+# renderer = img2unicode.Renderer(default_optimizer=optimizer, max_h=60, max_w=160)
 
-output = 'example.txt'
-renderer.render_terminal('./example.png', output)
+output = 'FAC.txt'
+# renderer.render_terminal('./example.png', output)
 
 os.system(f'cat {output}')

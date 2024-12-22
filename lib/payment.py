@@ -182,3 +182,12 @@ class Payment:
                              self.pmt_date, self.method, 
                              self.tenant_id, self.id))
         CONN.commit()
+
+    @classmethod
+    def payment_summary(cls):
+        df = cls.get_dataframe()
+
+        return df
+    
+    def print_receipt(self):
+        print("pretend receipt was printed")

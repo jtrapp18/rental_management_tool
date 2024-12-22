@@ -6,10 +6,12 @@ name = "pypi"
 [packages]
 numpy = "2.2.0"
 pandas = "2.2.3"
+matplotlib = "3.10.0"
 img2unicode = {extras = ["n2"], version = "*"}
 faker = "*"
 rich = "*"
 python-dateutil = "*"
+
 
 [dev-packages]
 
