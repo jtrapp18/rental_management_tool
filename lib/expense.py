@@ -7,6 +7,11 @@ import pandas as pd
 class Expense:
 
     DF_COLUMNS = ("id", "Description", "Amount", "Date", "Unit ID")
+    VALIDATION_DICT = {
+        "descr": val.descr_validation,
+        "amount": val.dollar_amt_validation,
+        "exp_date": val.date_validation
+        }
 
     # Dictionary of objects saved to the database.
     all = {}

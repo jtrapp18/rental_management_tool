@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # import ipdb
+import pandas as pd
 
 from unit import Unit
 from tenant import Tenant
 from payment import Payment
+from expense import Expense
 
-tenant = Tenant.find_by_id(1)
+expense_df = Expense.get_dataframe()
 
-# print(tenant.payments())
-print(tenant.unit_information())
+print(expense_df)
 
-# ipdb.set_trace()

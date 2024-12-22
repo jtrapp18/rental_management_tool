@@ -8,6 +8,12 @@ import pandas as pd
 class Tenant:
 
     DF_COLUMNS = ("id", "Name", "Email Address", "Phone Number", "Move In Date", "Move Out Date", "Unit ID")
+    VALIDATION_DICT = {
+        "name": val.name_validation, 
+        "email_address": val.email_validation, 
+        "phone_number": val.phone_validation, 
+        "move_in_date": val.date_validation
+        }
 
     # Dictionary of objects saved to the database.
     all = {}

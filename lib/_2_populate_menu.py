@@ -70,23 +70,31 @@ class PopulateMenu:
 
             self.menu.print_message(path)
 
-    def get_expense_info(self, id):
-        expense_info = {
-            "descr": val.descr_validation,
-            "amount": val.dollar_amt_validation,
-            "exp_date": val.date_validation
-        }
+    def save_tenant_info(self, ref_node):
+        new_tenant = self.menu.new_itm_validation(Tenant.VALIDATION_DICT)  
+        new_tenant["unit_id"] = ref_node.data_ref.id
 
-        new_expense = self.menu.new_itm_validation(expense_info)  
-        new_expense["unit_id"] = id
+        print(new_tenant)
 
-        print(new_expense)
-
-        return new_expense
+        confirm = input(f"Save tenant? (Y/N)")
+        
+        if confirm == "Y":
+            tenant = Tenant(
+                name=new_tenant["name"],
+                email_address=new_tenant["email_address"],
+                phone_number=new_tenant["phone_number"],
+                move_in_date=new_tenant["move_in_date"],
+                unit_id=int(new_tenant["unit_id"])             
+            )
+            tenant.save()
+        else:
+            print("Did not save to database")
 
     def save_expense_info(self, ref_node):
-        id = ref_node.data_ref.id
-        new_expense = self.get_expense_info(id)
+        new_expense = self.menu.new_itm_validation(Expense.VALIDATION_DICT)  
+        new_expense["unit_id"] = ref_node.data_ref.id
+
+        print(new_expense)
 
         confirm = input(f"Save expense? (Y/N)")
         
@@ -169,24 +177,11 @@ class PopulateMenu:
 
             self.menu.print_message(path)
 
-    def get_payment_info(self, id):
-        payment_info = {
-            "amount": val.descr_validation,
-            "pmt_date": val.dollar_amt_validation,
-            "method": val.date_validation,
-            "pmt_type": val.date_validation
-        }
-
-        new_payment = self.menu.new_itm_validation(payment_info)  
-        new_payment["tenant_id"] = id
+    def save_payment_info(self, ref_node):
+        new_payment = self.menu.new_itm_validation(Payment.VALIDATION_DICT)  
+        new_payment["tenant_id"] = ref_node.data_ref.id
 
         print(new_payment)
-
-        return new_payment
-
-    def save_payment_info(self, ref_node):
-        id = ref_node.data_ref.id
-        new_payment = self.get_payment_info(id)
 
         confirm = input(f"Save payment? (Y/N)")
         

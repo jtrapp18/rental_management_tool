@@ -8,6 +8,12 @@ import pandas as pd
 class Payment:
 
     DF_COLUMNS = ("id", "Payment Type", "Amount", "Date", "Method", "Tenant ID")
+    VALIDATION_DICT = {
+        "amount": val.descr_validation,
+        "pmt_date": val.dollar_amt_validation,
+        "method": val.date_validation,
+        "pmt_type": val.date_validation
+        }
 
     # Dictionary of objects saved to the database.
     all = {}
