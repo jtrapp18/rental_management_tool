@@ -29,9 +29,9 @@ class Tenant:
 
     def __repr__(self):
         return (
-            f"<Tenant {self.id}: {self.name}," +
-            f"Contact Info: {self.email_address}, {self.phone_number}," +
-            f"Rental Info: {self.move_in_date}, {self.move_out_date}," +
+            f"<Tenant {self.id}: {self.name} | " +
+            f"Contact Info: {self.email_address}, {self.phone_number} | " +
+            f"Rental Info: {self.move_in_date}, {self.move_out_date} | " +
             f"Unit ID: {self.unit_id}>"
         )
 

@@ -18,7 +18,12 @@ class Unit:
         self.late_fee = late_fee
 
     def __repr__(self):
-        return f"<Unit {self.id}: {self.address}, {self.monthly_rent}, {self.late_fee}>"
+        address_parsed = self.address.replace("\n", ", ")
+        return (
+            f"<Unit {self.id}: {address_parsed} | " +
+            f"Monthly Rent: {self.monthly_rent} | " +
+            f"Late Fee: {self.late_fee}>"
+        )
 
     # ///////////////////////////////////////////////////////////////
     # VALIDATION OF INPUTS

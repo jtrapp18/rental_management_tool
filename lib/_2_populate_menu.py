@@ -3,6 +3,7 @@ import sql_helper as sql
 
 from menu_tree import MenuTree, Node
 from rich import print
+from pick import pick
 from unit import Unit
 from tenant import Tenant
 from payment import Payment
@@ -12,7 +13,7 @@ from datetime import datetime
 class PopulateMenu:
 
     def __init__(self):
-        self.main = Node(label="Main Menu")
+        self.main = Node(option_label="Main Menu")
         self.menu = MenuTree(self.main)
 
         self.to_main = None
@@ -26,7 +27,7 @@ class PopulateMenu:
 
         # go to main menu
 
-        self.to_main = Node(label="Back to main menu")
+        self.to_main = Node(option_label="Go to Main Menu")
         procedure = {"prompt": "Entering main menu...",
                     "func": self.menu.to_main,
                     }
@@ -34,7 +35,7 @@ class PopulateMenu:
 
         # go to previous menu
 
-        self.go_back = Node(label="Back to previous menu")
+        self.go_back = Node(option_label="Previous Menu")
         procedure = {"prompt": "Going back one level...",
                     "func": self.go_back.go_back,
                     }
@@ -42,7 +43,7 @@ class PopulateMenu:
 
         # exit application
 
-        self.exit_app = Node(label="Exit App")
+        self.exit_app = Node(option_label="Exit App")
         procedure = {"prompt": "Exiting application...",
                     "func": self.menu.exit_app,
                     }
@@ -51,25 +52,19 @@ class PopulateMenu:
     # ///////////////////////////////////////////////////////////////
     # SET UP RENTAL UNIT OPERATIONS
 
-    def print_selected_unit(self, unit_id, ref_node):
-        selected_unit = Unit.find_by_id(unit_id)
+    def print_selected_unit(self, ref_node):
+        selected_unit, index = pick(Unit.get_all_instances(), "Choose Unit")
+
         print(selected_unit)
 
         ref_node.data_ref = selected_unit # store selected unit
+        ref_node.title_label = f"Selected Unit: {selected_unit.id}"
 
     def print_expense_history(self, ref_node):
         unit = ref_node.data_ref
         df = unit.transactions()
-        print(df)
-              
-        confirm = input(f"Print expense history for unit {str(unit.id)} to CSV? (Y/N)")
-        
-        if confirm == "Y":
-            date_today = datetime.now().strftime('%Y-%m-%d')
-            path = f"./outputs/EXPENSES_AS_OF_{date_today}_FOR_{str(unit.id)}.csv"
-            df.to_csv(path, index=False)
 
-            self.menu.print_message(path)
+        self.menu.print_to_csv(df, "EXPENSES", f"UNIT_{str(unit.id)}")
 
     def save_tenant_info(self, ref_node):
         new_tenant = self.menu.new_itm_validation(Tenant.VALIDATION_DICT)  
@@ -112,26 +107,25 @@ class PopulateMenu:
 
     def add_unit_ops(self):
 
-        rentals = Node(label="Rental Units")
+        rentals = Node(option_label="Rental Units")
 
         # view units
 
-        view_units = Node(label="View All")
+        view_units = Node(option_label="View All")
         procedure = {"prompt": "View all units",
                     "func": lambda: print(Unit.get_dataframe())
                     }
         view_units.add_procedure(**procedure)
 
-        select_unit = Node(label="Select Unit")
+        select_unit = Node(option_label="Select Unit")
         procedure = {"prompt": f"Choose a unit from the following options: \n{Unit.get_dataframe()}",
-                    "func": lambda x: self.print_selected_unit(x, select_unit),
-                    "input_req": True
+                    "func": lambda: self.print_selected_unit(select_unit)
                     }
         select_unit.add_procedure(**procedure)
 
         # view expense history
 
-        view_expenses = Node(label="View Expense History")
+        view_expenses = Node(option_label="View Expense History")
         procedure = {"prompt": f"Showing expense history...",
                     "func": lambda: self.print_expense_history(select_unit),
                     }
@@ -139,7 +133,7 @@ class PopulateMenu:
 
         # add expense
         
-        add_expense = Node(label="Add new expense")
+        add_expense = Node(option_label="Add Expense")
         procedure = {"prompt": f"Add expense",
                     "func": lambda: self.save_expense_info(select_unit)
                     }
@@ -154,25 +148,19 @@ class PopulateMenu:
     # ///////////////////////////////////////////////////////////////
     # SET UP TENANT OPERATIONS
 
-    def print_selected_tenant(self, tenant_id, ref_node):
-        selected_tenant = Tenant.find_by_id(tenant_id)
+    def print_selected_tenant(self, ref_node):
+        selected_tenant, index = pick(Tenant.get_all_instances(), "Choose Tenant")
+
         print(selected_tenant)
 
         ref_node.data_ref = selected_tenant # store selected unit
+        ref_node.title_label = f"Selected Tenant: {selected_tenant.name}"
 
     def print_payment_history(self, ref_node):
         tenant = ref_node.data_ref
         df = tenant.payments()
-        print(df)
-              
-        confirm = input(f"Print payment history for {tenant.name} to CSV? (Y/N)")
-        
-        if confirm == "Y":
-            date_today = datetime.now().strftime('%Y-%m-%d')
-            path = f"./outputs/PMTS_AS_OF_{date_today}_FOR_{tenant.name}.csv"
-            df.to_csv(path, index=False)
 
-            self.menu.print_message(path)
+        self.menu.print_to_csv(df, "PMTS", tenant.name.upper())
 
     def save_payment_info(self, ref_node):
         new_payment = self.menu.new_itm_validation(Payment.VALIDATION_DICT)  
@@ -198,11 +186,11 @@ class PopulateMenu:
             print("Did not save to database")
 
     def add_tenant_ops(self):
-        tenants = Node(label="Tenants")
+        tenants = Node(option_label="Tenants")
 
         # view tenants
 
-        view_tenants = Node(label="View All")
+        view_tenants = Node(option_label="View All")
         procedure = {"prompt": "View all tenants",
                     "func": lambda: print(Tenant.get_dataframe())
                     }
@@ -210,16 +198,15 @@ class PopulateMenu:
 
         # select tenant
 
-        select_tenant = Node(label="Select Tenant")
+        select_tenant = Node(option_label="Select Tenant")
         procedure = {"prompt": f"Choose a tenant from the following options: \n{Tenant.get_dataframe()}",
-                    "func": lambda x: self.print_selected_tenant(x, select_tenant),
-                    "input_req": True
+                    "func": lambda: self.print_selected_tenant(select_tenant),
                     }
         select_tenant.add_procedure(**procedure)
 
         # view payment history
 
-        view_payments = Node(label="View Payments History")
+        view_payments = Node(option_label="View Payments History")
         procedure = {"prompt": f"Showing payment history...",
                     "func": lambda: self.print_payment_history(select_tenant),
                     }
@@ -227,7 +214,7 @@ class PopulateMenu:
 
         # add payment
 
-        add_payment = Node(label="Add new payment")
+        add_payment = Node(option_label="Add Payment")
         procedure = {"prompt": f"Add payment",
                     "func": lambda: self.save_payment_info(select_tenant)
                     }
@@ -235,7 +222,7 @@ class PopulateMenu:
 
         # edit tenant information
         
-        edit_tenant = Node(label="Edit Tenant Information")
+        edit_tenant = Node(option_label="Edit Tenant Information")
         
         # attach nodes to parent elements
         
@@ -256,38 +243,22 @@ class PopulateMenu:
     def print_transactions(self):
         df = self.generate_transactions()
         print(df)
-              
-        confirm = input(f"Print transactions to CSV? (Y/N)")
-        
-        if confirm == "Y":
-            date_today = datetime.now().strftime('%Y-%m-%d')
-            path = f"./outputs/TRANSACTIONS_AS_OF_{date_today}.csv"
-            df.to_csv(path, index=False)
 
-            self.menu.print_message(path)
+        self.menu.print_to_csv(df, "TRANSACTIONS", "ALL_UNITS")
 
     def generate_summary_report(self):
         return Payment.payment_summary()
 
     def print_summary_report(self):
         df = self.generate_summary_report()
-        print(df)
-              
-        confirm = input(f"Print income report? (Y/N)")
-        
-        if confirm == "Y":
-            date_today = datetime.now().strftime('%Y-%m-%d')
-            path = f"./outputs/INCOME_SUMMARY_AS_OF_{date_today}.csv"
-            df.to_csv(path, index=False)
-
-            self.menu.print_message(path)
+        self.menu.print_to_csv(df, "INCOME_SUMMARY", "ALL_UNITS")
 
     def add_summary_ops(self):
-        income = Node(label="Income")
+        income = Node(option_label="Income")
 
         # print summary report
 
-        income_summary = Node(label="Summary of Income")
+        income_summary = Node(option_label="Summary of Income")
         procedure = {"prompt": f"Printing summary of income...",
                     "func": self.print_summary_report,
                     }
@@ -295,7 +266,7 @@ class PopulateMenu:
 
         # print detailed income information
 
-        income_detailed = Node(label="View All Transactions")
+        income_detailed = Node(option_label="View All Transactions")
         procedure = {"prompt": f"Printing transactions...",
                     "func": self.print_transactions,
                     }

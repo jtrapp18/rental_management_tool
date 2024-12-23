@@ -2,6 +2,7 @@ import sys
 import types
 from pick import pick
 from rich import print
+from datetime import datetime
 
 # ///////////////////////////////////////////////////////////////
 # MENU DISPLAYS
@@ -48,7 +49,7 @@ class MenuTree:
             if isinstance(constraints, list):
                 user_input, index = pick(constraints, f"Select {key} from the following options")
             else:
-                user_input = input(f"Enter {key} ({constraints})")
+                user_input = input(f"Enter {key} ({constraints}): ")
             return user_input
         
         for key, val_func in val_dict.items():
@@ -67,12 +68,25 @@ class MenuTree:
                     user_input = user_selection(constraints, key)
 
         return new_obj
+    
+    def print_to_csv(self, df, report_type, report_for):
+        print(df)
+              
+        confirm = input(f"Print output to CSV? (Y/N)")
+        
+        if confirm == "Y":
+            date_today = datetime.now().strftime('%Y-%m-%d')
+            path = f"./outputs/{report_type}_AS_OF_{date_today}_FOR_{report_for}.csv"
+            df.to_csv(path, index=False)
+
+            self.print_message(path)
 
 class Node:
     last_node = None
 
-    def __init__(self, label):
-        self.label = label
+    def __init__(self, option_label, title_label=None):
+        self.option_label = option_label
+        self.title_label = option_label if title_label is None else title_label
         self.menu_tree = None
         self.parent = None
         self.children = []
@@ -83,19 +97,30 @@ class Node:
 
     def __repr__(self):
         return (
-            f"<Node: {self.label}>"
+            f"<Node: {self.option_label}>"
         )
-
-    @property
-    def label(self):
-        return self._label
     
-    @label.setter
-    def label(self, label):
-        if isinstance(label, str) and len(label) > 0:
-            self._label = label
+    @property
+    def option_label(self):
+        return self._option_label
+    
+    @option_label.setter
+    def option_label(self, option_label):
+        if isinstance(option_label, str) and len(option_label) > 0:
+            self._option_label = option_label
         else:
-            raise ValueError("Label must be a string greater than 0 characters")
+            raise ValueError("option_label must be a string greater than 0 characters")
+        
+    @property
+    def title_label(self):
+        return self._title_label
+    
+    @title_label.setter
+    def title_label(self, title_label):
+        if isinstance(title_label, str) and len(title_label) > 0:
+            self._title_label = title_label
+        else:
+            raise ValueError("title_label must be a string greater than 0 characters")
 
     @property
     def parent(self):
@@ -172,15 +197,17 @@ class Node:
     def show_menu(self, prompt="Enter id from menu options above"):
         Node.last_node = self
 
-        print(f"[bold][yellow]{self.label}[/yellow][/bold]")
-
-        for i, child in enumerate(self.children, start=1):
-            print(f"[i]{i}. {child.label}[/i]")
-        try:
-            return self.children[int(input(prompt))-1]
-        except:
-            self.menu_tree.invalid_option()
-            return self
+        user_selection, index = pick([child.option_label for child in self.children], self.title_label)
+        return self.children[index]
+    
+        # print(f"[bold][yellow]{self.title_label}[/yellow][/bold]")
+        # for i, child in enumerate(self.children, start=1):
+        #     print(f"[i]{i}. {child.title_label}[/i]")
+        # try:
+        #     return self.children[int(input(prompt))-1]
+        # except:
+        #     self.menu_tree.invalid_option()
+        #     return self
     
     def run_procedure(self):
         prompt, func, input_req  = self.procedure.values()
