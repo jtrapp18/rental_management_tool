@@ -11,7 +11,7 @@ img2unicode = {extras = ["n2"], version = "*"}
 faker = "*"
 rich = "*"
 python-dateutil = "*"
-
+pick = "*"
 
 [dev-packages]
 

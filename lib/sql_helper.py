@@ -25,7 +25,7 @@ def drop_table(CURSOR, CONN, table):
     CURSOR.execute(sql)
     CONN.commit()
 
-def delete(CURSOR, CONN, table, id):
+def delete(self, CURSOR, CONN, table):
     """Delete the table row corresponding to the current Payment instance,
     delete the dictionary entry, and reassign id attribute"""
 
@@ -35,14 +35,14 @@ def delete(CURSOR, CONN, table, id):
 
     sql = "DELETE FROM " + table + " WHERE id = ?;"
 
-    CURSOR.execute(sql, (id,))
+    CURSOR.execute(sql, (self.id,))
     CONN.commit()
 
     # Delete the dictionary entry using id as the key
-    del type(self).all[id]
+    del type(self).all[self.id]
 
     # Set the id to None
-    id = None
+    self.id = None
 
 def get_all(CURSOR, table):
     """Return a list containing one Review instance per table row"""

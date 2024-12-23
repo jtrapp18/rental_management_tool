@@ -117,7 +117,7 @@ class Expense:
         """Delete the table row corresponding to the current Expense instance,
         delete the dictionary entry, and reassign id attribute"""
 
-        sql.delete(CURSOR, CONN, "expenses", self.id)
+        sql.delete(self, CURSOR, CONN, "expenses")
 
     @classmethod
     def get_all_instances(cls):

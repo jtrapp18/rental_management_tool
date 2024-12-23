@@ -97,7 +97,7 @@ class Unit:
         """Delete the table row corresponding to the current Unit instance,
         delete the dictionary entry, and reassign id attribute"""
 
-        sql.delete(CURSOR, CONN, "units", self.id)
+        sql.delete(self, CURSOR, CONN, "units")
 
     @classmethod
     def get_all_instances(cls):

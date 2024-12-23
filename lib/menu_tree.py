@@ -1,6 +1,6 @@
 import sys
 import types
-
+from pick import pick
 from rich import print
 
 # ///////////////////////////////////////////////////////////////
@@ -44,9 +44,17 @@ class MenuTree:
     def new_itm_validation(self, val_dict):
         new_obj = {}
 
+        def user_selection(constraints, key):
+            if isinstance(constraints, list):
+                user_input, index = pick(constraints, f"Select {key} from the following options")
+            else:
+                user_input = input(f"Enter {key} ({constraints})")
+            return user_input
+        
         for key, val_func in val_dict.items():
-            user_input = input(f"Enter {key}")
-    
+            constraints = val_func.constraints
+            user_input = user_selection(constraints, key)
+
             while True:
                 try:
                     user_input = float(user_input) if key=="amount" else user_input
@@ -56,7 +64,7 @@ class MenuTree:
                     break
                 except:
                     self.invalid_option()
-                    user_input = input(f"Enter {key}")  
+                    user_input = user_selection(constraints, key)
 
         return new_obj
 

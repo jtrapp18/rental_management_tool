@@ -146,7 +146,7 @@ class Tenant:
         """Delete the table row corresponding to the current Tenant instance,
         delete the dictionary entry, and reassign id attribute"""
 
-        sql.delete(CURSOR, CONN, "tenants", self.id)
+        sql.delete(self, CURSOR, CONN, "tenants")
 
     @classmethod
     def get_all_instances(cls):

@@ -9,10 +9,10 @@ class Payment:
 
     DF_COLUMNS = ("id", "Payment Type", "Amount", "Date", "Method", "Tenant ID")
     VALIDATION_DICT = {
-        "amount": val.descr_validation,
-        "pmt_date": val.dollar_amt_validation,
-        "method": val.date_validation,
-        "pmt_type": val.date_validation
+        "amount": val.dollar_amt_validation,
+        "pmt_date": val.date_validation,
+        "method": val.method_validation,
+        "pmt_type": val.pmt_type_validation
         }
 
     # Dictionary of objects saved to the database.
@@ -129,7 +129,7 @@ class Payment:
         """Delete the table row corresponding to the current Payment instance,
         delete the dictionary entry, and reassign id attribute"""
 
-        sql.delete(CURSOR, CONN, "payments", self.id)
+        sql.delete(self, CURSOR, CONN, "payments")
 
     @classmethod
     def get_all_instances(cls):
