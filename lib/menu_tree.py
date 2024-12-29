@@ -8,7 +8,31 @@ from datetime import datetime
 # MENU DISPLAYS
 
 class MenuTree:
+    '''
+    A class to...
+
+    Attributes
+    ---------
+    node: object
+        - Node ...
+        - 
+
+    Methods
+    ---------
+    display_welcome: describe this...
+
+    
+    '''
     def __init__(self, node):
+        '''
+        Constructs the necessary attributes for the Node object.
+
+        Parameters
+        ---------
+        node: object
+            describe...
+
+        '''
         self.root = node
         node.menu_tree = self
 
@@ -43,6 +67,21 @@ class MenuTree:
         return self.root
     
     def new_itm_validation(self, val_dict):
+        '''
+        describe...
+
+        Parameters
+        ---------
+
+        Procedures
+        ---------
+        - describe
+
+        Returns
+        ---------
+                     
+        
+        '''
         new_obj = {}
 
         def user_selection(constraints, key):
