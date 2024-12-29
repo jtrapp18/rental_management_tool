@@ -175,7 +175,7 @@ class Unit:
         return pd.DataFrame(rows, columns=Tenant.DF_COLUMNS)
 
     def expenses(self):
-        """Return list of expenses associated with current tenant"""
+        """Return list of expenses associated with current unit"""
         from expense import Expense
         sql = """
             SELECT * FROM expenses
@@ -188,6 +188,6 @@ class Unit:
         return pd.DataFrame(rows, columns=Expense.DF_COLUMNS)
     
     def transactions(self):
-        """Return list of expenses associated with current tenant"""
+        """Return list of transactions associated with current unit"""
 
         return sql.get_all_transactions(self.id)

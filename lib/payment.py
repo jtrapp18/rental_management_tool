@@ -140,7 +140,30 @@ class Payment:
     def get_dataframe(cls):
         """Return a list containing one Payment instance per table row"""
         return sql.get_dataframe(cls, CURSOR, "payments")
+    
+    @classmethod
+    def get_dataframe_w_unit(cls):
+        """Return list of expenses associated with current unit"""
+        from payment import Payment
+        sql = """
+        SELECT
+            p.id,
+            p.pmt_type,
+            p.amount, 
+            p.pmt_date,
+            p.method,
+            p.tenant_id,
+            t.unit_id
+        FROM payments AS p
+        JOIN tenants AS t
+        ON p.tenant_id = t.id
+        """
+        CURSOR.execute(sql)
 
+        rows = CURSOR.fetchall()
+
+        return pd.DataFrame(rows, columns=Payment.DF_COLUMNS + ('Unit ID',))
+    
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS
 
