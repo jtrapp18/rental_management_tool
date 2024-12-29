@@ -39,10 +39,10 @@ def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=
 
 class Report:
 
-    def __init__(self, year='all'):
+    def __init__(self, year):
         self.year = year
 
-        pdf_name = f"Income Report for {str(year)}.pdf"
+        pdf_name = f"Revenue Report for {str(year)}.pdf"
         self.report = PdfPages(fr'./outputs/{pdf_name}')
 
         self.df_transactions = sql.get_all_transactions()
@@ -225,3 +225,16 @@ class Report:
         self.add_figure(fig)
 
         return fig
+    
+
+def generate_income_report(year):
+    expense_report = Report(year)
+
+    expense_report.add_section_cover('All Units', 'Analytics for aggregated unit data')
+    expense_report.add_transaction_bar()
+    expense_report.add_subplots()
+
+    expense_report.add_section_cover('Individual Units', 'Analytics for individual rental units')
+    for unit in range(1, 6):
+        expense_report.indiv_unit_charts(unit)
+    expense_report.report.close()
