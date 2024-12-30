@@ -66,6 +66,13 @@ class MenuTree:
     def to_main(self):
         return self.root
     
+    def user_selection(self, constraints, key):
+        if isinstance(constraints, list):
+            user_input, index = pick(constraints, f"Select {key} from the following options")
+        else:
+            user_input = input(f"Enter {key} ({constraints}): ")
+        return user_input
+    
     def new_itm_validation(self, val_dict):
         '''
         describe...
@@ -83,17 +90,10 @@ class MenuTree:
         
         '''
         new_obj = {}
-
-        def user_selection(constraints, key):
-            if isinstance(constraints, list):
-                user_input, index = pick(constraints, f"Select {key} from the following options")
-            else:
-                user_input = input(f"Enter {key} ({constraints}): ")
-            return user_input
         
         for key, val_func in val_dict.items():
             constraints = val_func.constraints
-            user_input = user_selection(constraints, key)
+            user_input = self.user_selection(constraints, key)
 
             while True:
                 try:
@@ -104,9 +104,50 @@ class MenuTree:
                     break
                 except:
                     self.invalid_option()
-                    user_input = user_selection(constraints, key)
+                    user_input = self.user_selection(constraints, key)
 
         return new_obj
+
+    def update_itm(self, inst, val_dict):
+        '''
+        describe...
+
+        Parameters
+        ---------
+
+        Procedures
+        ---------
+        - describe
+
+        Returns
+        ---------
+                     
+        
+        '''
+        
+        attributes = [f"{key}: {getattr(inst, key, None)}" for key in val_dict]
+        itm_to_update, index = pick(attributes+['SUBMIT CHANGES'], "Choose item to update")
+
+        if itm_to_update == 'SUBMIT CHANGES':
+            return
+        
+        key = itm_to_update.split(":")[0].strip()
+        val_func = val_dict[key]
+        constraints = val_func.constraints
+        user_input = self.user_selection(constraints, key)
+
+        while True:
+            try:
+                user_input = float(user_input) if key=="amount" else user_input
+                value = val_func(user_input)
+                setattr(inst, key, value)
+
+                break
+            except:
+                self.invalid_option()
+                user_input = self.user_selection(constraints, key)
+
+        self.update_itm(inst, val_dict)
     
     def print_to_csv(self, df, report_type, report_for):
         print(df)
@@ -238,15 +279,6 @@ class Node:
 
         user_selection, index = pick([child.option_label for child in self.children], self.title_label)
         return self.children[index]
-    
-        # print(f"[bold][yellow]{self.title_label}[/yellow][/bold]")
-        # for i, child in enumerate(self.children, start=1):
-        #     print(f"[i]{i}. {child.title_label}[/i]")
-        # try:
-        #     return self.children[int(input(prompt))-1]
-        # except:
-        #     self.menu_tree.invalid_option()
-        #     return self
     
     def run_procedure(self):
         prompt, func, input_req  = self.procedure.values()
