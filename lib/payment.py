@@ -134,12 +134,12 @@ class Payment:
     @classmethod
     def get_all_instances(cls):
         """Return a list containing one Payment instance per table row"""
-        return sql.get_all_instances(cls, "payments")
+        return sql.get_all(cls, "payments", output_as_instances=True)
     
     @classmethod
     def get_dataframe(cls):
         """Return a list containing one Payment instance per table row"""
-        return sql.get_dataframe(cls, "payments")
+        return sql.get_all(cls, "payments", output_as_instances=False)
     
     @classmethod
     def get_dataframe_w_unit(cls):

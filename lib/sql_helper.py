@@ -2,8 +2,23 @@ import pandas as pd
 from __init__ import CURSOR, CONN
 
 def find_by_id(cls, table, id):
-    """Return a Class instance having the attribute values from the table row."""
+    '''
+    return class instance based on id attribute
 
+    Parameters
+    ---------
+    cls: class
+        - class which contains desired instance (e.g. Payment, Tenant)
+    table: str
+        - name of table in DB which corresponds to specified class
+    id: int
+        - id of class instance
+
+    Returns
+    ---------
+    class instance
+        - instance of specified class whose id attribute matches parameter
+    '''
     # Validate the table name to prevent SQL injection
     if not table.isidentifier():
         raise ValueError("Invalid table name")
@@ -13,10 +28,15 @@ def find_by_id(cls, table, id):
     row = CURSOR.execute(sql, (id,)).fetchone()
     return cls.instance_from_db(row) if row else None
 
-
 def drop_table(table):
-    """ Drop the table that persists Class  instances """
+    '''
+    drops specified table in DB
 
+    Parameters
+    ---------
+    table: str
+        - name of table in DB to drop
+    '''
     # Validate the table name to prevent SQL injection
     if not table.isidentifier():
         raise ValueError("Invalid table name")
@@ -26,51 +46,79 @@ def drop_table(table):
     CURSOR.execute(sql)
     CONN.commit()
 
-def delete(self, table):
-    """Delete the table row corresponding to the current Payment instance,
-    delete the dictionary entry, and reassign id attribute"""
+def delete(inst, table):
+    '''
+    deletes table row corresponding to specified instance
 
+    Parameters
+    ---------
+    inst: class instance
+        - instance of class which corresponds to DB row to be deleted
+    table: str
+        - name of table in DB which corresponds to specified instance
+    '''
     # Validate the table name to prevent SQL injection
     if not table.isidentifier():
         raise ValueError("Invalid table name")
 
     sql = "DELETE FROM " + table + " WHERE id = ?;"
 
-    CURSOR.execute(sql, (self.id,))
+    CURSOR.execute(sql, (inst.id,))
     CONN.commit()
 
     # Delete the dictionary entry using id as the key
-    del type(self).all[self.id]
+    del type(inst).all[inst.id]
 
     # Set the id to None
-    self.id = None
+    inst.id = None
 
-def get_all(table):
-    """Return a list containing one Review instance per table row"""
+def get_all(cls, table, output_as_instances=False):
+    '''
+    retreives information from a specified table from DB
 
+    Parameters
+    ---------
+    cls: class
+        - class which contains desired instance (e.g. Payment, Tenant)
+    table: str
+        - name of table in DB which corresponds to specified class
+    output_as_instances (optional): boolean
+        - indicates whether to return values as a list of instances or in DataFrame
+
+    Returns
+    ---------
+    output: list or Pandas DataFrame
+        - list of class instances output_as_instances set to True
+        - Pandas DataFrame containing DB table information if output_as_instances set to False
+    '''
     # Validate the table name to prevent SQL injection
     if not table.isidentifier():
         raise ValueError("Invalid table name")
 
     sql = "SELECT * FROM " + table + ";"
 
-    return CURSOR.execute(sql).fetchall()
+    rows = CURSOR.execute(sql).fetchall()
 
-def get_all_instances(cls, table):
-    """Return a list containing one Review instance per table row"""
+    output = [cls.instance_from_db(row) for row in rows] \
+        if output_as_instances else pd.DataFrame(rows, columns=cls.DF_COLUMNS)
 
-    rows = get_all(table)
-
-    return [cls.instance_from_db(row) for row in rows]
-
-def get_dataframe(cls, table):
-    """Return a list containing one Review instance per table row"""
-
-    rows = get_all(table)
-
-    return pd.DataFrame(rows, columns=cls.DF_COLUMNS)
+    return output
 
 def get_all_transactions(unit_id=None):
+    '''
+    retreives transactions (payments, expenses) linked to a specified unit
+
+    Parameters
+    ---------
+    unit_id (optional): int
+        - id of Unit to filter on
+        - if set to None, shows all units
+
+    Returns
+    ---------
+    output: Pandas DataFrame
+        - DataFrame containing all transactions (payments, expenses) for specified unit
+    '''
     """Return a list of transactions"""
 
     columns = ["ID", "Type", "Amount", "Date", "Detail", "Unit"]
@@ -107,4 +155,3 @@ def get_all_transactions(unit_id=None):
     rows = CURSOR.execute(sql, filt).fetchall()
 
     return pd.DataFrame(rows, columns=columns)
-

@@ -148,12 +148,12 @@ class Tenant:
     @classmethod
     def get_all_instances(cls):
         """Return a list containing one Tenant object per table row"""
-        return sql.get_all_instances(cls, "tenants")
+        return sql.get_all(cls, "tenants", output_as_instances=True)
 
     @classmethod
     def get_dataframe(cls):
         """Return a list containing one Tenant object per table row"""
-        return sql.get_dataframe(cls, "tenants")
+        return sql.get_all(cls, "tenants", output_as_instances=False)
     
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS

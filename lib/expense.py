@@ -122,12 +122,12 @@ class Expense:
     @classmethod
     def get_all_instances(cls):
         """Return a list containing one Expense instance per table row"""
-        return sql.get_all_instances(cls, "expenses")
+        return sql.get_all(cls, "expenses", output_as_instances=True)
     
     @classmethod
     def get_dataframe(cls):
         """Return a list containing one Expense instance per table row"""
-        return sql.get_dataframe(cls, "expenses")
+        return sql.get_all(cls, "expenses", output_as_instances=False)
 
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS
