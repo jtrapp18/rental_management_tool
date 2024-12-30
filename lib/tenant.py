@@ -335,13 +335,14 @@ class Tenant:
             EOP = BOP + relativedelta(months=1)
             date_late = BOP + relativedelta(days=11)
 
-            for payment in payments:
+            for payment in payments[:]:
                 pmt_date = datetime.strptime(payment.pmt_date, '%Y-%m-%d')
                 if pmt_date >= EOP:
                     break
 
                 payments.remove(payment)  # Remove the payment from the list
-                payments_applied.append(payment)  # Add it to payments_applied
+                if payment.pmt_type=='rent':
+                    payments_applied.append(payment)  # Add it to payments_applied
 
             bop_due = unit.monthly_rent + back_due
 
@@ -370,10 +371,10 @@ class Tenant:
                 payment_dict = {**payment_dict, **payment_info}
 
             # determine if tenant owes a late fee
-            late = (rent_paid_on_time - bop_due) > 0
+            late = (unit.monthly_rent - rent_paid_on_time) > 0
             late_fee_owed = late*unit.late_fee
 
-            rent_owed = BOP_dict['BOP Due'] - rent_paid
+            rent_owed = unit.monthly_rent - rent_paid
             total_owed = late_fee_owed + rent_owed
             back_due += total_owed
 

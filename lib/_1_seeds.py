@@ -166,7 +166,7 @@ if __name__ == "__main__":
                 payments.append(payment)
 
             payment = Payment(
-                amount=monthly_rent,
+                amount=unit.monthly_rent,
                 pmt_date=pmt_date.strftime('%Y-%m-%d'),
                 method=preferred_pmt_method,
                 tenant_id=tenant.id,                

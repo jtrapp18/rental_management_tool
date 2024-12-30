@@ -62,6 +62,9 @@ class PopulateMenu:
         self.go_back = None
         self.exit_app = None
 
+        self.select_tenant = None
+        self.select_unit = None
+
     # ///////////////////////////////////////////////////////////////
     # BASIC OPERATIONS
 
@@ -98,6 +101,9 @@ class PopulateMenu:
 
         ref_node.data_ref = selected_inst # store selected unit
         ref_node.title_label = f"Selected: {selected_inst}"
+
+        for child in ref_node.children:
+            child.title_label = f"{child.title_label}: {selected_inst}"
 
     # ///////////////////////////////////////////////////////////////
     # REUSABLE CLI FUNCTIONALITY
@@ -216,6 +222,8 @@ class PopulateMenu:
         report_for: str
             - used in the filename to specify report filters (e.g. tenant name)
         '''
+        print(report_for)
+        print('---------------------------------------------------')
         print(df)
               
         confirm = input(f"Print output to CSV? (Y/N)")
@@ -226,118 +234,6 @@ class PopulateMenu:
             df.to_csv(path, index=False)
 
             self.menu.print_message(path)
-
-    # ///////////////////////////////////////////////////////////////
-    # SET UP RENTAL UNIT OPERATIONS
-
-    def print_transaction_history(self, ref_node):
-        '''
-        displays unit transactions and optionally prints results to csv
-
-        Parameters
-        ---------
-        ref_node: Node instance
-            - node which stores the reference to the user-selected instance
-        '''
-        unit = ref_node.data_ref
-        df = unit.transactions()
-
-        self.print_to_csv(df, "TRANSACTIONS", f"UNIT_{str(unit.id)}")
-
-    def save_tenant_info(self, ref_node):
-        '''
-        allows user to create new Tenant instance and optionally saves to DB
-
-        Parameters
-        ---------
-        ref_node: Node instance
-            - node which stores the reference to the user-selected instance
-        '''
-        new_tenant = self.new_itm_validation(Tenant.VALIDATION_DICT)  
-
-        if not new_tenant:
-            return
-    
-        new_tenant["unit_id"] = ref_node.data_ref.id
-
-        print(new_tenant)
-
-        confirm = input(f"Save tenant? (Y/N)")
-        
-        if confirm == "Y":
-            tenant = Tenant(
-                name=new_tenant["name"],
-                email_address=new_tenant["email_address"],
-                phone_number=new_tenant["phone_number"],
-                move_in_date=new_tenant["move_in_date"],
-                unit_id=int(new_tenant["unit_id"])             
-            )
-            tenant.save()
-        else:
-            print("Did not save to database")
-
-    def save_expense_info(self, ref_node):
-        '''
-        allows user to create new Expense instance and optionally saves to DB
-
-        Parameters
-        ---------
-        ref_node: Node instance
-            - node which stores the reference to the user-selected instance
-        '''
-        new_expense = self.new_itm_validation(Expense.VALIDATION_DICT)
-
-        if not new_expense:
-            return
-
-        new_expense["unit_id"] = ref_node.data_ref.id
-
-        print(new_expense)
-
-        confirm = input(f"Save expense? (Y/N)")
-        
-        if confirm == "Y":
-            expense = Expense(
-                descr=new_expense["descr"],
-                amount=float(new_expense["amount"]),
-                exp_date=new_expense["exp_date"],
-                unit_id=int(new_expense["unit_id"]),                
-            )
-            expense.save()
-        else:
-            print("Did not save to database")
-
-    def add_unit_ops(self):
-        '''
-        creates and links nodes related to unit operations
-
-        Procedures
-        ---------
-        - creates rental node with multiple children nodes
-        - adds rental node as a child of the main menu node
-        '''
-        rentals = Node(option_label="Rental Units")
-
-        # select unit
-
-        select_unit = Node(option_label="Select Unit")
-        select_unit.add_procedure(lambda: self.store_selected_instance(Unit, select_unit))
-
-        # view transaction history
-
-        view_transactions = Node(option_label="View Transaction History")
-        view_transactions.add_procedure(lambda: self.print_transaction_history(select_unit))
-
-        # add expense
-        
-        add_expense = Node(option_label="Add Expense")
-        add_expense.add_procedure(lambda: self.save_expense_info(select_unit))
-
-        # attach nodes to parent elements
-
-        select_unit.add_children([view_transactions, add_expense, self.go_back, self.to_main, self.exit_app])
-        rentals.add_children([select_unit, self.to_main, self.exit_app])
-        self.main.add_child(rentals)
 
     # ///////////////////////////////////////////////////////////////
     # SET UP TENANT OPERATIONS
@@ -365,10 +261,17 @@ class PopulateMenu:
         else:
             tenant_list = tenants
 
+        print("tenant list", Node.last_node.parent)
+
+        if self.select_unit.data_ref:
+            unit = self.select_unit.data_ref
+            tenant_list = [tenant for tenant in tenant_list if tenant.unit_id==unit.id]
+
         selected_tenant, index = pick(tenant_list, "Choose Tenant")
 
         ref_node.data_ref = selected_tenant # store selected unit
-        ref_node.title_label = f"Selected Tenant: {selected_tenant}"
+
+        ref_node.title_label = f"Selected: {selected_tenant}"
 
     def update_selected_tenant(self, ref_node):
         '''
@@ -457,34 +360,157 @@ class PopulateMenu:
         - adds tenants node as a child of the main menu node
         '''
         tenants = Node(option_label="Tenants")
+        tenants.add_procedure(lambda: setattr(self.select_unit, "data_ref", None)) # clear unit information when accessing tenant
 
         # select tenant
 
-        select_tenant = Node(option_label="Select Tenant")
-        select_tenant.add_procedure(lambda: self.store_selected_tenant(select_tenant))
+        self.select_tenant = Node(option_label="Select Tenant")
+        self.select_tenant.add_procedure(lambda: self.store_selected_tenant(self.select_tenant))
 
         # view payment history
 
         view_payments = Node(option_label="View Payments History")
-        view_payments.add_procedure(lambda: self.print_payment_history(select_tenant))
+        view_payments.add_procedure(lambda: self.print_payment_history(self.select_tenant))
 
         # add payment
 
         add_payment = Node(option_label="Add Payment")
-        add_payment.add_procedure(lambda: self.save_payment_info(select_tenant))
+        add_payment.add_procedure(lambda: self.save_payment_info(self.select_tenant))
 
         # edit tenant information
         
         edit_tenant = Node(option_label="Edit Tenant Information")
-        edit_tenant.add_procedure(lambda: self.update_selected_tenant(select_tenant))
+        edit_tenant.add_procedure(lambda: self.update_selected_tenant(self.select_tenant))
         
         # attach nodes to parent elements
         
-        select_tenant.add_children([view_payments, add_payment, edit_tenant, self.go_back, self.to_main, self.exit_app])
+        self.select_tenant.add_children([view_payments, add_payment, edit_tenant, self.go_back, self.to_main, self.exit_app])
         
-        tenants.add_children([select_tenant, self.to_main, self.exit_app])
+        tenants.add_children([self.select_tenant, self.to_main, self.exit_app])
         
         self.main.add_child(tenants)
+
+    # ///////////////////////////////////////////////////////////////
+    # SET UP RENTAL UNIT OPERATIONS
+
+    def print_transaction_history(self, ref_node):
+        '''
+        displays unit transactions and optionally prints results to csv
+
+        Parameters
+        ---------
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
+        '''
+        unit = ref_node.data_ref
+        df = unit.transactions()
+
+        self.print_to_csv(df, "TRANSACTIONS", f"UNIT_{str(unit.id)}")
+
+    def save_tenant_info(self, ref_node):
+        '''
+        allows user to create new Tenant instance and optionally saves to DB
+
+        Parameters
+        ---------
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
+        '''
+        print("[pink]Add Tenant[/pink]")
+        print("---------------------------------------")
+        new_tenant = self.new_itm_validation(Tenant.VALIDATION_DICT)  
+
+        if not new_tenant:
+            return
+    
+        new_tenant["unit_id"] = ref_node.data_ref.id
+
+        print(new_tenant)
+
+        confirm = input(f"Save tenant? (Y/N)")
+        
+        if confirm == "Y":
+            tenant = Tenant(
+                name=new_tenant["name"],
+                email_address=new_tenant["email_address"],
+                phone_number=new_tenant["phone_number"],
+                move_in_date=new_tenant["move_in_date"],
+                unit_id=int(new_tenant["unit_id"])             
+            )
+            tenant.save()
+        else:
+            print("Did not save to database")
+
+    def save_expense_info(self, ref_node):
+        '''
+        allows user to create new Expense instance and optionally saves to DB
+
+        Parameters
+        ---------
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
+        '''
+        new_expense = self.new_itm_validation(Expense.VALIDATION_DICT)
+
+        if not new_expense:
+            return
+
+        new_expense["unit_id"] = ref_node.data_ref.id
+
+        print(new_expense)
+
+        confirm = input(f"Save expense? (Y/N)")
+        
+        if confirm == "Y":
+            expense = Expense(
+                descr=new_expense["descr"],
+                amount=float(new_expense["amount"]),
+                exp_date=new_expense["exp_date"],
+                unit_id=int(new_expense["unit_id"]),                
+            )
+            expense.save()
+        else:
+            print("Did not save to database")
+
+    def add_unit_ops(self):
+        '''
+        creates and links nodes related to unit operations
+
+        Procedures
+        ---------
+        - creates rental node with multiple children nodes
+        - adds rental node as a child of the main menu node
+        '''
+        rentals = Node(option_label="Rental Units")
+        unit_expenses = Node(option_label="Expenses for Selected Unit")
+        unit_tenants = Node(option_label="Tenants for Selected Unit")
+
+        # select unit
+
+        self.select_unit = Node(option_label="Select Unit")
+        self.select_unit.add_procedure(lambda: self.store_selected_instance(Unit, self.select_unit))
+
+        # view transaction history
+
+        view_transactions = Node(option_label="View Transaction History")
+        view_transactions.add_procedure(lambda: self.print_transaction_history(self.select_unit))
+
+        # add expense
+        
+        add_expense = Node(option_label="Add Expense")
+        add_expense.add_procedure(lambda: self.save_expense_info(self.select_unit))
+
+        # add tenant
+        
+        add_tenant = Node(option_label="Add Tenant")
+        add_tenant.add_procedure(lambda: self.save_tenant_info(self.select_unit))
+
+        # attach nodes to parent elements
+        unit_expenses.add_children([view_transactions, add_expense, self.go_back, self.to_main, self.exit_app])
+        unit_tenants.add_children([self.select_tenant, add_tenant, self.go_back, self.to_main, self.exit_app])
+        self.select_unit.add_children([unit_expenses, unit_tenants, self.go_back, self.to_main, self.exit_app])
+        rentals.add_children([self.select_unit, self.to_main, self.exit_app])
+        self.main.add_child(rentals)
 
     # ///////////////////////////////////////////////////////////////
     # SET UP SUMMARY OPERATIONS
@@ -565,8 +591,8 @@ def populate_menu():
     rental_mgmt = PopulateMenu() # create feedback loop by populating tree
 
     rental_mgmt.add_basic_ops()
-    rental_mgmt.add_unit_ops()
     rental_mgmt.add_tenant_ops()
+    rental_mgmt.add_unit_ops()
     rental_mgmt.add_summary_ops()
     rental_mgmt.main.add_child(rental_mgmt.exit_app)
 
