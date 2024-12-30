@@ -8,6 +8,27 @@ from expense import Expense
 from payment import Payment
 
 def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=None, color='white'):
+    '''
+    A class to create and manage pdf revenue reports
+
+    Parameters
+    ---------
+    title_txt (optional): str
+        - title of page
+    subtitle_txt (optional): str
+        - subtitle of page
+    subtitle2_txt (optional): str
+        - subtitle2 of page
+    body_txt (optional): str
+        - body of page
+    color (optional): str
+        - color of page
+
+    Returns
+    ---------
+    fig: matplotly figure
+        - figure containing text only for report cover pages
+    '''
     axes = {
         1: {'txt': title_txt, 'height': .5, 'position': 0.2, 'fontsize': 70, 'color': 'black'},
         2: {'txt': subtitle_txt, 'height': .1, 'position': 0.5, 'fontsize': 55, 'color': 'black'},
@@ -39,8 +60,40 @@ def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=
     return fig
 
 class Report:
+    '''
+    A class to create and manage pdf revenue reports
 
+    Attributes
+    ---------
+    year: int
+        - year for report
+    report: PdfPages instance
+        - instance of pdf report
+    units: list
+        - list of units with transactions for specified year
+
+    Methods
+    ---------
+    - add_cover_page: creates cover page and adds to report
+    - add_section_cover: creates section cover and adds to report
+    - add_figure: adds matplotly figure as a page to report
+    - add_transaction_bar: creates bar graph of transactions and adds to report
+    - transaction_line_subplot: creates line graph of transactions
+    - transaction_pie_subplot: creates pie chart of transactions
+    - expense_pie_subplot: creates pie chart of expenses by type
+    - payment_pie_subplot: creates pie chart of payments by type
+    - add_subplots: creates separate pages for each subplot and adds to report
+    - indiv_unit_charts: creates page for specified unit with subplots and adds to report
+    '''
     def __init__(self, year):
+        '''
+        Constructs the necessary attributes for the Report object.
+
+        Parameters
+        ---------
+        year: int
+            - year for report
+        '''
         self.year = year
 
         pdf_name = f"Revenue Report for {str(year)}.pdf"
@@ -64,6 +117,9 @@ class Report:
         self.add_cover_page()
 
     def add_cover_page(self):
+        '''
+        creates cover page and adds to report
+        '''
         params = {
             'title_txt': f'Revenue Report',
             'subtitle2_txt': f'{str(self.year)}',
@@ -73,6 +129,9 @@ class Report:
         plt.close(fig)
 
     def add_section_cover(self, section, descr):
+        '''
+        creates section cover and adds to report
+        '''
         params = {
             'subtitle_txt': section,
             'body_txt': descr
@@ -82,13 +141,28 @@ class Report:
         plt.close(fig)
 
     def add_figure(self, fig):
+        '''
+        adds matplotly figure as a page to report
+
+        Parameters
+        ---------
+        fig: matplotly figure
+            - figure to add to report
+        '''
         footer_txt = f'Revenue Report - {str(self.year)}'
         fig.text(.01, .01, footer_txt, ha='left', fontsize=12, style='italic', color='grey')
         fig.savefig(self.report, format='pdf')
         plt.close(fig)
 
     def add_transaction_bar(self):
+        '''
+        creates bar graph of transactions and adds to report
 
+        Returns
+        ---------
+        fig: matplotly figure
+            - bar graph of transactions
+        '''
         df = self.df_dict['transactions'].copy()
 
         df_filtered = df[df['Date'].dt.year == self.year]
@@ -130,9 +204,22 @@ class Report:
 
         return fig
     
-
     def transaction_line_subplot(self, ax, unit='all'):
+        '''
+        creates line graph of transactions
 
+        Parameters
+        ---------
+        ax: matplotly figure
+            - blank figure
+        unit (optional): int or str
+            - unit ID to filter data on
+
+        Returns
+        ---------
+        ax: matplotly figure
+            - line graph of transactions
+        '''
         df = self.df_dict['transactions'].copy()
 
         df_filtered = df[df['Year'] <= self.year]
@@ -160,6 +247,21 @@ class Report:
         return ax
     
     def transaction_pie_subplot(self, ax, unit='all'):
+        '''
+        creates pie chart of transactions
+
+        Parameters
+        ---------
+        ax: matplotly figure
+            - blank figure
+        unit (optional): int or str
+            - unit ID to filter data on
+
+        Returns
+        ---------
+        ax: matplotly figure
+            - pie chart of transactions
+        '''
         df = self.df_dict['transactions'].copy()
 
         df_filtered = df[df['Year'] == self.year]
@@ -177,6 +279,21 @@ class Report:
         return ax
     
     def expense_pie_subplot(self, ax, unit='all'):
+        '''
+        creates pie chart of expenses by type
+
+        Parameters
+        ---------
+        ax: matplotly figure
+            - blank figure
+        unit (optional): int or str
+            - unit ID to filter data on
+
+        Returns
+        ---------
+        ax: matplotly figure
+            - pie chart of expenses
+        '''
         df = self.df_dict['expenses'].copy()
 
         df_filtered = df[df['Year'] == self.year]
@@ -192,7 +309,21 @@ class Report:
         return ax
     
     def payment_pie_subplot(self, ax, unit='all'):
+        '''
+        creates pie chart of payments by type
 
+        Parameters
+        ---------
+        ax: matplotly figure
+            - blank figure
+        unit (optional): int or str
+            - unit ID to filter data on
+
+        Returns
+        ---------
+        ax: matplotly figure
+            - pie chart of payments
+        '''
         df = self.df_dict['payments'].copy()
 
         df_filtered = df[df['Year'] == self.year]
@@ -208,6 +339,9 @@ class Report:
         return ax
     
     def add_subplots(self):
+        '''
+        creates separate pages for each subplot and adds to report
+        '''
         subplot_functions = [
             self.transaction_line_subplot,
             self.transaction_pie_subplot,
@@ -222,6 +356,19 @@ class Report:
             plt.close(fig)
     
     def indiv_unit_charts(self, unit):
+        '''
+        creates page for specified unit with subplots and adds to report
+
+        Parameters
+        ---------
+        unit (optional): int or str
+            - unit ID to filter data on
+
+        Returns
+        ---------
+        fig: matplotly figure
+            - figure containing multiple graphs for specified unit
+        '''
         ax = {}
 
         fig, ((ax[(0, 0)], ax[(0, 1)]), (ax[(1, 0)], ax[(1, 1)]), (ax[2, 0], ax[(2, 1)])) = \
@@ -245,9 +392,16 @@ class Report:
         plt.close(fig)
 
         return fig
-    
 
 def generate_income_report(year):
+    '''
+    generates and saves pdf report for specified year using Report class
+
+    Parameters
+    ---------
+    year: int
+        - year for report
+    '''
     rpt = Report(year)
 
     rpt.add_section_cover('All Units', 'Analytics for aggregated unit data')
