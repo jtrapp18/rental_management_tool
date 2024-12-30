@@ -6,14 +6,16 @@ import pandas as pd
 
 class Unit:
 
-    DF_COLUMNS = ("id", "Address", "Monthly Rent", "Late Fee")
+    DF_COLUMNS = ("id", "Acquisition Date", "Address", "Monthly Mortgage", "Monthly Rent", "Late Fee")
 
     # Dictionary of objects saved to the database.
     all = {}
 
-    def __init__(self, address, monthly_rent, late_fee=150, id=None):
+    def __init__(self, acquisition_date, address, monthly_mortgage, monthly_rent, late_fee=150, id=None):
         self.id = id
+        self.acquisition_date = acquisition_date
         self.address = address
+        self.monthly_mortgage = monthly_mortgage
         self.monthly_rent = monthly_rent
         self.late_fee = late_fee
 
@@ -21,6 +23,8 @@ class Unit:
         address_parsed = self.address.replace("\n", ", ")
         return (
             f"<Unit {self.id}: {address_parsed} | " +
+            f"Acquired on: {self.acquisition_date} | " +
+            f"Monthly Mortgage: {self.monthly_mortgage} | " +
             f"Monthly Rent: {self.monthly_rent} | " +
             f"Late Fee: {self.late_fee}>"
         )
@@ -29,12 +33,28 @@ class Unit:
     # VALIDATION OF INPUTS
 
     @property
+    def acquisition_date(self):
+        return self._acquisition_date
+
+    @acquisition_date.setter
+    def acquisition_date(self, acquisition_date):
+        self._acquisition_date = val.date_validation(acquisition_date)
+
+    @property
     def address(self):
         return self._address
 
     @address.setter
     def address(self, address):
         self._address = val.address_validation(address)
+
+    @property
+    def monthly_mortgage(self):
+        return self._monthly_mortgage
+
+    @monthly_mortgage.setter
+    def monthly_mortgage(self, monthly_mortgage):
+        self._monthly_mortgage = val.dollar_amt_validation(monthly_mortgage)
 
     @property
     def monthly_rent(self):
@@ -56,9 +76,9 @@ class Unit:
     # MANAGE CLASS INSTANCES
 
     @classmethod
-    def create(cls, address, monthly_rent, late_fee):
+    def create(cls, acquisition_date, address, monthly_mortgage, monthly_rent, late_fee):
         """ Initialize a new Department instance and save the object to the database """
-        unit = cls(address, monthly_rent, late_fee)
+        unit = cls(acquisition_date, address, monthly_mortgage, monthly_rent, late_fee)
         unit.save()
         return unit
     
@@ -70,18 +90,22 @@ class Unit:
         unit = cls.all.get(row[0])
 
         id = row[0]
-        address = row[1]
-        monthly_rent = row[2]
-        late_fee = row[3]
+        acquisition_date = row[1]
+        address = row[2]
+        monthly_mortgage = row[3]
+        monthly_rent = row[4]
+        late_fee = row[5]
         
         if unit:
             # ensure attributes match row values in case local instance was modified
+            unit.acquisition_date = acquisition_date
             unit.address = address
+            unit.monthly_mortgage = monthly_mortgage
             unit.monthly_rent = monthly_rent
             unit.late_fee = late_fee
         else:
             # not in dictionary, create new instance and add to dictionary
-            unit = cls(address, monthly_rent, late_fee, id)
+            unit = cls(acquisition_date, address, monthly_mortgage, monthly_rent, late_fee, id)
             cls.all[unit.id] = unit
         return unit
     
@@ -123,7 +147,9 @@ class Unit:
         sql = """
             CREATE TABLE IF NOT EXISTS units (
             id INTEGER PRIMARY KEY,
+            acquisition_date DATE,
             address TEXT,
+            monthly_mortgage NUMERIC,
             monthly_rent NUMERIC,
             late_fee NUMERIC)
         """
@@ -135,11 +161,11 @@ class Unit:
         Update object id attribute using the primary key value of new row.
         Save the object in local dictionary using table row's PK as dictionary key"""
         sql = """
-            INSERT INTO units (address, monthly_rent, late_fee)
-            VALUES (?, ?, ?)
+            INSERT INTO units (acquisition_date, address, monthly_mortgage, monthly_rent, late_fee)
+            VALUES (?, ?, ?, ?, ?)
         """
 
-        CURSOR.execute(sql, (self.address, self.monthly_rent, 
+        CURSOR.execute(sql, (self.acquisition_date, self.address, self._monthly_mortgage, self.monthly_rent, 
                              self.late_fee))
         CONN.commit()
 
@@ -150,11 +176,12 @@ class Unit:
         """Update the table row corresponding to the current Department instance."""
         sql = """
             UPDATE departments
-            SET address = ?, monthly_rent = ?, late_fee = ?
+            SET acquisition_date = ?, address = ?, monthly_mortgage = ?, 
+            monthly_rent = ?, late_fee = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.address, self.monthly_rent, 
-                             self.late_fee, self.id))
+        CURSOR.execute(sql, (self.acquisition_date, self.address, self.monthly_mortgage, 
+                             self.monthly_rent, self.late_fee, self.id))
         CONN.commit()
 
     

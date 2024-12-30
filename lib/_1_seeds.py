@@ -29,17 +29,23 @@ if __name__ == "__main__":
     print("Seeding unit table...")
 
     units = []
+    acquisition_date = datetime.now() - timedelta(11 * 365)
 
     for _ in range(5):
         monthly_rent = random.randint(1800 // 50, 3500 // 50) * 50
+        monthly_mortgage = monthly_rent*random.randint(85, 105) // 100
         
         unit = Unit(
+            acquisition_date=acquisition_date.strftime('%Y-%m-%d'),
             address=fake.address(),
+            monthly_mortgage=float(monthly_mortgage),
             monthly_rent=float(monthly_rent),
             late_fee=150,
         )
         unit.save()
         units.append(unit)
+
+        acquisition_date += timedelta(random.randint(1 * 365, 2 * 365))
 
     print("Seeding expense table...")
 
@@ -50,9 +56,19 @@ if __name__ == "__main__":
     for unit in units:
 
         monthly_rent = unit.monthly_rent
-        exp_date = datetime.now() - timedelta(10 * 365)
+        exp_date = datetime.strptime(unit.acquisition_date, '%Y-%m-%d')
 
         while exp_date <= datetime.now():
+
+            # Monthly mortgage payment
+            expense = Expense(
+                descr="mortgage",
+                amount=monthly_mortgage,
+                exp_date=exp_date.strftime('%Y-%m-%d'),
+                unit_id=unit.id,
+            )
+            expense.save()
+            expenses.append(expense)
 
             # Monthly property management fee
             expense = Expense(
@@ -93,8 +109,9 @@ if __name__ == "__main__":
     tenants = []
 
     for unit in units:
-        setback = random.randint(5 * 365, 10 * 365)
-        move_in = datetime.now() - timedelta(days=setback)
+        acquisition_date = datetime.strptime(unit.acquisition_date, '%Y-%m-%d')
+        days_vacant = random.randint(15, 60)
+        move_in = acquisition_date + timedelta(days=days_vacant)
 
         while move_in:
             first_name = fake.first_name()
@@ -128,11 +145,10 @@ if __name__ == "__main__":
     payments = []
 
     for tenant in tenants:
-        unit_info = tenant.unit_information()
+        unit = Unit.find_by_id(tenant.unit_id)
 
         pmt_start_date = datetime.strptime(tenant.move_in_date, '%Y-%m-%d')
         pmt_stop_date = datetime.strptime(tenant.move_out_date, '%Y-%m-%d') if tenant.move_out_date else datetime.now()
-        monthly_rent = unit_info["Monthly Rent"]
         preferred_pmt_method = random.choice(approved_methods)
 
         pmt_date = pmt_start_date
@@ -140,7 +156,7 @@ if __name__ == "__main__":
         while pmt_date <= pmt_stop_date:
             if pmt_date == pmt_start_date:
                 payment = Payment(
-                    amount=monthly_rent,
+                    amount=unit.monthly_rent,
                     pmt_date=pmt_date.strftime('%Y-%m-%d'),
                     method=preferred_pmt_method,
                     tenant_id=tenant.id,                

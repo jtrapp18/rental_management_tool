@@ -34,6 +34,7 @@ def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=
                             transform=axis['ax'].transAxes)
 
     fig.patch.set_facecolor(color)
+    plt.close(fig)
 
     return fig
 
@@ -45,17 +46,20 @@ class Report:
         pdf_name = f"Revenue Report for {str(year)}.pdf"
         self.report = PdfPages(fr'./outputs/{pdf_name}')
 
-        self.df_transactions = sql.get_all_transactions()
-        self.df_transactions['Date'] = pd.to_datetime(self.df_transactions['Date'])
-        self.df_transactions['Year'] = self.df_transactions['Date'].dt.year
+        self.df_dict = {
+            'transactions': sql.get_all_transactions(),
+            'expenses': Expense.get_dataframe(),
+            'payments': Payment.get_dataframe_w_unit()
+        }
 
-        self.df_expenses = Expense.get_dataframe()
-        self.df_expenses['Date'] = pd.to_datetime(self.df_expenses['Date'])
-        self.df_expenses['Year'] = self.df_expenses['Date'].dt.year
+        for type in self.df_dict:
+            df = self.df_dict[type]
 
-        self.df_payments = Payment.get_dataframe_w_unit()
-        self.df_payments['Date'] = pd.to_datetime(self.df_payments['Date'])
-        self.df_payments['Year'] = self.df_payments['Date'].dt.year
+            df['Date'] = pd.to_datetime(df['Date'])
+            df['Year'] = df['Date'].dt.year
+            self.df_dict[type] = df[df['Year'] <= self.year]
+
+        self.units = self.df_dict['transactions']['Unit'].unique()
 
         self.add_cover_page()
 
@@ -66,6 +70,7 @@ class Report:
         }
         fig = text_figure(**params)
         fig.savefig(self.report, format='pdf')
+        plt.close(fig)
 
     def add_section_cover(self, section, descr):
         params = {
@@ -74,21 +79,27 @@ class Report:
         }
         fig = text_figure(**params)
         fig.savefig(self.report, format='pdf')
+        plt.close(fig)
 
     def add_figure(self, fig):
         footer_txt = f'Revenue Report - {str(self.year)}'
         fig.text(.01, .01, footer_txt, ha='left', fontsize=12, style='italic', color='grey')
         fig.savefig(self.report, format='pdf')
+        plt.close(fig)
 
     def add_transaction_bar(self):
 
-        df = self.df_transactions.copy()
+        df = self.df_dict['transactions'].copy()
 
         df_filtered = df[df['Date'].dt.year == self.year]
         
         df_pivot = df_filtered.pivot_table(index='Unit', columns='Type', values='Amount', aggfunc='sum')
         df_pivot /= 1000
-        df_pivot['net'] = df_pivot['payment'] - df_pivot['expense']
+
+        try:
+            df_pivot['net'] = df_pivot['payment'] - df_pivot['expense']
+        except:
+            pass
 
         unit_labels = [f"Unit {str(unit)}" for unit in df_pivot.index]
         colors = {'expense': 'red', 'payment': 'green', 'net': 'blue'}
@@ -115,20 +126,24 @@ class Report:
         ax.legend(loc='upper left', ncols=2)
 
         self.add_figure(fig)
+        plt.close(fig)
 
         return fig
     
 
     def transaction_line_subplot(self, ax, unit='all'):
 
-        df = self.df_transactions.copy()
+        df = self.df_dict['transactions'].copy()
 
         df_filtered = df[df['Year'] <= self.year]
         df_unit = df_filtered if unit=='all' else df_filtered[df_filtered['Unit']==unit]
         df_pivot = df_unit.pivot_table(index='Year', columns='Type', values='Amount', aggfunc='sum')
 
         df_pivot /= 1000
-        df_pivot['net'] = df_pivot['payment'] - df_pivot['expense']
+        try:
+            df_pivot['net'] = df_pivot['payment'] - df_pivot['expense']
+        except:
+            pass
 
         colors = {'expense': 'red', 'payment': 'green', 'net': 'blue'}
 
@@ -139,10 +154,13 @@ class Report:
         ax.set_title('Transactions by Year', fontsize=20 if unit=='all' else 12)
         ax.legend(loc='upper left', ncols=2)
 
+        ax.set_xticks(df_pivot.index)
+        ax.xaxis.set_major_formatter(mticker.StrMethodFormatter("{x:.0f}"))
+
         return ax
     
     def transaction_pie_subplot(self, ax, unit='all'):
-        df = self.df_transactions.copy()
+        df = self.df_dict['transactions'].copy()
 
         df_filtered = df[df['Year'] == self.year]
         df_unit = df_filtered if unit=='all' else df_filtered[df_filtered['Unit']==unit]
@@ -159,7 +177,7 @@ class Report:
         return ax
     
     def expense_pie_subplot(self, ax, unit='all'):
-        df = self.df_expenses.copy()
+        df = self.df_dict['expenses'].copy()
 
         df_filtered = df[df['Year'] == self.year]
         df_unit = df_filtered if unit=='all' else df_filtered[df_filtered['Unit ID']==unit]
@@ -175,7 +193,7 @@ class Report:
     
     def payment_pie_subplot(self, ax, unit='all'):
 
-        df = self.df_payments.copy()
+        df = self.df_dict['payments'].copy()
 
         df_filtered = df[df['Year'] == self.year]
         df_unit = df_filtered if unit=='all' else df_filtered[df_filtered['Unit ID']==unit]
@@ -201,6 +219,7 @@ class Report:
             fig, ax = plt.subplots(figsize=(12,8))
             ax = func(ax)
             self.add_figure(fig)
+            plt.close(fig)
     
     def indiv_unit_charts(self, unit):
         ax = {}
@@ -223,18 +242,19 @@ class Report:
         fig.tight_layout()
     
         self.add_figure(fig)
+        plt.close(fig)
 
         return fig
     
 
 def generate_income_report(year):
-    expense_report = Report(year)
+    rpt = Report(year)
 
-    expense_report.add_section_cover('All Units', 'Analytics for aggregated unit data')
-    expense_report.add_transaction_bar()
-    expense_report.add_subplots()
+    rpt.add_section_cover('All Units', 'Analytics for aggregated unit data')
+    rpt.add_transaction_bar()
+    rpt.add_subplots()
 
-    expense_report.add_section_cover('Individual Units', 'Analytics for individual rental units')
-    for unit in range(1, 6):
-        expense_report.indiv_unit_charts(unit)
-    expense_report.report.close()
+    rpt.add_section_cover('Individual Units', 'Analytics for individual rental units')
+    for unit in rpt.units:
+        rpt.indiv_unit_charts(unit)
+    rpt.report.close()
