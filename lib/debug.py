@@ -13,4 +13,6 @@ from tenant import Tenant
 from payment import Payment
 from expense import Expense
 
-generate_income_report(2023)
+payment = Payment.find_by_id(1)
+tenant = Tenant.find_by_id(payment.tenant_id)
+unit = Unit.find_by_id(tenant.unit_id)

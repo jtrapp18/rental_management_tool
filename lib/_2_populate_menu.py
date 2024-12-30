@@ -1,5 +1,6 @@
 import validation as val
 import sql_helper as sql
+import pandas as pd
 
 from menu_tree import MenuTree, Node
 from rich import print
@@ -149,7 +150,12 @@ class PopulateMenu:
     # SET UP TENANT OPERATIONS
 
     def print_selected_tenant(self, ref_node):
-        selected_tenant, index = pick(Tenant.get_all_instances(), "Choose Tenant")
+        tenants = Tenant.get_all_instances()
+
+        filter, index = pick([True, False], "Filter by Active Only?")
+        tenants = tenants if not filter else [tenant for tenant in tenants if not tenant.move_out_date]
+
+        selected_tenant, index = pick(tenants, "Choose Tenant")
 
         print(selected_tenant)
 
@@ -163,8 +169,10 @@ class PopulateMenu:
         self.menu.print_to_csv(df, "PMTS", tenant.name.upper())
 
     def save_payment_info(self, ref_node):
+        tenant = ref_node.data_ref
+
         new_payment = self.menu.new_itm_validation(Payment.VALIDATION_DICT)  
-        new_payment["tenant_id"] = ref_node.data_ref.id
+        new_payment["tenant_id"] = tenant.id
 
         print(new_payment)
 
@@ -199,7 +207,7 @@ class PopulateMenu:
         # select tenant
 
         select_tenant = Node(option_label="Select Tenant")
-        procedure = {"prompt": f"Choose a tenant from the following options: \n{Tenant.get_dataframe()}",
+        procedure = {"prompt": f"Choose a tenant",
                     "func": lambda: self.print_selected_tenant(select_tenant),
                     }
         select_tenant.add_procedure(**procedure)
@@ -247,20 +255,32 @@ class PopulateMenu:
         self.menu.print_to_csv(df, "TRANSACTIONS", "ALL_UNITS")
 
     def generate_summary_report(self):
-        return Payment.payment_summary()
+        return sql.get_all_transactions()
 
     def print_summary_report(self):
         df = self.generate_summary_report()
         self.menu.print_to_csv(df, "INCOME_SUMMARY", "ALL_UNITS")
 
+    def output_revenue_report(self):
+        from report import generate_income_report
+
+        df = self.generate_transactions()
+        df['Date'] = pd.to_datetime(df['Date'])
+        df['Year'] = df['Date'].dt.year
+
+        years = df['Year'].unique()
+
+        year, index = pick(years, "Choose Year")
+        generate_income_report(year)
+
     def add_summary_ops(self):
-        income = Node(option_label="Income")
+        income = Node(option_label="Revenue")
 
         # print summary report
 
         income_summary = Node(option_label="Summary of Income")
         procedure = {"prompt": f"Printing summary of income...",
-                    "func": self.print_summary_report,
+                    "func": self.print_summary_report
                     }
         income_summary.add_procedure(**procedure)
 
@@ -268,13 +288,21 @@ class PopulateMenu:
 
         income_detailed = Node(option_label="View All Transactions")
         procedure = {"prompt": f"Printing transactions...",
-                    "func": self.print_transactions,
+                    "func": self.print_transactions
                     }
         income_detailed.add_procedure(**procedure)
 
+        # output pdf revenue report
+
+        revenue_report = Node(option_label="Generate Revenue Report")
+        procedure = {"prompt": f"Generating Report...",
+                    "func": self.output_revenue_report
+                    }
+        revenue_report.add_procedure(**procedure)
+
         # attach nodes to parent elements
 
-        income.add_children([income_summary, income_detailed, self.to_main, self.exit_app])
+        income.add_children([income_summary, income_detailed, revenue_report, self.to_main, self.exit_app])
         self.main.add_child(income)
 
 def populate_menu():

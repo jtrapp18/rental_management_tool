@@ -91,28 +91,28 @@ class Unit:
     @classmethod
     def drop_table(cls):
         """ Drop the table that persists Unit instances """
-        sql.drop_table(CURSOR, CONN, "units")
+        sql.drop_table("units")
 
     @classmethod
     def find_by_id(cls, id):
         """Return a Unit object corresponding to the table row matching the specified primary key"""
-        return sql.find_by_id(cls, CURSOR, "units", id)
+        return sql.find_by_id(cls, "units", id)
 
     def delete(self):
         """Delete the table row corresponding to the current Unit instance,
         delete the dictionary entry, and reassign id attribute"""
 
-        sql.delete(self, CURSOR, CONN, "units")
+        sql.delete(self, "units")
 
     @classmethod
     def get_all_instances(cls):
         """Return a list containing one Unit instance per table row"""
-        return sql.get_all_instances(cls, CURSOR, "units")
+        return sql.get_all_instances(cls, "units")
 
     @classmethod
     def get_dataframe(cls):
         """Return a list containing one Unit instance per table row"""
-        return sql.get_dataframe(cls, CURSOR, "units")
+        return sql.get_dataframe(cls, "units")
     
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS

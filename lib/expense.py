@@ -106,28 +106,28 @@ class Expense:
     @classmethod
     def drop_table(cls):
         """ Drop the table that persists expense instances """
-        sql.drop_table(CURSOR, CONN, "expenses")
+        sql.drop_table("expenses")
    
     @classmethod
     def find_by_id(cls, id):
         """Return Expense object corresponding to the table row matching the specified primary key"""
-        return sql.find_by_id(cls, CURSOR, "expenses", id)
+        return sql.find_by_id(cls, "expenses", id)
 
     def delete(self):
         """Delete the table row corresponding to the current Expense instance,
         delete the dictionary entry, and reassign id attribute"""
 
-        sql.delete(self, CURSOR, CONN, "expenses")
+        sql.delete(self, "expenses")
 
     @classmethod
     def get_all_instances(cls):
         """Return a list containing one Expense instance per table row"""
-        return sql.get_all_instances(cls, CURSOR, "expenses")
+        return sql.get_all_instances(cls, "expenses")
     
     @classmethod
     def get_dataframe(cls):
         """Return a list containing one Expense instance per table row"""
-        return sql.get_dataframe(cls, CURSOR, "expenses")
+        return sql.get_dataframe(cls, "expenses")
 
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS

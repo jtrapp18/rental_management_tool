@@ -1,6 +1,7 @@
 import pandas as pd
+from __init__ import CURSOR, CONN
 
-def find_by_id(cls, CURSOR, table, id):
+def find_by_id(cls, table, id):
     """Return a Class instance having the attribute values from the table row."""
 
     # Validate the table name to prevent SQL injection
@@ -13,7 +14,7 @@ def find_by_id(cls, CURSOR, table, id):
     return cls.instance_from_db(row) if row else None
 
 
-def drop_table(CURSOR, CONN, table):
+def drop_table(table):
     """ Drop the table that persists Class  instances """
 
     # Validate the table name to prevent SQL injection
@@ -25,7 +26,7 @@ def drop_table(CURSOR, CONN, table):
     CURSOR.execute(sql)
     CONN.commit()
 
-def delete(self, CURSOR, CONN, table):
+def delete(self, table):
     """Delete the table row corresponding to the current Payment instance,
     delete the dictionary entry, and reassign id attribute"""
 
@@ -44,7 +45,7 @@ def delete(self, CURSOR, CONN, table):
     # Set the id to None
     self.id = None
 
-def get_all(CURSOR, table):
+def get_all(table):
     """Return a list containing one Review instance per table row"""
 
     # Validate the table name to prevent SQL injection
@@ -55,23 +56,21 @@ def get_all(CURSOR, table):
 
     return CURSOR.execute(sql).fetchall()
 
-def get_all_instances(cls, CURSOR, table):
+def get_all_instances(cls, table):
     """Return a list containing one Review instance per table row"""
 
-    rows = get_all(CURSOR, table)
+    rows = get_all(table)
 
     return [cls.instance_from_db(row) for row in rows]
 
-def get_dataframe(cls, CURSOR, table):
+def get_dataframe(cls, table):
     """Return a list containing one Review instance per table row"""
 
-    rows = get_all(CURSOR, table)
+    rows = get_all(table)
 
     return pd.DataFrame(rows, columns=cls.DF_COLUMNS)
 
 def get_all_transactions(unit_id=None):
-    from __init__ import CURSOR
-
     """Return a list of transactions"""
 
     columns = ["ID", "Type", "Amount", "Date", "Detail", "Unit"]

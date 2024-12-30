@@ -118,28 +118,28 @@ class Payment:
     @classmethod
     def drop_table(cls):
         """ Drop the table that persists Payment instances """
-        sql.drop_table(CURSOR, CONN, "payments")
+        sql.drop_table("payments")
    
     @classmethod
     def find_by_id(cls, id):
         """Return Payment object corresponding to the table row matching the specified primary key"""
-        return sql.find_by_id(cls, CURSOR, "payments", id)
+        return sql.find_by_id(cls, "payments", id)
 
     def delete(self):
         """Delete the table row corresponding to the current Payment instance,
         delete the dictionary entry, and reassign id attribute"""
 
-        sql.delete(self, CURSOR, CONN, "payments")
+        sql.delete(self, "payments")
 
     @classmethod
     def get_all_instances(cls):
         """Return a list containing one Payment instance per table row"""
-        return sql.get_all_instances(cls, CURSOR, "payments")
+        return sql.get_all_instances(cls, "payments")
     
     @classmethod
     def get_dataframe(cls):
         """Return a list containing one Payment instance per table row"""
-        return sql.get_dataframe(cls, CURSOR, "payments")
+        return sql.get_dataframe(cls, "payments")
     
     @classmethod
     def get_dataframe_w_unit(cls):
@@ -217,6 +217,39 @@ class Payment:
         df = cls.get_dataframe()
 
         return df
-    
+
     def print_receipt(self):
-        print("pretend receipt was printed")
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+        from reportlab.lib import colors
+
+        tenant = Tenant.find_by_id(self.tenant_id)
+        unit = Unit.find_by_id(tenant.unit_id)
+
+        filename = f"RECEIPT_FOR_{tenant.name.upper()}.pdf"
+        doc = SimpleDocTemplate(f"./outputs/{filename}")
+
+        table_style = TableStyle([
+            ('FONT', (0, 0), (1, 0), 'Helvetica-Bold', 20),  # Bold title
+            ('SPAN', (0, 0), (1, 0)),  # Merge title cells
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONT', (0, 1), (-1, -1), 'Helvetica', 12),  # Regular font for other rows
+            ('LINEBELOW', (0, 0), (-1, 0), 1, colors.black),
+            ('LINEBELOW', (0, 1), (-1, -1), 0.5, colors.grey),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ])
+        
+        payment_info = [
+            [f"Receipt of Payment", ""],
+            ["Receipt Number:", self.id],
+            ["For:", self.pmt_type.title()],             
+            ["Date:", self.pmt_date],
+            ["Amount:", f"${self.amount:,.2f}"],
+            ["Method:", self.method],
+            ["Paid by:", tenant.name],
+            ["Address:", unit.address],
+        ]
+
+        payment_table = Table(payment_info, colWidths=[150, 300])
+        payment_table.setStyle(table_style)
+        
+        doc.build([payment_table])

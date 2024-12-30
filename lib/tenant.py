@@ -31,7 +31,7 @@ class Tenant:
         return (
             f"<Tenant {self.id}: {self.name} | " +
             f"Contact Info: {self.email_address}, {self.phone_number} | " +
-            f"Rental Info: {self.move_in_date}, {self.move_out_date} | " +
+            f"Dates: {self.move_in_date} to {self.move_out_date} | " +
             f"Unit ID: {self.unit_id}>"
         )
 
@@ -135,28 +135,28 @@ class Tenant:
     @classmethod
     def drop_table(cls):
         """ Drop the table that persists Tenant instances """
-        sql.drop_table(CURSOR, CONN, "tenants")
+        sql.drop_table("tenants")
 
     @classmethod
     def find_by_id(cls, id):
         """Return Tenant object corresponding to the table row matching the specified primary key"""
-        return sql.find_by_id(cls, CURSOR, "tenants", id)
+        return sql.find_by_id(cls, "tenants", id)
     
     def delete(self):
         """Delete the table row corresponding to the current Tenant instance,
         delete the dictionary entry, and reassign id attribute"""
 
-        sql.delete(self, CURSOR, CONN, "tenants")
+        sql.delete(self, "tenants")
 
     @classmethod
     def get_all_instances(cls):
         """Return a list containing one Tenant object per table row"""
-        return sql.get_all_instances(cls, CURSOR, "tenants")
+        return sql.get_all_instances(cls, "tenants")
 
     @classmethod
     def get_dataframe(cls):
         """Return a list containing one Tenant object per table row"""
-        return sql.get_dataframe(cls, CURSOR, "tenants")
+        return sql.get_dataframe(cls, "tenants")
     
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS
