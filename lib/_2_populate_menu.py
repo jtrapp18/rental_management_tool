@@ -110,13 +110,7 @@ class PopulateMenu:
 
         rentals = Node(option_label="Rental Units")
 
-        # view units
-
-        view_units = Node(option_label="View All")
-        procedure = {"prompt": "View all units",
-                    "func": lambda: print(Unit.get_dataframe())
-                    }
-        view_units.add_procedure(**procedure)
+        # select unit
 
         select_unit = Node(option_label="Select Unit")
         procedure = {"prompt": f"Choose a unit",
@@ -143,7 +137,7 @@ class PopulateMenu:
         # attach nodes to parent elements
 
         select_unit.add_children([view_expenses, add_expense, self.go_back, self.to_main, self.exit_app])
-        rentals.add_children([view_units, select_unit, self.to_main, self.exit_app])
+        rentals.add_children([select_unit, self.to_main, self.exit_app])
         self.main.add_child(rentals)
 
     # ///////////////////////////////////////////////////////////////
@@ -153,9 +147,18 @@ class PopulateMenu:
         tenants = Tenant.get_all_instances()
 
         filter, index = pick([True, False], "Filter by Active Only?")
-        tenants = tenants if not filter else [tenant for tenant in tenants if not tenant.move_out_date]
+        tenant_list = []
+        
+        if filter:
+            for tenant in tenants:
+                if tenant.move_out_date is None:
+                    tenant_list.append(tenant)
+                elif datetime.strptime(tenant.move_out_date, '%Y-%m-%d') > datetime.now():
+                    tenant_list.append(tenant)
+        else:
+            tenant_list = tenants
 
-        selected_tenant, index = pick(tenants, "Choose Tenant")
+        selected_tenant, index = pick(tenant_list, "Choose Tenant")
 
         print(selected_tenant)
 
@@ -214,14 +217,6 @@ class PopulateMenu:
     def add_tenant_ops(self):
         tenants = Node(option_label="Tenants")
 
-        # view tenants
-
-        view_tenants = Node(option_label="View All")
-        procedure = {"prompt": "View all tenants",
-                    "func": lambda: print(Tenant.get_dataframe())
-                    }
-        view_tenants.add_procedure(**procedure)
-
         # select tenant
 
         select_tenant = Node(option_label="Select Tenant")
@@ -258,7 +253,7 @@ class PopulateMenu:
         
         select_tenant.add_children([view_payments, add_payment, edit_tenant, self.go_back, self.to_main, self.exit_app])
         
-        tenants.add_children([view_tenants, select_tenant, self.to_main, self.exit_app])
+        tenants.add_children([select_tenant, self.to_main, self.exit_app])
         
         self.main.add_child(tenants)
 

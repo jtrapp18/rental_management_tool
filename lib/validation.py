@@ -52,6 +52,13 @@ def date_validation(date):
         raise ValueError(f"Did not enter date in YYYY-DD-MM format")
 date_validation.constraints = "YYYY-DD-MM format"
 
+def move_out_date_validation(date):
+    if date is None or date == "":
+        return None
+    else:
+        return date_validation(date)
+move_out_date_validation.constraints = "click enter if no move out date scheduled or enter date in YYYY-DD-MM format"
+
 def dollar_amt_validation(amount):
     if (isinstance(amount, float) or isinstance(amount, int)) and amount >= 0:
         return float(amount)
