@@ -2,6 +2,9 @@ import re
 from datetime import datetime
 
 def name_validation(name):
+    '''
+    validate name input and return only if validation passes
+    '''
     if isinstance(name, str) and len(name) > 0:
         return name
     else:
@@ -9,6 +12,9 @@ def name_validation(name):
 name_validation.constraints = "non-empty string"
 
 def address_validation(address):
+    '''
+    validate address input and return only if validation passes
+    '''
     if isinstance(address, str) and len(address) > 0:
         return address
     else:
@@ -16,6 +22,9 @@ def address_validation(address):
 address_validation.constraints = "non-empty string"
     
 def descr_validation(descr):
+    '''
+    validate description input and return only if validation passes
+    '''
     if isinstance(descr, str) and len(descr) > 1:
         return descr
     else:
@@ -23,6 +32,9 @@ def descr_validation(descr):
 descr_validation.constraints = "string greater than one character"
     
 def email_validation(email_address):
+    '''
+    validate email input and return only if validation passes
+    '''
     email_pattern = r"[A-z][A-z0-9._-]+@\w+\.[a-z]+"
     email_regex = re.compile(email_pattern)
 
@@ -33,6 +45,9 @@ def email_validation(email_address):
 email_validation.constraints = "valid email address"
 
 def phone_validation(phone_number):
+    '''
+    validate phone number input and return only if validation passes
+    '''
     phone_pattern = r"\([0-9]{3}\) [0-9]{3}-[0-9]{4}|[0-9]{3}-[0-9]{3}-[0-9]{4}|[0-9]{10}"
     phone_regex = re.compile(phone_pattern)
 
@@ -43,6 +58,9 @@ def phone_validation(phone_number):
 phone_validation.constraints = "valid phone number"
 
 def date_validation(date):
+    '''
+    validate date input and return only if validation passes
+    '''
     date_pattern = r"^\d{4}-\d{2}-\d{2}$"
     date_regex = re.compile(date_pattern)
 
@@ -53,6 +71,9 @@ def date_validation(date):
 date_validation.constraints = "YYYY-DD-MM format"
 
 def move_out_date_validation(date):
+    '''
+    validate move out date input and return only if validation passes
+    '''
     if date is None or date == "":
         return None
     else:
@@ -60,6 +81,9 @@ def move_out_date_validation(date):
 move_out_date_validation.constraints = "click enter if no move out date scheduled or enter date in YYYY-DD-MM format"
 
 def dollar_amt_validation(amount):
+    '''
+    validate dollar value input and return only if validation passes
+    '''
     if (isinstance(amount, float) or isinstance(amount, int)) and amount >= 0:
         return float(amount)
     else:
@@ -67,6 +91,9 @@ def dollar_amt_validation(amount):
 dollar_amt_validation.constraints = "positive number"
 
 def method_validation(method):
+    '''
+    validate payment method input and return only if validation passes
+    '''
     approved_methods = ["check", "venmo", "zelle", "cash"]
 
     if method in approved_methods:
@@ -77,6 +104,9 @@ method_validation.constraints = ["check", "venmo", "zelle", "cash"]
 
 
 def pmt_type_validation(pmt_type):
+    '''
+    validate payment type input and return only if validation passes
+    '''
     approved_types = ["rent", "security deposit", "late fee"]
 
     if pmt_type in approved_types:
@@ -86,6 +116,9 @@ def pmt_type_validation(pmt_type):
 pmt_type_validation.constraints = ["rent", "security deposit", "late fee"]
     
 def parent_id_validation(parent_id, parent_cls):
+    '''
+    validate parent id input and return only if validation passes
+    '''
     if type(parent_id) is int and parent_cls.find_by_id(parent_id):
         return parent_id
     else:
