@@ -3,6 +3,7 @@ import types
 from pick import pick
 from rich import print
 from datetime import datetime
+import os
 
 class MenuTree:
     '''
@@ -27,7 +28,7 @@ class MenuTree:
     '''
     def __init__(self, node):
         '''
-        Constructs the necessary attributes for the Node object.
+        Constructs the necessary attributes for the MenuTree object.
 
         Parameters
         ---------
@@ -131,7 +132,7 @@ class MenuTree:
         
         user_input = user_selection(constraints, key)
 
-        if user_input == 'exit' or 'e':
+        if user_input == 'exit' or user_input =='e':
             return 'exit'
 
         while True:
@@ -162,8 +163,8 @@ class MenuTree:
         for key, val_func in val_dict.items():
             value = self.show_user_selections(val_func, key)
 
-            if value == 'exit':
-                return
+            # if value == 'exit':
+            #     return
             
             new_obj[key] = value
 
@@ -219,24 +220,25 @@ class MenuTree:
 
 class Node:
     '''
-    A class to create and manage a menu tree for rental management application
+    A class to create and manage nodes on a menu tree for rental management application
 
     Attributes
     ---------
     root: Node instance
         - Root node of the tree instance
     option_label: str
-        -
-    title_label
-        -option_label if title_label is None else title_label
+        - label when node is displayed as a menu option
+    title_label: str
+        - title after node is selected from menu options
     menu_tree: MenuTree instance
+        - menu tree that current instance is connected to
     parent: Node instance
+        - parent of current instance
     children: list
-    procedure: dict
-
-    last_input: 
+        - list of child Node instances
+    procedure: callable object
+        - function to run when instance is selected from menu
     data_ref: class instance
-
 
     Methods
     ---------
@@ -250,14 +252,22 @@ class Node:
     last_node = None
 
     def __init__(self, option_label, title_label=None):
+        '''
+        Constructs the necessary attributes for the Node object.
+
+        Parameters
+        ---------
+        option_label: str
+            - label when node is displayed as a menu option
+        title_label (optional): str
+            - title after node is selected from menu options
+        '''
         self.option_label = option_label
         self.title_label = option_label if title_label is None else title_label
         self.menu_tree = None
         self.parent = None
         self.children = []
-
         self.procedure = None
-        self.last_input = None
         self.data_ref = None # used to store references to objects or instances for ease of reference in app
 
     def __repr__(self):
@@ -406,6 +416,7 @@ class Node:
             - Node to display in the application after user selection
         '''
         Node.last_node = self
+        os.system('cls' if os.name == 'nt' else 'clear')
         user_selection, index = pick([child.option_label for child in self.children], self.title_label)
 
         return self.children[index]
@@ -418,7 +429,6 @@ class Node:
         ---------
         Node instance
             - Node to display in the application after procedure runs
-
         '''
         default_next = self if len(self.children) > 0 else self.parent
         next_node = self.procedure()
