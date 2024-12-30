@@ -6,7 +6,56 @@ import sql_helper as sql
 import pandas as pd
 
 class Tenant:
+    '''
+    A class to create and manage tenants in DB
 
+    Constants
+    ---------
+    DF_COLUMNS: tuple
+        - columns to be used for Tenant dataframes
+    VALIDATION_DICT: dict
+        - dictionary containing validation functions to apply when user makes DB edits
+
+    Class Attributes
+    ---------
+    all: dict
+        - dictionary of objects saved to the database
+
+    Instance Attributes
+    ---------
+    id: int
+        - unique identifier for instance
+    name: str
+        - full name of tenant
+    email_address: str
+        - email address of tenant
+    phone_number: str or float
+        - phone number of tenant
+    move_in_date: str
+        - move in date of tenant
+    move_out_date: str
+        - move out date of tenant
+    unit_id: int
+        - id of parent unit
+
+    Instance Methods
+    ---------
+    - delete: delete the table row corresponding to the current instance
+    - save: insert a new row with the values of the current object
+    - update: update the table row corresponding to the current instance
+    - payments: returns list of payments associated with current unit
+    - get_rollforward: creates and returns a detailed payment rollforward for tenant
+
+    Class Methods
+    ---------
+    - create: initialize a new instance and save the object to the database
+    - instance_from_db: return instance having the attribute values from the table row
+    - drop_table: drop the table that persists instances
+    - find_by_id: return object corresponding to the table row matching the specified primary key
+    - get_all_instances: return a list containing one instance per table row
+    - get_dataframe: return a Pandas DataFrame containing information from table
+    - create_table: create a new table to persist the attributes of all instances
+    '''
     DF_COLUMNS = ("id", "Name", "Email Address", "Phone Number", "Move In Date", "Move Out Date", "Unit ID")
     VALIDATION_DICT = {
         "name": val.name_validation, 
@@ -20,6 +69,26 @@ class Tenant:
     all = {}
 
     def __init__(self, name, email_address, phone_number, unit_id, move_in_date, move_out_date=None, id=None):
+        '''
+        Constructs the necessary attributes for the Tenant object.
+
+        Instance Attributes
+        ---------
+        id: int
+            - unique identifier for instance
+        name: str
+            - full name of tenant
+        email_address: str
+            - email address of tenant
+        phone_number: str or float
+            - phone number of tenant
+        move_in_date: str
+            - move in date of tenant
+        move_out_date: str
+            - move out date of tenant
+        unit_id: int
+            - id of parent unit
+        '''
         self.id = id
         self.name = name
         self.email_address = email_address
@@ -92,15 +161,18 @@ class Tenant:
 
     @classmethod
     def create(cls, name, email_address, phone_number, unit_id, move_in_date, move_out_date):
-        """ Initialize a new Tenant instance and save the object to the database """
+        '''
+        initialize a new instance and save the object to the database
+        '''
         tenant = cls(name, email_address, phone_number, unit_id, move_in_date, move_out_date)
         tenant.save()
         return tenant
 
     @classmethod
     def instance_from_db(cls, row):
-        """Return an Tenant object having the attribute values from the table row."""
-
+        '''
+        return instance having the attribute values from the table row
+        '''
         # Check the dictionary for  existing instance using the row's primary key
         tenant = cls.all.get(row[0])
 
@@ -131,28 +203,36 @@ class Tenant:
 
     @classmethod
     def drop_table(cls):
-        """ Drop the table that persists Tenant instances """
+        '''
+        drop the table that persists instances
+        '''
         sql.drop_table("tenants")
 
     @classmethod
     def find_by_id(cls, id):
-        """Return Tenant object corresponding to the table row matching the specified primary key"""
+        '''
+        return object corresponding to the table row matching the specified primary key
+        '''
         return sql.find_by_id(cls, "tenants", id)
     
     def delete(self):
-        """Delete the table row corresponding to the current Tenant instance,
-        delete the dictionary entry, and reassign id attribute"""
-
+        '''
+        delete the table row corresponding to the current instance
+        '''
         sql.delete(self, "tenants")
 
     @classmethod
     def get_all_instances(cls):
-        """Return a list containing one Tenant object per table row"""
+        '''
+        return a list containing one instance per table row
+        '''
         return sql.get_all(cls, "tenants", output_as_instances=True)
 
     @classmethod
     def get_dataframe(cls):
-        """Return a list containing one Tenant object per table row"""
+        '''
+        return a Pandas DataFrame containing information from table
+        '''
         return sql.get_all(cls, "tenants", output_as_instances=False)
     
     # ///////////////////////////////////////////////////////////////
@@ -160,7 +240,9 @@ class Tenant:
 
     @classmethod
     def create_table(cls):
-        """ Create a new table to persist the attributes of Tenant instances """
+        '''
+        create a new table to persist the attributes of all instances
+        '''
         sql = """
             CREATE TABLE IF NOT EXISTS tenants (
             id INTEGER PRIMARY KEY,
@@ -176,9 +258,9 @@ class Tenant:
         CONN.commit()
 
     def save(self):
-        """ Insert a new row with the values of the current Tenant object.
-        Update object id attribute using the primary key value of new row.
-        Save the object in local dictionary using table row's PK as dictionary key"""
+        '''
+        insert a new row with the values of the current object
+        '''
         sql = """
                 INSERT INTO tenants (name, email_address, phone_number, move_in_date, move_out_date, unit_id)
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -194,7 +276,9 @@ class Tenant:
         type(self).all[self.id] = self
 
     def update(self):
-        """Update the table row corresponding to the current Tenant instance."""
+        '''
+        update the table row corresponding to the current instance
+        '''
         sql = """
             UPDATE tenants
             SET name = ?, email_address = ?, phone_number = ?, move_in_date = ?, move_out_date = ?, unit_id = ?
@@ -206,23 +290,13 @@ class Tenant:
                              self.unit_id, self.id))
         CONN.commit()
 
-    @classmethod
-    def find_by_name(cls, name):
-        """Return Tenant object corresponding to first table row matching specified name"""
-        sql = """
-            SELECT *
-            FROM tenants
-            WHERE name is ?
-        """
-
-        row = CURSOR.execute(sql, (name,)).fetchone()
-        return cls.instance_from_db(row) if row else None
-
     # ///////////////////////////////////////////////////////////////
     # LOOKUPS FROM LINKED TABLES
 
     def payments(self, output_as_instances=False):
-        """Return list of payments associated with current tenant"""
+        '''
+        returns list of payments associated with current unit
+        '''        
         from payment import Payment
         sql = """
             SELECT * FROM payments
@@ -237,20 +311,10 @@ class Tenant:
 
         return output
     
-    def unit_information(self):
-        """Return list of payments associated with current tenant"""
-        from payment import Payment
-        sql = """
-            SELECT * FROM units
-            WHERE id = ?
-        """
-        CURSOR.execute(sql, (self.unit_id,),)
-
-        rows = CURSOR.fetchall()
-
-        return dict(zip(Unit.DF_COLUMNS, rows[0]))
-    
     def get_rollforward(self):
+        '''
+        creates and returns a detailed payment rollforward for tenant
+        '''
         from datetime import datetime, timedelta
         from dateutil.relativedelta import relativedelta
 

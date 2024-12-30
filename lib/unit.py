@@ -5,13 +5,77 @@ import validation as val
 import pandas as pd
 
 class Unit:
+    '''
+    A class to create and manage units in DB
 
+    Constants
+    ---------
+    DF_COLUMNS: tuple
+        - columns to be used for Unit dataframes
+
+    Class Attributes
+    ---------
+    all: dict
+        - dictionary of objects saved to the database
+
+    Instance Attributes
+    ---------
+    id: int
+        - unique identifier for instance
+    acquisition_date: str
+        - date property was acquired
+    address: str
+        - address of unit
+    monthly_mortgage: float
+        - monthly mortgage expense
+    monthly_rent: float
+        - monthly rental charge
+    late_fee: float
+        - charge for late payment
+
+    Instance Methods
+    ---------
+    - delete: delete the table row corresponding to the current instance
+    - save: insert a new row with the values of the current object
+    - update: update the table row corresponding to the current instance
+    - tenants: returns list of tenants associated with current unit
+    - expenses: returns list of expenses associated with current unit
+    - transactions: returns list of transactions associated with current unit
+
+    Class Methods
+    ---------
+    - create: initialize a new instance and save the object to the database
+    - instance_from_db: return instance having the attribute values from the table row
+    - drop_table: drop the table that persists instances
+    - find_by_id: return object corresponding to the table row matching the specified primary key
+    - get_all_instances: return a list containing one instance per table row
+    - get_dataframe: return a Pandas DataFrame containing information from table
+    - create_table: create a new table to persist the attributes of all instances
+    '''
     DF_COLUMNS = ("id", "Acquisition Date", "Address", "Monthly Mortgage", "Monthly Rent", "Late Fee")
 
     # Dictionary of objects saved to the database.
     all = {}
 
     def __init__(self, acquisition_date, address, monthly_mortgage, monthly_rent, late_fee=150, id=None):
+        '''
+        Constructs the necessary attributes for the Unit object.
+
+        Instance Attributes
+        ---------
+        acquisition_date: str
+            - date property was acquired
+        address: str
+            - address of unit
+        monthly_mortgage: float
+            - monthly mortgage expense
+        monthly_rent: float
+            - monthly rental charge
+        late_fee: float
+            - charge for late payment
+        id: int
+            - unique identifier for instance            
+        '''
         self.id = id
         self.acquisition_date = acquisition_date
         self.address = address
@@ -77,15 +141,18 @@ class Unit:
 
     @classmethod
     def create(cls, acquisition_date, address, monthly_mortgage, monthly_rent, late_fee):
-        """ Initialize a new Department instance and save the object to the database """
+        '''
+        initialize a new instance and save the object to the database
+        '''
         unit = cls(acquisition_date, address, monthly_mortgage, monthly_rent, late_fee)
         unit.save()
         return unit
     
     @classmethod
     def instance_from_db(cls, row):
-        """Return a Unit object having the attribute values from the table row."""
-
+        '''
+        return instance having the attribute values from the table row
+        '''
         # Check the dictionary for an existing instance using the row's primary key
         unit = cls.all.get(row[0])
 
@@ -114,28 +181,36 @@ class Unit:
 
     @classmethod
     def drop_table(cls):
-        """ Drop the table that persists Unit instances """
+        '''
+        drop the table that persists instances
+        '''
         sql.drop_table("units")
 
     @classmethod
     def find_by_id(cls, id):
-        """Return a Unit object corresponding to the table row matching the specified primary key"""
+        '''
+        return object corresponding to the table row matching the specified primary key
+        '''
         return sql.find_by_id(cls, "units", id)
 
     def delete(self):
-        """Delete the table row corresponding to the current Unit instance,
-        delete the dictionary entry, and reassign id attribute"""
-
+        '''
+        delete the table row corresponding to the current instance
+        '''
         sql.delete(self, "units")
 
     @classmethod
     def get_all_instances(cls):
-        """Return a list containing one Unit instance per table row"""
+        '''
+        return a list containing one instance per table row
+        '''
         return sql.get_all(cls, "units", output_as_instances=True)
 
     @classmethod
     def get_dataframe(cls):
-        """Return a list containing one Unit instance per table row"""
+        '''
+        return a Pandas DataFrame containing information from table
+        '''
         return sql.get_all(cls, "units", output_as_instances=False)
     
     # ///////////////////////////////////////////////////////////////
@@ -143,7 +218,9 @@ class Unit:
 
     @classmethod
     def create_table(cls):
-        """ Create a new table to persist the attributes of Department instances """
+        '''
+        create a new table to persist the attributes of all instances
+        '''
         sql = """
             CREATE TABLE IF NOT EXISTS units (
             id INTEGER PRIMARY KEY,
@@ -157,9 +234,9 @@ class Unit:
         CONN.commit()
 
     def save(self):
-        """ Insert a new row with the values of the current Unit object.
-        Update object id attribute using the primary key value of new row.
-        Save the object in local dictionary using table row's PK as dictionary key"""
+        '''
+        insert a new row with the values of the current object
+        '''
         sql = """
             INSERT INTO units (acquisition_date, address, monthly_mortgage, monthly_rent, late_fee)
             VALUES (?, ?, ?, ?, ?)
@@ -173,7 +250,9 @@ class Unit:
         type(self).all[self.id] = self
 
     def update(self):
-        """Update the table row corresponding to the current Department instance."""
+        '''
+        update the table row corresponding to the current instance
+        '''
         sql = """
             UPDATE departments
             SET acquisition_date = ?, address = ?, monthly_mortgage = ?, 
@@ -189,7 +268,9 @@ class Unit:
     # LOOKUPS FROM LINKED TABLES
 
     def tenants(self):
-        """Return list of tenants associated with current unit"""
+        '''
+        returns list of tenants associated with current unit
+        '''
         from tenant import Tenant
         sql = """
             SELECT * FROM tenants
@@ -202,7 +283,9 @@ class Unit:
         return pd.DataFrame(rows, columns=Tenant.DF_COLUMNS)
 
     def expenses(self):
-        """Return list of expenses associated with current unit"""
+        '''
+        returns list of expenses associated with current unit
+        '''
         from expense import Expense
         sql = """
             SELECT * FROM expenses
@@ -215,6 +298,7 @@ class Unit:
         return pd.DataFrame(rows, columns=Expense.DF_COLUMNS)
     
     def transactions(self):
-        """Return list of transactions associated with current unit"""
-
+        '''
+        returns list of transactions associated with current unit
+        '''
         return sql.get_all_transactions(self.id)

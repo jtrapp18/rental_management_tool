@@ -6,7 +6,54 @@ import sql_helper as sql
 import pandas as pd
 
 class Payment:
+    '''
+    A class to create and manage payments in DB
 
+    Constants
+    ---------
+    DF_COLUMNS: tuple
+        - columns to be used for Payment dataframes
+    VALIDATION_DICT: dict
+        - dictionary containing validation functions to apply when user makes DB edits
+
+    Class Attributes
+    ---------
+    all: dict
+        - dictionary of objects saved to the database
+
+    Instance Attributes
+    ---------
+    id: int
+        - unique identifier for instance
+    amount: float
+        - dollar value of payment
+    pmt_date: str
+        - date payment was incurred
+    method: str
+        - method used to pay (e.g. check, cash)
+    pmt_type: str
+        - type of payment (e.g. rent, security deposit)
+    tenant_id: int
+        - id of parent tenant
+
+    Instance Methods
+    ---------
+    - delete: delete the table row corresponding to the current instance
+    - save: insert a new row with the values of the current object
+    - update: update the table row corresponding to the current instance
+    - print_receipt: generates and prints receipt to pdf for a single payment
+
+    Class Methods
+    ---------
+    - create: initialize a new instance and save the object to the database
+    - instance_from_db: return instance having the attribute values from the table row
+    - drop_table: drop the table that persists instances
+    - find_by_id: return object corresponding to the table row matching the specified primary key
+    - get_all_instances: return a list containing one instance per table row
+    - get_dataframe: return a Pandas DataFrame containing information from table
+    - get_dataframe_w_unit: return a Pandas DataFrame which includes unit ID
+    - create_table: create a new table to persist the attributes of all instances
+    '''
     DF_COLUMNS = ("id", "Payment Type", "Amount", "Date", "Method", "Tenant ID")
     VALIDATION_DICT = {
         "amount": val.dollar_amt_validation,
@@ -19,6 +66,24 @@ class Payment:
     all = {}
 
     def __init__(self, amount, pmt_date, method, tenant_id, pmt_type="rent", id=None):
+        '''
+        Constructs the necessary attributes for the Payment object.
+
+        Parameters
+        ---------
+        amount: float
+            - dollar value of payment
+        pmt_date: str
+            - date payment was incurred
+        method: str
+            - method used to pay (e.g. check, cash)
+        tenant_id: int
+            - id of parent tenant
+        pmt_type: str
+            - type of payment (e.g. rent, security deposit)
+        id: int
+            - unique identifier for instance
+        '''
         self.id = id
         self.amount = amount
         self.pmt_date = pmt_date
@@ -81,14 +146,18 @@ class Payment:
 
     @classmethod
     def create(cls, amount, pmt_date, method, tenant_id, pmt_type):
-        """ Initialize a new Payment instance and save the object to the database. Return the new instance. """
+        '''
+        initialize a new instance and save the object to the database
+        '''
         payment = cls(amount, pmt_date, method, tenant_id, pmt_type)
         payment.save()
         return payment
    
     @classmethod
     def instance_from_db(cls, row):
-        """Return an Payment instance having the attribute values from the table row."""
+        '''
+        return instance having the attribute values from the table row
+        '''
         # Check the dictionary for  existing instance using the row's primary key
         payment = cls.all.get(row[0])
 
@@ -117,33 +186,43 @@ class Payment:
 
     @classmethod
     def drop_table(cls):
-        """ Drop the table that persists Payment instances """
+        '''
+        drop the table that persists instances
+        '''
         sql.drop_table("payments")
    
     @classmethod
     def find_by_id(cls, id):
-        """Return Payment object corresponding to the table row matching the specified primary key"""
+        '''
+        return object corresponding to the table row matching the specified primary key
+        '''
         return sql.find_by_id(cls, "payments", id)
 
     def delete(self):
-        """Delete the table row corresponding to the current Payment instance,
-        delete the dictionary entry, and reassign id attribute"""
-
+        '''
+        delete the table row corresponding to the current instance
+        '''
         sql.delete(self, "payments")
 
     @classmethod
     def get_all_instances(cls):
-        """Return a list containing one Payment instance per table row"""
+        '''
+        return a list containing one instance per table row
+        '''
         return sql.get_all(cls, "payments", output_as_instances=True)
     
     @classmethod
     def get_dataframe(cls):
-        """Return a list containing one Payment instance per table row"""
+        '''
+        return a Pandas DataFrame containing information from table
+        '''
         return sql.get_all(cls, "payments", output_as_instances=False)
     
     @classmethod
     def get_dataframe_w_unit(cls):
-        """Return list of expenses associated with current unit"""
+        '''
+        return a Pandas DataFrame which includes unit ID
+        '''
         from payment import Payment
         sql = """
         SELECT
@@ -169,7 +248,9 @@ class Payment:
 
     @classmethod
     def create_table(cls):
-        """ Create a new table to persist the attributes of Payment instances """
+        '''
+        create a new table to persist the attributes of all instances
+        '''
         sql = """
             CREATE TABLE IF NOT EXISTS payments (
             id INTEGER PRIMARY KEY,
@@ -184,9 +265,9 @@ class Payment:
         CONN.commit()
 
     def save(self):
-        """ Insert a new row with the values of the current Payment object.
-        Update object id attribute using the primary key value of new row.
-        Save the object in local dictionary using table row's PK as dictionary key"""
+        '''
+        insert a new row with the values of the current object
+        '''
         sql = """
             INSERT INTO payments (pmt_type, amount, pmt_date, method, tenant_id)
             VALUES (?, ?, ?, ?, ?)
@@ -201,7 +282,9 @@ class Payment:
         type(self).all[self.id] = self
 
     def update(self):
-        """Update the table row corresponding to the current Review instance."""
+        '''
+        update the table row corresponding to the current instance
+        '''
         sql = """
             UPDATE payments
             SET pmt_type = ?, amount = ?, pmt_date = ?, method = ?, tenant_id = ?
@@ -212,13 +295,10 @@ class Payment:
                              self.tenant_id, self.id))
         CONN.commit()
 
-    @classmethod
-    def payment_summary(cls):
-        df = cls.get_dataframe()
-
-        return df
-
     def print_receipt(self):
+        '''
+        generates and prints receipt to pdf for a single payment
+        '''
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
         from reportlab.lib import colors
 
