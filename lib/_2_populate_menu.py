@@ -29,37 +29,26 @@ class PopulateMenu:
         # go to main menu
 
         self.to_main = Node(option_label="Go to Main Menu")
-        procedure = {"prompt": "Entering main menu...",
-                    "func": self.menu.to_main,
-                    }
-        self.to_main.add_procedure(**procedure)
+        self.to_main.add_procedure(self.menu.to_main)
 
         # go to previous menu
 
         self.go_back = Node(option_label="Previous Menu")
-        procedure = {"prompt": "Going back one level...",
-                    "func": self.go_back.go_back,
-                    }
-        self.go_back.add_procedure(**procedure)
+        self.go_back.add_procedure(lambda: Node.last_node.parent)
 
         # exit application
 
         self.exit_app = Node(option_label="Exit App")
-        procedure = {"prompt": "Exiting application...",
-                    "func": self.menu.exit_app,
-                    }
-        self.exit_app.add_procedure(**procedure)
+        self.exit_app.add_procedure(self.menu.exit_app)
 
     # ///////////////////////////////////////////////////////////////
     # SET UP RENTAL UNIT OPERATIONS
 
-    def print_selected_unit(self, ref_node):
+    def store_selected_unit(self, ref_node):
         selected_unit, index = pick(Unit.get_all_instances(), "Choose Unit")
 
-        print(selected_unit)
-
         ref_node.data_ref = selected_unit # store selected unit
-        ref_node.title_label = f"Selected Unit: {selected_unit.id}"
+        ref_node.title_label = f"Selected Unit: {selected_unit}"
 
     def print_expense_history(self, ref_node):
         unit = ref_node.data_ref
@@ -69,6 +58,10 @@ class PopulateMenu:
 
     def save_tenant_info(self, ref_node):
         new_tenant = self.menu.new_itm_validation(Tenant.VALIDATION_DICT)  
+
+        if not new_tenant:
+            return
+    
         new_tenant["unit_id"] = ref_node.data_ref.id
 
         print(new_tenant)
@@ -88,7 +81,11 @@ class PopulateMenu:
             print("Did not save to database")
 
     def save_expense_info(self, ref_node):
-        new_expense = self.menu.new_itm_validation(Expense.VALIDATION_DICT)  
+        new_expense = self.menu.new_itm_validation(Expense.VALIDATION_DICT)
+
+        if not new_expense:
+            return
+
         new_expense["unit_id"] = ref_node.data_ref.id
 
         print(new_expense)
@@ -113,26 +110,17 @@ class PopulateMenu:
         # select unit
 
         select_unit = Node(option_label="Select Unit")
-        procedure = {"prompt": f"Choose a unit",
-                    "func": lambda: self.print_selected_unit(select_unit)
-                    }
-        select_unit.add_procedure(**procedure)
+        select_unit.add_procedure(lambda: self.store_selected_unit(select_unit))
 
         # view expense history
 
         view_expenses = Node(option_label="View Expense History")
-        procedure = {"prompt": f"Showing expense history...",
-                    "func": lambda: self.print_expense_history(select_unit),
-                    }
-        view_expenses.add_procedure(**procedure)
+        view_expenses.add_procedure(lambda: self.print_expense_history(select_unit))
 
         # add expense
         
         add_expense = Node(option_label="Add Expense")
-        procedure = {"prompt": f"Add expense",
-                    "func": lambda: self.save_expense_info(select_unit)
-                    }
-        add_expense.add_procedure(**procedure)
+        add_expense.add_procedure(lambda: self.save_expense_info(select_unit))
 
         # attach nodes to parent elements
 
@@ -143,7 +131,7 @@ class PopulateMenu:
     # ///////////////////////////////////////////////////////////////
     # SET UP TENANT OPERATIONS
 
-    def print_selected_tenant(self, ref_node):
+    def store_selected_tenant(self, ref_node):
         tenants = Tenant.get_all_instances()
 
         filter, index = pick([True, False], "Filter by Active Only?")
@@ -160,16 +148,14 @@ class PopulateMenu:
 
         selected_tenant, index = pick(tenant_list, "Choose Tenant")
 
-        print(selected_tenant)
-
         ref_node.data_ref = selected_tenant # store selected unit
-        ref_node.title_label = f"Selected Tenant: {selected_tenant.name}"
+        ref_node.title_label = f"Selected Tenant: {selected_tenant}"
 
     def update_selected_tenant(self, ref_node):
         tenant = ref_node.data_ref
         print('Original:')
         print(tenant)        
-        self.menu.update_itm(inst=tenant, val_dict=Tenant.VALIDATION_DICT)
+        self.menu.update_itm_validation(inst=tenant, val_dict=Tenant.VALIDATION_DICT)
 
         print("Updated:")
         print(tenant)
@@ -193,6 +179,10 @@ class PopulateMenu:
         tenant = ref_node.data_ref
 
         new_payment = self.menu.new_itm_validation(Payment.VALIDATION_DICT)  
+
+        if not new_payment:
+            return
+        
         new_payment["tenant_id"] = tenant.id
 
         print(new_payment)
@@ -220,34 +210,22 @@ class PopulateMenu:
         # select tenant
 
         select_tenant = Node(option_label="Select Tenant")
-        procedure = {"prompt": f"Choose a tenant",
-                    "func": lambda: self.print_selected_tenant(select_tenant),
-                    }
-        select_tenant.add_procedure(**procedure)
+        select_tenant.add_procedure(lambda: self.store_selected_tenant(select_tenant))
 
         # view payment history
 
         view_payments = Node(option_label="View Payments History")
-        procedure = {"prompt": f"Showing payment history...",
-                    "func": lambda: self.print_payment_history(select_tenant),
-                    }
-        view_payments.add_procedure(**procedure)
+        view_payments.add_procedure(lambda: self.print_payment_history(select_tenant))
 
         # add payment
 
         add_payment = Node(option_label="Add Payment")
-        procedure = {"prompt": f"Add payment",
-                    "func": lambda: self.save_payment_info(select_tenant)
-                    }
-        add_payment.add_procedure(**procedure)
+        add_payment.add_procedure(lambda: self.save_payment_info(select_tenant))
 
         # edit tenant information
         
         edit_tenant = Node(option_label="Edit Tenant Information")
-        procedure = {"prompt": f"Update tenant",
-                    "func": lambda: self.update_selected_tenant(select_tenant)
-                    }
-        edit_tenant.add_procedure(**procedure)
+        edit_tenant.add_procedure(lambda: self.update_selected_tenant(select_tenant))
         
         # attach nodes to parent elements
         
@@ -294,26 +272,17 @@ class PopulateMenu:
         # print summary report
 
         income_summary = Node(option_label="Summary of Income")
-        procedure = {"prompt": f"Printing summary of income...",
-                    "func": self.print_summary_report
-                    }
-        income_summary.add_procedure(**procedure)
+        income_summary.add_procedure(self.print_summary_report)
 
         # print detailed income information
 
         income_detailed = Node(option_label="View All Transactions")
-        procedure = {"prompt": f"Printing transactions...",
-                    "func": self.print_transactions
-                    }
-        income_detailed.add_procedure(**procedure)
+        income_detailed.add_procedure(self.print_transactions)
 
         # output pdf revenue report
 
         revenue_report = Node(option_label="Generate Revenue Report")
-        procedure = {"prompt": f"Generating Report...",
-                    "func": self.output_revenue_report
-                    }
-        revenue_report.add_procedure(**procedure)
+        revenue_report.add_procedure(self.output_revenue_report)
 
         # attach nodes to parent elements
 
