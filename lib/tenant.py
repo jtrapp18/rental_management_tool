@@ -224,7 +224,7 @@ class Tenant:
     # ///////////////////////////////////////////////////////////////
     # LOOKUPS FROM LINKED TABLES
 
-    def payments(self):
+    def payments(self, output_as_instances=False):
         """Return list of payments associated with current tenant"""
         from payment import Payment
         sql = """
@@ -235,7 +235,10 @@ class Tenant:
 
         rows = CURSOR.fetchall()
 
-        return pd.DataFrame(rows, columns=Payment.DF_COLUMNS)
+        output = [Payment.instance_from_db(row) for row in rows] \
+            if output_as_instances else pd.DataFrame(rows, columns=Payment.DF_COLUMNS)
+
+        return output
     
     def unit_information(self):
         """Return list of payments associated with current tenant"""
@@ -249,3 +252,79 @@ class Tenant:
         rows = CURSOR.fetchall()
 
         return dict(zip(Unit.DF_COLUMNS, rows[0]))
+    
+    def get_rollforward(self):
+        from datetime import datetime, timedelta
+        from dateutil.relativedelta import relativedelta
+
+        payments = self.payments(output_as_instances=True)
+        payments.sort(key=lambda p: p.pmt_date)
+        unit = Unit.find_by_id(self.unit_id)
+
+        pmt_start_date = datetime.strptime(self.move_in_date, '%Y-%m-%d')
+        pmt_stop_date = datetime.strptime(self.move_out_date, '%Y-%m-%d') if self.move_out_date else datetime.now()
+
+        BOP = pmt_start_date
+        back_due = 0
+        rollforward_data = []
+
+        while BOP < pmt_stop_date:
+            payments_applied = []
+
+            EOP = BOP + relativedelta(months=1)
+            date_late = BOP + relativedelta(days=11)
+
+            for payment in payments:
+                pmt_date = datetime.strptime(payment.pmt_date, '%Y-%m-%d')
+                if pmt_date >= EOP:
+                    break
+
+                payments.remove(payment)  # Remove the payment from the list
+                payments_applied.append(payment)  # Add it to payments_applied
+
+            bop_due = unit.monthly_rent + back_due
+
+            BOP_dict = {
+                'Due Date': BOP,
+                'Rent Due': unit.monthly_rent,
+                'Back Due': back_due,
+                'BOP Due': bop_due
+            }
+
+            payment_dict = {}
+            rent_paid = 0
+            rent_paid_on_time = 0
+
+            for i, payment in enumerate(payments_applied, start=1):
+                pmt_date = datetime.strptime(payment.pmt_date, '%Y-%m-%d')
+                payment_info = {
+                    f'Pmt {i}: Check no.': payment.id,
+                    f'Pmt {i}: Method': payment.method,
+                    f'Pmt {i}: Date': payment.pmt_date,
+                    f'Pmt {i}: Amount': payment.amount,
+                }
+                rent_paid += payment.amount
+                rent_paid_on_time += rent_paid * (pmt_date < date_late)
+
+                payment_dict = {**payment_dict, **payment_info}
+
+            # determine if tenant owes a late fee
+            late = (rent_paid_on_time - bop_due) > 0
+            late_fee_owed = late*unit.late_fee
+
+            rent_owed = BOP_dict['BOP Due'] - rent_paid
+            total_owed = late_fee_owed + rent_owed
+            back_due += total_owed
+
+            EOP_dict = {
+                'Late Fee': late_fee_owed,
+                'Rent Owed': rent_owed,
+                'Total Owed': total_owed,
+                'EOP Due': back_due
+            }
+
+            rollforward_data.append({**BOP_dict, **payment_dict, **EOP_dict})
+
+            BOP += relativedelta(months=1)
+
+        return pd.DataFrame(rollforward_data)

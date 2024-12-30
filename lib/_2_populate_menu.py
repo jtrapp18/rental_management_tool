@@ -164,7 +164,7 @@ class PopulateMenu:
 
     def print_payment_history(self, ref_node):
         tenant = ref_node.data_ref
-        df = tenant.payments()
+        df = tenant.get_rollforward()
 
         self.menu.print_to_csv(df, "PMTS", tenant.name.upper())
 

@@ -3,6 +3,8 @@
 import pandas as pd
 import sql_helper as sql
 import numpy as np
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 import matplotlib.pyplot as plt
 
@@ -13,6 +15,6 @@ from tenant import Tenant
 from payment import Payment
 from expense import Expense
 
-payment = Payment.find_by_id(1)
-tenant = Tenant.find_by_id(payment.tenant_id)
-unit = Unit.find_by_id(tenant.unit_id)
+tenant = Tenant.find_by_id(2)
+
+print(tenant.get_rollforward())
