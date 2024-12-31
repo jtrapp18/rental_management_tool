@@ -46,7 +46,8 @@ class PopulateMenu:
     - store_selected_tenant: adds reference to selected Tenant instance within specified node
     - print_payment_history: displays tenant payment history and optionally prints to csv
     - save_payment_info: allows user to create a new Payment instance and optionally saves to DB
-    - add_tenant_ops: creates and links nodes related to tenant operations    
+    - add_tenant_ops: creates and links nodes related to tenant operations
+    - save_unit_info: allows user to create new Unit instance and optionally saves to DB
     - save_tenant_info: allows user to create new Tenant instance and optionally saves to DB
     - save_expense_info: allows user to create new Expense instance and optionally saves to DB
     - add_unit_ops: creates and links nodes related to unit operations
@@ -105,11 +106,18 @@ class PopulateMenu:
         for child in ref_node.children:
             child.title_label = f"Options for: {inst}"
 
-    def store_selected_instance(self, cls, ref_node):
+    def store_selected_instance(self, cls, ref_node, parent_ref=None):
         '''
         adds reference to selected instance within specified node
         '''
-        selected_inst, index = pick(cls.get_all_instances(), f"Select {cls.__name__} from options below")
+        options = cls.get_all_instances()
+        
+        if parent_ref:
+            parent = parent_ref.data_ref
+            parent_name = parent.__class__.__name__.lower()
+            options = [inst for inst in options if getattr(inst, f"{parent_name}_id")==parent.id]
+
+        selected_inst, index = pick(options, f"Select {cls.__name__} from options below")
 
         self.update_title_labels(selected_inst, ref_node)
 
@@ -167,7 +175,7 @@ class PopulateMenu:
                 if user_input == 'exit' or user_input =='e':
                     return 'exit'
     
-    def new_itm_validation(self, cls, parent):
+    def new_itm_validation(self, cls, parent=None):
         '''
         creates and validates new object to be used to create a new instance
 
@@ -175,7 +183,7 @@ class PopulateMenu:
         ---------
         cls: class
             - class to use for new instance
-        parent: class instance
+        parent (optional): class instance
             - instance of parent class to link new item with
 
         Returns
@@ -184,10 +192,13 @@ class PopulateMenu:
             - dictionary containing information needed to create a new class instance
         '''
         new_obj = {}
-        parent_name = parent.__class__.__name__
         
         print(f"[yellow]Add New {cls.__name__}[/yellow]")
-        print(f"For: [magenta]{parent}[/magenta]")
+
+        if parent:
+            parent_name = parent.__class__.__name__
+            print(f"For: [magenta]{parent}[/magenta]")
+
         self.menu.print_cancellation_directions()
         print("")
 
@@ -201,7 +212,8 @@ class PopulateMenu:
             
             new_obj[key] = value
 
-        new_obj[f"{parent_name.lower()}_id"] = parent.id
+        if parent:
+            new_obj[f"{parent_name.lower()}_id"] = parent.id
 
         print("")
         print(f"[bright_green]New {cls.__name__} Details:[/bright_green]")
@@ -526,7 +538,7 @@ class PopulateMenu:
         # select payment
 
         select_payment = Node(option_label="View Payments")
-        select_payment.add_procedure(lambda: self.store_selected_instance(Payment, select_payment))
+        select_payment.add_procedure(lambda: self.store_selected_instance(Payment, select_payment, self.select_tenant))
 
         # add payment
 
@@ -565,6 +577,24 @@ class PopulateMenu:
 
     # ///////////////////////////////////////////////////////////////
     # SET UP RENTAL UNIT OPERATIONS
+
+    def save_unit_info(self):
+        '''
+        allows user to create new Unit instance and optionally saves to DB
+        '''
+        new_unit = self.new_itm_validation(Unit)
+
+        if not new_unit:
+            return
+        
+        unit = Unit(
+            acquisition_date=new_unit["acquisition_date"],
+            address=new_unit["address"],
+            monthly_mortgage=float(new_unit["monthly_mortgage"]),
+            monthly_rent=float(new_unit["monthly_rent"]),
+            late_fee=float(new_unit["late_fee"]),                
+        )
+        unit.save()
 
     def save_tenant_info(self, ref_node):
         '''
@@ -634,6 +664,11 @@ class PopulateMenu:
         self.select_unit = Node(option_label="Select Unit")
         self.select_unit.add_procedure(lambda: self.store_selected_instance(Unit, self.select_unit))
 
+        # add unit
+        
+        add_unit = Node(option_label="Add Unit")
+        add_unit.add_procedure(lambda: self.save_unit_info())
+
         # print summary of transactions
 
         transaction_summary = Node(option_label="Transaction Summary")
@@ -657,7 +692,7 @@ class PopulateMenu:
         # edit expense information
         
         select_expense = Node(option_label="View Expenses")
-        select_expense.add_procedure(lambda: self.store_selected_instance(Expense, select_expense))
+        select_expense.add_procedure(lambda: self.store_selected_instance(Expense, select_expense, self.select_unit))
 
         # add expense
         
@@ -685,7 +720,7 @@ class PopulateMenu:
         unit_transactions.add_children([transaction_summary, view_transactions, select_expense, add_expense, self.go_back, self.to_main, self.exit_app])
         unit_tenants.add_children([self.select_tenant, add_tenant, self.go_back, self.to_main, self.exit_app])
         self.select_unit.add_children([unit_transactions, unit_tenants, edit_unit, delete_unit, self.go_back, self.to_main, self.exit_app])
-        rentals.add_children([self.select_unit, self.to_main, self.exit_app])
+        rentals.add_children([self.select_unit, add_unit, self.to_main, self.exit_app])
         self.main.add_child(rentals)
 
     # ///////////////////////////////////////////////////////////////
