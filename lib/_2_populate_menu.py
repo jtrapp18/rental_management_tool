@@ -41,15 +41,15 @@ class PopulateMenu:
     - print_to_csv: prints data to csv file
     - filter_on_dates: filters dataframe by user-specified start and end dates
     - print_transaction_history: displays unit transactions and optionally prints results to csv
+    - print_transaction_summary: displays summary of transactions made and allows user to print to csv    
     - run_func_if_confirm: confirms if a specific procedure should be run then runs that procedure
-    - save_tenant_info: allows user to create new Tenant instance and optionally saves to DB
-    - save_expense_info: allows user to create new Expense instance and optionally saves to DB
-    - add_unit_ops: creates and links nodes related to unit operations
     - store_selected_tenant: adds reference to selected Tenant instance within specified node
     - print_payment_history: displays tenant payment history and optionally prints to csv
     - save_payment_info: allows user to create a new Payment instance and optionally saves to DB
-    - add_tenant_ops: creates and links nodes related to tenant operations
-    - print_transaction_summary: displays summary of transactions made and allows user to print to csv
+    - add_tenant_ops: creates and links nodes related to tenant operations    
+    - save_tenant_info: allows user to create new Tenant instance and optionally saves to DB
+    - save_expense_info: allows user to create new Expense instance and optionally saves to DB
+    - add_unit_ops: creates and links nodes related to unit operations
     - output_revenue_report: generates revenue report and prints to pdf
     - add_summary_ops: creates and links nodes related to summary operations
     '''
@@ -240,6 +240,31 @@ class PopulateMenu:
 
         self.update_itm_validation(inst)
     
+    def update_selected_instance(self, ref_node):
+        '''
+        updates an existing class instance and saves changes to DB
+
+        Parameters
+        ---------
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
+        '''
+        inst = ref_node.data_ref
+        class_name = inst.__class__.__name__
+
+        print(f"[yellow]Update {class_name} Information[/yellow]")
+        print(f"Current: [magenta]{inst}[/magenta]")
+        self.menu.print_cancellation_directions()
+        print("")
+
+        self.update_itm_validation(inst=inst)
+        print("")
+
+        print(f"Updated: [yellow]{inst}[/yellow]")
+        print("")
+
+        self.run_func_if_confirm('Save changes?', inst.update)
+    
     def print_to_csv(self, df, report_type, report_for):
         '''
         prints data to csv file
@@ -327,30 +352,20 @@ class PopulateMenu:
 
         self.print_to_csv(df_filtered, "TRANSACTIONS", label)
 
-    def update_selected_instance(self, ref_node):
+    def print_transaction_summary(self, ref_node):
         '''
-        updates an existing class instance and saves changes to DB
-
-        Parameters
-        ---------
-        ref_node: Node instance
-            - node which stores the reference to the user-selected instance
+        displays summary of transactions made and allows user to print to csv
         '''
-        inst = ref_node.data_ref
-        class_name = inst.__class__.__name__
+        if ref_node:
+            unit = ref_node.data_ref
+            unit_id = unit.id
+            label = f"UNIT_{str(unit.id)}"
+        else:
+            unit_id = None
+            label = "ALL UNITS"
 
-        print(f"[yellow]Update {class_name} Information[/yellow]")
-        print(f"Current: [magenta]{inst}[/magenta]")
-        self.menu.print_cancellation_directions()
-        print("")
-
-        self.update_itm_validation(inst=inst)
-        print("")
-
-        print(f"Updated: [yellow]{inst}[/yellow]")
-        print("")
-
-        self.run_func_if_confirm('Save changes?', inst.update)
+        df = sql.get_transaction_summary(unit_id)
+        self.print_to_csv(df, "INCOME_SUMMARY", label)
 
     def run_func_if_confirm(self, prompt, func):
         '''
@@ -549,7 +564,7 @@ class PopulateMenu:
         - adds rental node as a child of the main menu node
         '''
         rentals = Node(option_label="Rental Units")
-        unit_expenses = Node(option_label="Transactions for Selected Unit")
+        unit_transactions = Node(option_label="Transactions for Selected Unit")
         unit_tenants = Node(option_label="Tenants for Selected Unit")
 
         # select unit
@@ -557,9 +572,14 @@ class PopulateMenu:
         self.select_unit = Node(option_label="Select Unit")
         self.select_unit.add_procedure(lambda: self.store_selected_instance(Unit, self.select_unit))
 
+        # print summary of transactions
+
+        transaction_summary = Node(option_label="Transaction Summary")
+        transaction_summary.add_procedure(lambda: self.print_transaction_summary(self.select_unit))
+
         # view transaction history
 
-        view_transactions = Node(option_label="View Transaction History")
+        view_transactions = Node(option_label="Transaction History")
         view_transactions.add_procedure(lambda: self.print_transaction_history(self.select_unit))
 
         # add expense
@@ -573,21 +593,14 @@ class PopulateMenu:
         add_tenant.add_procedure(lambda: self.save_tenant_info(self.select_unit))
 
         # attach nodes to parent elements
-        unit_expenses.add_children([view_transactions, add_expense, self.go_back, self.to_main, self.exit_app])
+        unit_transactions.add_children([transaction_summary, view_transactions, add_expense, self.go_back, self.to_main, self.exit_app])
         unit_tenants.add_children([self.select_tenant, add_tenant, self.go_back, self.to_main, self.exit_app])
-        self.select_unit.add_children([unit_expenses, unit_tenants, self.go_back, self.to_main, self.exit_app])
+        self.select_unit.add_children([unit_transactions, unit_tenants, self.go_back, self.to_main, self.exit_app])
         rentals.add_children([self.select_unit, self.to_main, self.exit_app])
         self.main.add_child(rentals)
 
     # ///////////////////////////////////////////////////////////////
     # SET UP SUMMARY OPERATIONS
-
-    def print_transaction_summary(self):
-        '''
-        displays summary of transactions made and allows user to print to csv
-        '''
-        df = sql.get_transaction_summary()
-        self.print_to_csv(df, "INCOME_SUMMARY", "ALL_UNITS")
 
     def output_revenue_report(self):
         '''

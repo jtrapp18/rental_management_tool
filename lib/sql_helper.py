@@ -154,7 +154,7 @@ def get_all_transactions(unit_id=None):
 
     return pd.DataFrame(rows, columns=columns).set_index('ID')
 
-def get_transaction_summary():
+def get_transaction_summary(unit_id=None):
     '''
     retreives summary of transactions for all units
 
@@ -163,7 +163,7 @@ def get_transaction_summary():
     output: Pandas DataFrame
         - DataFrame containing summary of transaction data
     '''
-    df = get_all_transactions()
+    df = get_all_transactions(unit_id)
     df['Date'] = pd.to_datetime(df['Date'])
     df['Year'] = df['Date'].dt.year
     

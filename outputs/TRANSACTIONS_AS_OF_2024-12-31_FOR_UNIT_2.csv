@@ -1,82 +1,388 @@
-,ID,Type,Amount,Date,Category,Unit
-305,531,expense,2134.0,2023-01-05,mortgage,2
-306,532,expense,205.0,2023-01-05,property mgmt,2
-307,223,payment,2050.0,2023-01-22,rent,2
-308,533,expense,2134.0,2023-02-05,mortgage,2
-309,534,expense,205.0,2023-02-05,property mgmt,2
-310,224,payment,2050.0,2023-02-22,rent,2
-311,535,expense,2134.0,2023-03-05,mortgage,2
-312,536,expense,205.0,2023-03-05,property mgmt,2
-313,537,expense,205.0,2023-03-11,cleaning,2
-314,225,payment,2050.0,2023-03-22,rent,2
-315,538,expense,2134.0,2023-04-05,mortgage,2
-316,539,expense,205.0,2023-04-05,property mgmt,2
-317,226,payment,2050.0,2023-04-22,rent,2
-318,540,expense,205.0,2023-04-28,maintenance,2
-319,542,expense,2134.0,2023-05-05,mortgage,2
-320,543,expense,205.0,2023-05-05,property mgmt,2
-321,541,expense,205.0,2023-05-11,maintenance,2
-322,227,payment,2050.0,2023-05-22,rent,2
-323,544,expense,2134.0,2023-06-05,mortgage,2
-324,545,expense,205.0,2023-06-05,property mgmt,2
-325,228,payment,2050.0,2023-06-22,rent,2
-326,546,expense,2134.0,2023-07-05,mortgage,2
-327,547,expense,205.0,2023-07-05,property mgmt,2
-328,229,payment,2050.0,2023-07-22,rent,2
-329,548,expense,2134.0,2023-08-05,mortgage,2
-330,549,expense,205.0,2023-08-05,property mgmt,2
-331,550,expense,205.0,2023-08-17,repairs,2
-332,230,payment,2050.0,2023-08-22,rent,2
-333,551,expense,2134.0,2023-09-05,mortgage,2
-334,552,expense,205.0,2023-09-05,property mgmt,2
-335,553,expense,205.0,2023-09-16,rennovations,2
-336,231,payment,2050.0,2023-09-22,rent,2
-337,554,expense,2134.0,2023-10-05,mortgage,2
-338,555,expense,205.0,2023-10-05,property mgmt,2
-339,232,payment,2050.0,2023-10-22,rent,2
-340,556,expense,2134.0,2023-11-05,mortgage,2
-341,557,expense,205.0,2023-11-05,property mgmt,2
-342,233,payment,2050.0,2023-11-22,rent,2
-343,558,expense,2134.0,2023-12-05,mortgage,2
-344,559,expense,205.0,2023-12-05,property mgmt,2
-345,234,payment,2050.0,2023-12-22,rent,2
-346,560,expense,2134.0,2024-01-05,mortgage,2
-347,561,expense,205.0,2024-01-05,property mgmt,2
-348,235,payment,2050.0,2024-01-22,rent,2
-349,562,expense,205.0,2024-01-23,repairs,2
-350,563,expense,2134.0,2024-02-05,mortgage,2
-351,564,expense,205.0,2024-02-05,property mgmt,2
-352,236,payment,2050.0,2024-02-22,rent,2
-353,565,expense,2134.0,2024-03-05,mortgage,2
-354,566,expense,205.0,2024-03-05,property mgmt,2
-355,237,payment,2050.0,2024-03-22,rent,2
-356,567,expense,2134.0,2024-04-05,mortgage,2
-357,568,expense,205.0,2024-04-05,property mgmt,2
-358,238,payment,2050.0,2024-04-22,rent,2
-359,569,expense,205.0,2024-04-22,maintenance,2
-360,570,expense,2134.0,2024-05-05,mortgage,2
-361,571,expense,205.0,2024-05-05,property mgmt,2
-362,239,payment,2050.0,2024-05-22,rent,2
-363,572,expense,2134.0,2024-06-05,mortgage,2
-364,573,expense,205.0,2024-06-05,property mgmt,2
-365,240,payment,2050.0,2024-06-22,rent,2
-366,574,expense,2134.0,2024-07-05,mortgage,2
-367,575,expense,205.0,2024-07-05,property mgmt,2
-368,241,payment,2050.0,2024-07-22,rent,2
-369,576,expense,2134.0,2024-08-05,mortgage,2
-370,577,expense,205.0,2024-08-05,property mgmt,2
-371,242,payment,2050.0,2024-08-22,rent,2
-372,578,expense,2134.0,2024-09-05,mortgage,2
-373,579,expense,205.0,2024-09-05,property mgmt,2
-374,243,payment,2050.0,2024-09-22,rent,2
-375,580,expense,2134.0,2024-10-05,mortgage,2
-376,581,expense,205.0,2024-10-05,property mgmt,2
-377,244,payment,2050.0,2024-10-22,rent,2
-378,582,expense,2134.0,2024-11-05,mortgage,2
-379,583,expense,205.0,2024-11-05,property mgmt,2
-380,245,payment,2050.0,2024-11-22,rent,2
-381,584,expense,2134.0,2024-12-05,mortgage,2
-382,585,expense,205.0,2024-12-05,property mgmt,2
-383,586,expense,205.0,2024-12-11,rennovations,2
-384,587,expense,205.0,2024-12-19,rennovations,2
-385,246,payment,2050.0,2024-12-22,rent,2
+ID,Type,Amount,Date,Category,Unit
+316,expense,2134.0,2015-07-05,mortgage,2
+317,expense,205.0,2015-07-05,property mgmt,2
+318,expense,205.0,2015-07-15,cleaning,2
+319,expense,2134.0,2015-08-05,mortgage,2
+320,expense,205.0,2015-08-05,property mgmt,2
+133,payment,2050.0,2015-08-26,security deposit,2
+134,payment,2050.0,2015-08-26,rent,2
+321,expense,2134.0,2015-09-05,mortgage,2
+322,expense,205.0,2015-09-05,property mgmt,2
+135,payment,2050.0,2015-09-26,rent,2
+323,expense,2134.0,2015-10-05,mortgage,2
+324,expense,205.0,2015-10-05,property mgmt,2
+136,payment,2050.0,2015-10-26,rent,2
+325,expense,205.0,2015-10-28,cleaning,2
+326,expense,2134.0,2015-11-05,mortgage,2
+327,expense,205.0,2015-11-05,property mgmt,2
+137,payment,2050.0,2015-11-26,rent,2
+328,expense,2134.0,2015-12-05,mortgage,2
+329,expense,205.0,2015-12-05,property mgmt,2
+138,payment,2050.0,2015-12-26,rent,2
+330,expense,2134.0,2016-01-05,mortgage,2
+331,expense,205.0,2016-01-05,property mgmt,2
+332,expense,205.0,2016-01-06,repairs,2
+139,payment,2050.0,2016-01-26,rent,2
+333,expense,2134.0,2016-02-05,mortgage,2
+334,expense,205.0,2016-02-05,property mgmt,2
+140,payment,2050.0,2016-02-26,rent,2
+335,expense,2134.0,2016-03-05,mortgage,2
+336,expense,205.0,2016-03-05,property mgmt,2
+337,expense,205.0,2016-03-24,cleaning,2
+141,payment,2050.0,2016-03-26,rent,2
+338,expense,2134.0,2016-04-05,mortgage,2
+339,expense,205.0,2016-04-05,property mgmt,2
+142,payment,2050.0,2016-04-26,rent,2
+340,expense,2134.0,2016-05-05,mortgage,2
+341,expense,205.0,2016-05-05,property mgmt,2
+342,expense,205.0,2016-05-17,rennovations,2
+143,payment,2050.0,2016-05-26,rent,2
+343,expense,2134.0,2016-06-05,mortgage,2
+344,expense,205.0,2016-06-05,property mgmt,2
+144,payment,2050.0,2016-06-26,rent,2
+345,expense,2134.0,2016-07-05,mortgage,2
+346,expense,205.0,2016-07-05,property mgmt,2
+145,payment,2050.0,2016-07-26,rent,2
+347,expense,2134.0,2016-08-05,mortgage,2
+348,expense,205.0,2016-08-05,property mgmt,2
+146,payment,2050.0,2016-08-26,rent,2
+349,expense,2134.0,2016-09-05,mortgage,2
+350,expense,205.0,2016-09-05,property mgmt,2
+147,payment,2050.0,2016-09-26,rent,2
+351,expense,2134.0,2016-10-05,mortgage,2
+352,expense,205.0,2016-10-05,property mgmt,2
+353,expense,205.0,2016-10-10,maintenance,2
+148,payment,2050.0,2016-10-26,rent,2
+354,expense,2134.0,2016-11-05,mortgage,2
+355,expense,205.0,2016-11-05,property mgmt,2
+149,payment,2050.0,2016-11-26,rent,2
+356,expense,205.0,2016-12-04,cleaning,2
+357,expense,2134.0,2016-12-05,mortgage,2
+358,expense,205.0,2016-12-05,property mgmt,2
+359,expense,205.0,2016-12-19,maintenance,2
+150,payment,2050.0,2016-12-26,rent,2
+360,expense,2134.0,2017-01-05,mortgage,2
+361,expense,205.0,2017-01-05,property mgmt,2
+151,payment,2050.0,2017-01-26,rent,2
+362,expense,2134.0,2017-02-05,mortgage,2
+363,expense,205.0,2017-02-05,property mgmt,2
+364,expense,205.0,2017-02-21,maintenance,2
+152,payment,2050.0,2017-02-26,rent,2
+365,expense,2134.0,2017-03-05,mortgage,2
+366,expense,205.0,2017-03-05,property mgmt,2
+153,payment,2050.0,2017-03-26,rent,2
+367,expense,2134.0,2017-04-05,mortgage,2
+368,expense,205.0,2017-04-05,property mgmt,2
+154,payment,2050.0,2017-04-26,rent,2
+369,expense,2134.0,2017-05-05,mortgage,2
+370,expense,205.0,2017-05-05,property mgmt,2
+371,expense,205.0,2017-05-06,repairs,2
+155,payment,2050.0,2017-05-26,rent,2
+372,expense,2134.0,2017-06-05,mortgage,2
+373,expense,205.0,2017-06-05,property mgmt,2
+156,payment,2050.0,2017-06-26,rent,2
+374,expense,2134.0,2017-07-05,mortgage,2
+375,expense,205.0,2017-07-05,property mgmt,2
+376,expense,205.0,2017-07-20,maintenance,2
+157,payment,2050.0,2017-07-26,rent,2
+377,expense,205.0,2017-07-28,maintenance,2
+378,expense,2134.0,2017-08-05,mortgage,2
+379,expense,205.0,2017-08-05,property mgmt,2
+158,payment,2050.0,2017-08-26,rent,2
+380,expense,2134.0,2017-09-05,mortgage,2
+381,expense,205.0,2017-09-05,property mgmt,2
+382,expense,205.0,2017-09-22,cleaning,2
+159,payment,2050.0,2017-09-26,rent,2
+383,expense,2134.0,2017-10-05,mortgage,2
+384,expense,205.0,2017-10-05,property mgmt,2
+160,payment,2050.0,2017-10-26,rent,2
+385,expense,2134.0,2017-11-05,mortgage,2
+386,expense,205.0,2017-11-05,property mgmt,2
+387,expense,2134.0,2017-12-05,mortgage,2
+388,expense,205.0,2017-12-05,property mgmt,2
+389,expense,205.0,2017-12-11,repairs,2
+161,payment,2050.0,2017-12-16,security deposit,2
+162,payment,2050.0,2017-12-16,rent,2
+390,expense,2134.0,2018-01-05,mortgage,2
+391,expense,205.0,2018-01-05,property mgmt,2
+163,payment,2050.0,2018-01-16,rent,2
+392,expense,2134.0,2018-02-05,mortgage,2
+393,expense,205.0,2018-02-05,property mgmt,2
+164,payment,2050.0,2018-02-16,rent,2
+394,expense,2134.0,2018-03-05,mortgage,2
+395,expense,205.0,2018-03-05,property mgmt,2
+165,payment,2050.0,2018-03-16,rent,2
+396,expense,205.0,2018-03-22,repairs,2
+397,expense,205.0,2018-03-31,repairs,2
+398,expense,2134.0,2018-04-05,mortgage,2
+399,expense,205.0,2018-04-05,property mgmt,2
+166,payment,2050.0,2018-04-16,rent,2
+400,expense,2134.0,2018-05-05,mortgage,2
+401,expense,205.0,2018-05-05,property mgmt,2
+167,payment,2050.0,2018-05-16,rent,2
+402,expense,2134.0,2018-06-05,mortgage,2
+403,expense,205.0,2018-06-05,property mgmt,2
+404,expense,205.0,2018-06-06,rennovations,2
+168,payment,2050.0,2018-06-16,rent,2
+405,expense,2134.0,2018-07-05,mortgage,2
+406,expense,205.0,2018-07-05,property mgmt,2
+169,payment,2050.0,2018-07-16,rent,2
+407,expense,2134.0,2018-08-05,mortgage,2
+408,expense,205.0,2018-08-05,property mgmt,2
+170,payment,2050.0,2018-08-16,rent,2
+409,expense,2134.0,2018-09-05,mortgage,2
+410,expense,205.0,2018-09-05,property mgmt,2
+171,payment,2050.0,2018-09-16,rent,2
+411,expense,205.0,2018-09-25,rennovations,2
+412,expense,2134.0,2018-10-05,mortgage,2
+413,expense,205.0,2018-10-05,property mgmt,2
+172,payment,2050.0,2018-10-16,rent,2
+414,expense,2134.0,2018-11-05,mortgage,2
+415,expense,205.0,2018-11-05,property mgmt,2
+173,payment,2050.0,2018-11-16,rent,2
+416,expense,2134.0,2018-12-05,mortgage,2
+417,expense,205.0,2018-12-05,property mgmt,2
+174,payment,2050.0,2018-12-16,rent,2
+418,expense,2134.0,2019-01-05,mortgage,2
+419,expense,205.0,2019-01-05,property mgmt,2
+175,payment,2050.0,2019-01-16,rent,2
+420,expense,205.0,2019-01-19,maintenance,2
+421,expense,2134.0,2019-02-05,mortgage,2
+422,expense,205.0,2019-02-05,property mgmt,2
+176,payment,2050.0,2019-02-16,rent,2
+423,expense,2134.0,2019-03-05,mortgage,2
+424,expense,205.0,2019-03-05,property mgmt,2
+177,payment,2050.0,2019-03-16,rent,2
+425,expense,2134.0,2019-04-05,mortgage,2
+426,expense,205.0,2019-04-05,property mgmt,2
+178,payment,2050.0,2019-04-16,rent,2
+427,expense,2134.0,2019-05-05,mortgage,2
+428,expense,205.0,2019-05-05,property mgmt,2
+179,payment,2050.0,2019-05-16,rent,2
+429,expense,2134.0,2019-06-05,mortgage,2
+430,expense,205.0,2019-06-05,property mgmt,2
+431,expense,205.0,2019-06-09,rennovations,2
+180,payment,2050.0,2019-06-16,rent,2
+432,expense,2134.0,2019-07-05,mortgage,2
+433,expense,205.0,2019-07-05,property mgmt,2
+181,payment,2050.0,2019-07-16,rent,2
+434,expense,2134.0,2019-08-05,mortgage,2
+435,expense,205.0,2019-08-05,property mgmt,2
+182,payment,2050.0,2019-08-16,rent,2
+436,expense,2134.0,2019-09-05,mortgage,2
+437,expense,205.0,2019-09-05,property mgmt,2
+183,payment,2050.0,2019-09-16,rent,2
+438,expense,205.0,2019-09-25,cleaning,2
+439,expense,2134.0,2019-10-05,mortgage,2
+440,expense,205.0,2019-10-05,property mgmt,2
+184,payment,2050.0,2019-10-16,rent,2
+441,expense,2134.0,2019-11-05,mortgage,2
+442,expense,205.0,2019-11-05,property mgmt,2
+185,payment,2050.0,2019-11-16,rent,2
+443,expense,2134.0,2019-12-05,mortgage,2
+444,expense,205.0,2019-12-05,property mgmt,2
+186,payment,2050.0,2019-12-16,rent,2
+445,expense,205.0,2019-12-18,repairs,2
+446,expense,2134.0,2020-01-05,mortgage,2
+447,expense,205.0,2020-01-05,property mgmt,2
+187,payment,2050.0,2020-01-16,rent,2
+448,expense,2134.0,2020-02-05,mortgage,2
+449,expense,205.0,2020-02-05,property mgmt,2
+188,payment,2050.0,2020-02-16,rent,2
+450,expense,205.0,2020-02-25,rennovations,2
+451,expense,2134.0,2020-03-05,mortgage,2
+452,expense,205.0,2020-03-05,property mgmt,2
+189,payment,2050.0,2020-03-16,rent,2
+453,expense,2134.0,2020-04-05,mortgage,2
+454,expense,205.0,2020-04-05,property mgmt,2
+190,payment,2050.0,2020-04-16,rent,2
+455,expense,2134.0,2020-05-05,mortgage,2
+456,expense,205.0,2020-05-05,property mgmt,2
+191,payment,2050.0,2020-05-16,rent,2
+457,expense,2134.0,2020-06-05,mortgage,2
+458,expense,205.0,2020-06-05,property mgmt,2
+459,expense,205.0,2020-06-15,maintenance,2
+192,payment,2050.0,2020-06-16,rent,2
+460,expense,2134.0,2020-07-05,mortgage,2
+461,expense,205.0,2020-07-05,property mgmt,2
+193,payment,2050.0,2020-07-16,rent,2
+462,expense,2134.0,2020-08-05,mortgage,2
+463,expense,205.0,2020-08-05,property mgmt,2
+194,payment,2050.0,2020-08-16,rent,2
+464,expense,2134.0,2020-09-05,mortgage,2
+465,expense,205.0,2020-09-05,property mgmt,2
+195,payment,2050.0,2020-09-16,rent,2
+466,expense,2134.0,2020-10-05,mortgage,2
+467,expense,205.0,2020-10-05,property mgmt,2
+196,payment,2050.0,2020-10-16,rent,2
+468,expense,2134.0,2020-11-05,mortgage,2
+469,expense,205.0,2020-11-05,property mgmt,2
+197,payment,2050.0,2020-11-16,rent,2
+470,expense,2134.0,2020-12-05,mortgage,2
+471,expense,205.0,2020-12-05,property mgmt,2
+198,payment,2050.0,2020-12-16,rent,2
+472,expense,205.0,2020-12-29,repairs,2
+473,expense,205.0,2021-01-03,repairs,2
+474,expense,2134.0,2021-01-05,mortgage,2
+475,expense,205.0,2021-01-05,property mgmt,2
+199,payment,2050.0,2021-01-16,rent,2
+476,expense,2134.0,2021-02-05,mortgage,2
+477,expense,205.0,2021-02-05,property mgmt,2
+200,payment,2050.0,2021-02-16,rent,2
+478,expense,2134.0,2021-03-05,mortgage,2
+479,expense,205.0,2021-03-05,property mgmt,2
+201,payment,2050.0,2021-03-16,rent,2
+480,expense,2134.0,2021-04-05,mortgage,2
+481,expense,205.0,2021-04-05,property mgmt,2
+202,payment,2050.0,2021-04-16,rent,2
+482,expense,2134.0,2021-05-05,mortgage,2
+483,expense,205.0,2021-05-05,property mgmt,2
+203,payment,2050.0,2021-05-16,rent,2
+484,expense,2134.0,2021-06-05,mortgage,2
+485,expense,205.0,2021-06-05,property mgmt,2
+204,payment,2050.0,2021-06-16,rent,2
+486,expense,2134.0,2021-07-05,mortgage,2
+487,expense,205.0,2021-07-05,property mgmt,2
+205,payment,2050.0,2021-07-16,rent,2
+488,expense,2134.0,2021-08-05,mortgage,2
+489,expense,205.0,2021-08-05,property mgmt,2
+206,payment,2050.0,2021-08-16,rent,2
+490,expense,205.0,2021-08-27,cleaning,2
+492,expense,2134.0,2021-09-05,mortgage,2
+493,expense,205.0,2021-09-05,property mgmt,2
+207,payment,2050.0,2021-09-16,rent,2
+491,expense,205.0,2021-09-22,cleaning,2
+494,expense,2134.0,2021-10-05,mortgage,2
+495,expense,205.0,2021-10-05,property mgmt,2
+208,payment,2050.0,2021-10-16,rent,2
+496,expense,2134.0,2021-11-05,mortgage,2
+497,expense,205.0,2021-11-05,property mgmt,2
+498,expense,205.0,2021-11-06,rennovations,2
+499,expense,205.0,2021-11-21,rennovations,2
+500,expense,2134.0,2021-12-05,mortgage,2
+501,expense,205.0,2021-12-05,property mgmt,2
+209,payment,2050.0,2021-12-22,security deposit,2
+210,payment,2050.0,2021-12-22,rent,2
+502,expense,2134.0,2022-01-05,mortgage,2
+503,expense,205.0,2022-01-05,property mgmt,2
+211,payment,2050.0,2022-01-22,rent,2
+504,expense,2134.0,2022-02-05,mortgage,2
+505,expense,205.0,2022-02-05,property mgmt,2
+212,payment,2050.0,2022-02-22,rent,2
+506,expense,2134.0,2022-03-05,mortgage,2
+507,expense,205.0,2022-03-05,property mgmt,2
+213,payment,2050.0,2022-03-22,rent,2
+508,expense,205.0,2022-03-25,cleaning,2
+510,expense,2134.0,2022-04-05,mortgage,2
+511,expense,205.0,2022-04-05,property mgmt,2
+509,expense,205.0,2022-04-20,cleaning,2
+214,payment,2050.0,2022-04-22,rent,2
+512,expense,2134.0,2022-05-05,mortgage,2
+513,expense,205.0,2022-05-05,property mgmt,2
+215,payment,2050.0,2022-05-22,rent,2
+514,expense,2134.0,2022-06-05,mortgage,2
+515,expense,205.0,2022-06-05,property mgmt,2
+216,payment,2050.0,2022-06-22,rent,2
+516,expense,2134.0,2022-07-05,mortgage,2
+517,expense,205.0,2022-07-05,property mgmt,2
+217,payment,2050.0,2022-07-22,rent,2
+518,expense,2134.0,2022-08-05,mortgage,2
+519,expense,205.0,2022-08-05,property mgmt,2
+520,expense,205.0,2022-08-19,maintenance,2
+218,payment,2050.0,2022-08-22,rent,2
+521,expense,2134.0,2022-09-05,mortgage,2
+522,expense,205.0,2022-09-05,property mgmt,2
+523,expense,205.0,2022-09-19,maintenance,2
+219,payment,2050.0,2022-09-22,rent,2
+524,expense,2134.0,2022-10-05,mortgage,2
+525,expense,205.0,2022-10-05,property mgmt,2
+220,payment,2050.0,2022-10-22,rent,2
+526,expense,2134.0,2022-11-05,mortgage,2
+527,expense,205.0,2022-11-05,property mgmt,2
+221,payment,2050.0,2022-11-22,rent,2
+528,expense,2134.0,2022-12-05,mortgage,2
+529,expense,205.0,2022-12-05,property mgmt,2
+530,expense,205.0,2022-12-10,repairs,2
+222,payment,2050.0,2022-12-22,rent,2
+531,expense,2134.0,2023-01-05,mortgage,2
+532,expense,205.0,2023-01-05,property mgmt,2
+223,payment,2050.0,2023-01-22,rent,2
+533,expense,2134.0,2023-02-05,mortgage,2
+534,expense,205.0,2023-02-05,property mgmt,2
+224,payment,2050.0,2023-02-22,rent,2
+535,expense,2134.0,2023-03-05,mortgage,2
+536,expense,205.0,2023-03-05,property mgmt,2
+537,expense,205.0,2023-03-11,cleaning,2
+225,payment,2050.0,2023-03-22,rent,2
+538,expense,2134.0,2023-04-05,mortgage,2
+539,expense,205.0,2023-04-05,property mgmt,2
+226,payment,2050.0,2023-04-22,rent,2
+540,expense,205.0,2023-04-28,maintenance,2
+542,expense,2134.0,2023-05-05,mortgage,2
+543,expense,205.0,2023-05-05,property mgmt,2
+541,expense,205.0,2023-05-11,maintenance,2
+227,payment,2050.0,2023-05-22,rent,2
+544,expense,2134.0,2023-06-05,mortgage,2
+545,expense,205.0,2023-06-05,property mgmt,2
+228,payment,2050.0,2023-06-22,rent,2
+546,expense,2134.0,2023-07-05,mortgage,2
+547,expense,205.0,2023-07-05,property mgmt,2
+229,payment,2050.0,2023-07-22,rent,2
+548,expense,2134.0,2023-08-05,mortgage,2
+549,expense,205.0,2023-08-05,property mgmt,2
+550,expense,205.0,2023-08-17,repairs,2
+230,payment,2050.0,2023-08-22,rent,2
+551,expense,2134.0,2023-09-05,mortgage,2
+552,expense,205.0,2023-09-05,property mgmt,2
+553,expense,205.0,2023-09-16,rennovations,2
+231,payment,2050.0,2023-09-22,rent,2
+554,expense,2134.0,2023-10-05,mortgage,2
+555,expense,205.0,2023-10-05,property mgmt,2
+232,payment,2050.0,2023-10-22,rent,2
+556,expense,2134.0,2023-11-05,mortgage,2
+557,expense,205.0,2023-11-05,property mgmt,2
+233,payment,2050.0,2023-11-22,rent,2
+558,expense,2134.0,2023-12-05,mortgage,2
+559,expense,205.0,2023-12-05,property mgmt,2
+1114,expense,300.0,2023-12-20,repairs,2
+234,payment,2050.0,2023-12-22,rent,2
+560,expense,2134.0,2024-01-05,mortgage,2
+561,expense,205.0,2024-01-05,property mgmt,2
+235,payment,2050.0,2024-01-22,rent,2
+562,expense,205.0,2024-01-23,repairs,2
+563,expense,2134.0,2024-02-05,mortgage,2
+564,expense,205.0,2024-02-05,property mgmt,2
+236,payment,2050.0,2024-02-22,rent,2
+565,expense,2134.0,2024-03-05,mortgage,2
+566,expense,205.0,2024-03-05,property mgmt,2
+237,payment,2050.0,2024-03-22,rent,2
+567,expense,2134.0,2024-04-05,mortgage,2
+568,expense,205.0,2024-04-05,property mgmt,2
+238,payment,2050.0,2024-04-22,rent,2
+569,expense,205.0,2024-04-22,maintenance,2
+570,expense,2134.0,2024-05-05,mortgage,2
+571,expense,205.0,2024-05-05,property mgmt,2
+239,payment,2050.0,2024-05-22,rent,2
+572,expense,2134.0,2024-06-05,mortgage,2
+573,expense,205.0,2024-06-05,property mgmt,2
+240,payment,2050.0,2024-06-22,rent,2
+574,expense,2134.0,2024-07-05,mortgage,2
+575,expense,205.0,2024-07-05,property mgmt,2
+241,payment,2050.0,2024-07-22,rent,2
+576,expense,2134.0,2024-08-05,mortgage,2
+577,expense,205.0,2024-08-05,property mgmt,2
+242,payment,2050.0,2024-08-22,rent,2
+578,expense,2134.0,2024-09-05,mortgage,2
+579,expense,205.0,2024-09-05,property mgmt,2
+243,payment,2050.0,2024-09-22,rent,2
+580,expense,2134.0,2024-10-05,mortgage,2
+581,expense,205.0,2024-10-05,property mgmt,2
+244,payment,2050.0,2024-10-22,rent,2
+582,expense,2134.0,2024-11-05,mortgage,2
+583,expense,205.0,2024-11-05,property mgmt,2
+245,payment,2050.0,2024-11-22,rent,2
+584,expense,2134.0,2024-12-05,mortgage,2
+585,expense,205.0,2024-12-05,property mgmt,2
+586,expense,205.0,2024-12-11,rennovations,2
+587,expense,205.0,2024-12-19,rennovations,2
+246,payment,2050.0,2024-12-22,rent,2
