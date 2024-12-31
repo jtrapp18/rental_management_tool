@@ -62,7 +62,7 @@ class Tenant:
         "email_address": val.email_validation, 
         "phone_number": val.phone_validation, 
         "move_in_date": val.date_validation,
-        "move_out_date": val.move_out_date_validation
+        "move_out_date": val.optional_date_validation
         }
 
     # Dictionary of objects saved to the database.
@@ -146,7 +146,7 @@ class Tenant:
 
     @move_out_date.setter
     def move_out_date(self, move_out_date):
-        self._move_out_date = val.move_out_date_validation(move_out_date)
+        self._move_out_date = val.optional_date_validation(move_out_date)
 
     @property
     def unit_id(self):

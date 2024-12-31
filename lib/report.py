@@ -1,11 +1,13 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
+from matplotlib.transforms import Bbox
 from matplotlib.backends.backend_pdf import PdfPages
 import sql_helper as sql
 import numpy as np
 from expense import Expense
 from payment import Payment
+from functools import partial
 
 def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=None, 
                 font_color='black', color='white', background=None):
@@ -89,9 +91,7 @@ class Report:
     - transaction_totals_annotation: creates figure showing transaction totals by type
     - add_transaction_bar: creates bar graph of transactions and adds to report
     - transaction_line_subplot: creates line graph of transactions
-    - transaction_pie_subplot: creates pie chart of transactions
-    - expense_pie_subplot: creates pie chart of expenses by type
-    - payment_pie_subplot: creates pie chart of payments by type
+    - transaction_pie_subplot: creates pie chart by category for specified transaction type
     - add_subplots: creates separate pages for each subplot and adds to report
     - indiv_unit_charts: creates page for specified unit with subplots and adds to report
     '''
@@ -223,9 +223,11 @@ class Report:
             f"Net Income: ${net_income:,.0f}"
         )
         ax.text(
-            0.6, 0, summary_text,  # Position to the right of the pie chart
+            1.1, 0, summary_text,
             transform=ax.transAxes,
             fontsize=10,
+            fontweight='bold',
+            horizontalalignment='right',
             bbox=dict(facecolor='white', alpha=0.5, edgecolor='gray')
         )
 
@@ -315,84 +317,27 @@ class Report:
         
         ax.set_ylabel('Amount (in $1,000s)')
         ax.set_title('Transactions by Year', fontsize=20 if unit=='all' else 12)
-        ax.legend(loc='upper left', ncols=2)
+        ax.legend(
+            title="Transaction Type", 
+            loc='upper left',
+            ncol=1
+            )
 
         ax.set_xticks(df_pivot.index)
         ax.xaxis.set_major_formatter(mticker.StrMethodFormatter("{x:.0f}"))
 
         return ax
-    
-    def transaction_pie_subplot(self, ax, unit='all'):
+        
+    def transaction_pie_subplot(self, ax, ttype, unit='all'):
         '''
-        creates pie chart of transactions
+        creates pie chart by category for specified transaction type
 
         Parameters
         ---------
         ax: matplotly figure
             - blank figure
-        unit (optional): int or str
-            - unit ID to filter data on
-
-        Returns
-        ---------
-        ax: matplotly figure
-            - pie chart of transactions
-        '''
-        df = self.df_dict['transactions'].copy()
-        df_agg = self.group_data_for_year(df, 'Type', unit)
-
-        colors = {'expense': 'red', 'payment': 'green'}
-
-        wedges, texts, autotexts = ax.pie(df_agg, autopct='%1.1f%%', startangle=90, colors=[colors.get(type, 'gray') for type in df_agg.index])
-
-        ax.set_title('Transactions by Type', fontsize=20 if unit=='all' else 12)
-        ax.axis('equal')
-
-        ax.legend(
-            wedges,
-            df_agg.index,
-            title="Transaction Type",
-            loc="upper left",
-            ncol=1
-        )
-
-        return ax
-    
-    def expense_pie_subplot(self, ax, unit='all'):
-        '''
-        creates pie chart of expenses by type
-
-        Parameters
-        ---------
-        ax: matplotly figure
-            - blank figure
-        unit (optional): int or str
-            - unit ID to filter data on
-
-        Returns
-        ---------
-        ax: matplotly figure
-            - pie chart of expenses
-        '''
-        df = self.df_dict['expenses'].copy()
-        df_agg = self.group_data_for_year(df, 'Category', unit)
-
-        wedges, texts, autotexts = ax.pie(df_agg, autopct='%1.1f%%', startangle=90)
-
-        ax.set_title('Expenses by Category', fontsize=20 if unit=='all' else 12)
-        ax.axis('equal')
-        ax.legend(wedges, df_agg.index, title="Category", loc="best", ncol=1)
-
-        return ax
-    
-    def payment_pie_subplot(self, ax, unit='all'):
-        '''
-        creates pie chart of payments by type
-
-        Parameters
-        ---------
-        ax: matplotly figure
-            - blank figure
+        ttype: str
+            - transaction type (expenses, payments)
         unit (optional): int or str
             - unit ID to filter data on
 
@@ -401,14 +346,42 @@ class Report:
         ax: matplotly figure
             - pie chart of payments
         '''
-        df = self.df_dict['payments'].copy()
-        df_agg = self.group_data_for_year(df, 'Category', unit)
+        df = self.df_dict[ttype].copy()
+        groupby = 'Type' if ttype=='transactions' else 'Category'
+        df_agg = self.group_data_for_year(df, groupby, unit)
+        df_agg = df_agg.sort_values(ascending=False)
 
-        wedges, texts, autotexts = ax.pie(df_agg, autopct='%1.1f%%', startangle=90)
+        kwargs = {
+            'autopct': '%1.1f%%', 
+            'startangle': 90
+        }
 
-        ax.set_title('Payments by Category', fontsize=20 if unit=='all' else 12)
+        if ttype == 'transactions':
+            colors = {'expense': 'red', 'payment': 'green', 'net': 'blue'}
+            color_list = [colors.get(type, 'gray') for type in df_agg.index]
+            kwargs['colors'] = color_list
+
+        wedges, texts, autotexts = ax.pie(df_agg, **kwargs)
+        
+        # Hide labels for small slices
+        for i, autotext in enumerate(autotexts):
+            # Only show the label if the percentage is greater than or equal to threshold
+            if df_agg.iloc[i] / df_agg.sum() * 100 < 5:
+                autotext.set_text('')  # Hide the label
+
+        ax.set_title(
+            f'{ttype.title()} by {groupby}', 
+            fontsize=20 if unit=='all' else 12
+            )
         ax.axis('equal')
-        ax.legend(wedges, df_agg.index, title="Category", loc="best", ncol=1)
+        ax.legend(
+            wedges, 
+            df_agg.index, 
+            title=groupby, 
+            loc='upper right', 
+            bbox_to_anchor=(1.1, 1),
+            ncol=1
+            )
 
         return ax
     
@@ -419,18 +392,18 @@ class Report:
         subplot_functions = [
             self.transaction_totals_annotation,
             self.transaction_line_subplot,
-            self.transaction_pie_subplot,
-            self.expense_pie_subplot,
-            self.payment_pie_subplot
+            partial(self.transaction_pie_subplot, ttype='transactions'),
+            partial(self.transaction_pie_subplot, ttype='payments'),
+            partial(self.transaction_pie_subplot, ttype='expenses')
         ]
 
         for func in subplot_functions:
             fig, ax = plt.subplots(figsize=(12,8))
-            ax = func(ax)
+            ax = func(ax=ax)
             self.add_figure(fig)
             plt.close(fig)
     
-    def indiv_unit_charts(self, unit):
+    def indiv_unit_charts(self, unit='all'):
         '''
         creates page for specified unit with subplots and adds to report
 
@@ -444,6 +417,7 @@ class Report:
         fig: matplotly figure
             - figure containing multiple graphs for specified unit
         '''
+        title = f"Unit {str(unit)} Analytics" if unit != 'all' else "Analytics for All Units"
         ax = {}
 
         fig, ((ax[(0, 0)], ax[(0, 1)]), (ax[(1, 0)], ax[(1, 1)]), (ax[2, 0], ax[(2, 1)])) = \
@@ -451,19 +425,20 @@ class Report:
                         width_ratios=(.5,.5), height_ratios=(.1, .45,.45))
         
         ax[(0, 0)].axis('off')
-        ax[(0, 0)].text(0.5, 0.5, f"Unit {str(unit)} Performance", fontsize=30,
-                    horizontalalignment='center', verticalalignment='center',
+        ax[(0, 0)].text(0, .5, title, fontsize=30, fontweight='bold',
+                    horizontalalignment='left', verticalalignment='center',
                     transform=ax[(0, 0)].transAxes)
         
         ax[(0, 1)].axis('off')
         ax[(0, 1)] = self.transaction_totals_annotation(ax[(0, 1)], unit)
         
         ax[(1, 0)] = self.transaction_line_subplot(ax[(1, 0)], unit)
-        ax[(1, 1)] = self.transaction_pie_subplot(ax[(1, 1)], unit)
-        ax[(2, 0)] = self.expense_pie_subplot(ax[(2, 0)], unit)
-        ax[(2, 1)] = self.payment_pie_subplot(ax[(2, 1)], unit)
+        ax[(1, 1)] = self.transaction_pie_subplot(ax[(1, 1)], 'transactions', unit)
+        ax[(2, 0)] = self.transaction_pie_subplot(ax[(2, 0)], 'payments', unit)
+        ax[(2, 1)] = self.transaction_pie_subplot(ax[(2, 1)], 'expenses', unit)
 
-        fig.tight_layout()
+        # fig.tight_layout()
+        fig.subplots_adjust(hspace=0.5, wspace=0)
     
         self.add_figure(fig)
         plt.close(fig)
@@ -483,7 +458,8 @@ def generate_income_report(year):
 
     rpt.add_section_cover('All Units', 'Analytics for aggregated unit data')
     rpt.add_transaction_bar()
-    rpt.add_subplots()
+
+    rpt.indiv_unit_charts()
 
     rpt.add_section_cover('Individual Units', 'Analytics for individual rental units')
     for unit in rpt.units:

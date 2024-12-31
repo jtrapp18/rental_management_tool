@@ -70,15 +70,15 @@ def date_validation(date):
         raise ValueError(f"Did not enter date in YYYY-DD-MM format")
 date_validation.constraints = "YYYY-DD-MM format"
 
-def move_out_date_validation(date):
+def optional_date_validation(date):
     '''
-    validate move out date input and return only if validation passes
+    validate date input and return only if validation passes
     '''
     if date is None or date == "":
         return None
     else:
         return date_validation(date)
-move_out_date_validation.constraints = "click enter if no move out date scheduled or enter date in YYYY-DD-MM format"
+optional_date_validation.constraints = "enter date in YYYY-DD-MM format or click enter to bypass"
 
 def dollar_amt_validation(amount):
     '''

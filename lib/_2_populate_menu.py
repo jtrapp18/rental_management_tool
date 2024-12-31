@@ -39,8 +39,9 @@ class PopulateMenu:
     - update_itm_validation: updates an existing instance after validating user inputs
     - update_selected_instance: updates an existing class instance and saves changes to DB
     - print_to_csv: prints data to csv file
-    - run_func_if_confirm: confirms if a specific procedure should be run then runs that procedure
+    - filter_on_dates: filters dataframe by user-specified start and end dates
     - print_transaction_history: displays unit transactions and optionally prints results to csv
+    - run_func_if_confirm: confirms if a specific procedure should be run then runs that procedure
     - save_tenant_info: allows user to create new Tenant instance and optionally saves to DB
     - save_expense_info: allows user to create new Expense instance and optionally saves to DB
     - add_unit_ops: creates and links nodes related to unit operations
@@ -48,7 +49,6 @@ class PopulateMenu:
     - print_payment_history: displays tenant payment history and optionally prints to csv
     - save_payment_info: allows user to create a new Payment instance and optionally saves to DB
     - add_tenant_ops: creates and links nodes related to tenant operations
-    - print_transactions: displays transactions made and allows user to print to csv
     - print_transaction_summary: displays summary of transactions made and allows user to print to csv
     - output_revenue_report: generates revenue report and prints to pdf
     - add_summary_ops: creates and links nodes related to summary operations
@@ -258,6 +258,64 @@ class PopulateMenu:
               
         self.run_func_if_confirm('Print data to CSV in outputs folder?', 
                                  lambda: df.to_csv(f"./outputs/{label}.csv"))
+        
+    def filter_on_dates(self, df):
+        '''
+        filters dataframe by user-specified start and end dates
+
+        Parameters
+        ---------
+        df: Pandas DataFrame
+            - data to filter
+
+        Returns
+        ---------
+        df_filtered: Pandas DataFrame
+            - data filtered based on user choices
+        '''
+        df_filtered = df.copy()
+
+        user_choices = {
+            'start date': None,
+            'end date': None
+        }
+
+        for key in ['start date', 'end date']:
+            value = self.show_user_selections(val.optional_date_validation, key)
+
+            if value == 'exit':
+                return
+            
+            user_choices[key] = value
+
+        if user_choices['start date'] is not None:
+            df_filtered = df_filtered[df_filtered['Date'] >= user_choices['start date']]
+        if user_choices['end date'] is not None:
+            df_filtered = df_filtered[df_filtered['Date'] <= user_choices['end date']]
+
+        return df_filtered
+    
+    def print_transaction_history(self, ref_node=None):
+        '''
+        displays unit transactions and optionally prints results to csv
+
+        Parameters
+        ---------
+        ref_node (optional): Node instance
+            - node which stores the reference to the user-selected instance
+        '''
+        if ref_node:
+            unit = ref_node.data_ref
+            unit_id = unit.id
+            label = f"UNIT_{str(unit.id)}"
+        else:
+            unit_id = None
+            label = "ALL UNITS"
+
+        df = sql.get_all_transactions(unit_id)
+        df_filtered = self.filter_on_dates(df)
+
+        self.print_to_csv(df_filtered, "TRANSACTIONS", label)
 
     def update_selected_instance(self, ref_node):
         '''
@@ -421,20 +479,6 @@ class PopulateMenu:
     # ///////////////////////////////////////////////////////////////
     # SET UP RENTAL UNIT OPERATIONS
 
-    def print_transaction_history(self, ref_node):
-        '''
-        displays unit transactions and optionally prints results to csv
-
-        Parameters
-        ---------
-        ref_node: Node instance
-            - node which stores the reference to the user-selected instance
-        '''
-        unit = ref_node.data_ref
-        df = unit.transactions()
-
-        self.print_to_csv(df, "TRANSACTIONS", f"UNIT_{str(unit.id)}")
-
     def save_tenant_info(self, ref_node):
         '''
         allows user to create new Tenant instance and optionally saves to DB
@@ -494,7 +538,7 @@ class PopulateMenu:
         - adds rental node as a child of the main menu node
         '''
         rentals = Node(option_label="Rental Units")
-        unit_expenses = Node(option_label="Expenses for Selected Unit")
+        unit_expenses = Node(option_label="Transactions for Selected Unit")
         unit_tenants = Node(option_label="Tenants for Selected Unit")
 
         # select unit
@@ -526,13 +570,6 @@ class PopulateMenu:
 
     # ///////////////////////////////////////////////////////////////
     # SET UP SUMMARY OPERATIONS
-
-    def print_transactions(self):
-        '''
-        displays transactions made and allows user to print to csv
-        '''
-        df = sql.get_all_transactions()
-        self.print_to_csv(df, "TRANSACTIONS", "ALL_UNITS")
 
     def print_transaction_summary(self):
         '''
@@ -575,7 +612,7 @@ class PopulateMenu:
         # print detailed income information
 
         income_detailed = Node(option_label="View All Transactions")
-        income_detailed.add_procedure(self.print_transactions)
+        income_detailed.add_procedure(self.print_transaction_history)
 
         # output pdf revenue report
 

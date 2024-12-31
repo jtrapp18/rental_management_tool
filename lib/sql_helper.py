@@ -152,7 +152,7 @@ def get_all_transactions(unit_id=None):
     filt = (unit_id, unit_id) if unit_id else ()
     rows = CURSOR.execute(sql, filt).fetchall()
 
-    return pd.DataFrame(rows, columns=columns)
+    return pd.DataFrame(rows, columns=columns).set_index('ID')
 
 def get_transaction_summary():
     '''
