@@ -12,6 +12,8 @@ class Unit:
     ---------
     DF_COLUMNS: tuple
         - columns to be used for Unit dataframes
+    VALIDATION_DICT: dict
+        - dictionary containing validation functions to apply when user makes DB edits
 
     Class Attributes
     ---------
@@ -53,6 +55,13 @@ class Unit:
     - create_table: create a new table to persist the attributes of all instances
     '''
     DF_COLUMNS = ("id", "Acquisition Date", "Address", "Monthly Mortgage", "Monthly Rent", "Late Fee")
+    VALIDATION_DICT = {
+        "acquisition_date": val.date_validation, 
+        "address": val.address_validation, 
+        "monthly_mortgage": val.dollar_amt_validation, 
+        "monthly_rent": val.dollar_amt_validation,
+        "late_fee": val.dollar_amt_validation
+        }
 
     # Dictionary of objects saved to the database.
     all = {}
@@ -87,9 +96,9 @@ class Unit:
         address_parsed = self.address.replace("\n", ", ")
         return (
             f"<Unit {self.id}: {address_parsed} | " +
-            f"Acquired on: {self.acquisition_date} | " +
-            f"Monthly Mortgage: {self.monthly_mortgage} | " +
-            f"Monthly Rent: {self.monthly_rent} | " +
+            f"Acquired: {self.acquisition_date} | " +
+            f"Mortgage: {self.monthly_mortgage} | " +
+            f"Rent: {self.monthly_rent} | " +
             f"Late Fee: {self.late_fee}>"
         )
 
@@ -254,7 +263,7 @@ class Unit:
         update the table row corresponding to the current instance
         '''
         sql = """
-            UPDATE departments
+            UPDATE units
             SET acquisition_date = ?, address = ?, monthly_mortgage = ?, 
             monthly_rent = ?, late_fee = ?
             WHERE id = ?

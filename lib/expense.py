@@ -230,7 +230,7 @@ class Expense:
             amount FLOAT,
             exp_date DATE,
             unit_id INTEGER,
-            FOREIGN KEY (unit_id) REFERENCES Unit(id))
+            FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE)
         """
         CURSOR.execute(sql)
         CONN.commit()

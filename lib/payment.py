@@ -260,7 +260,7 @@ class Payment:
             pmt_date DATE,
             method TEXT,
             tenant_id INTEGER,
-            FOREIGN KEY (tenant_id) REFERENCES tenant(id))
+            FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE)
         """
         CURSOR.execute(sql)
         CONN.commit()

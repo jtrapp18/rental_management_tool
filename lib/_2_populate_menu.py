@@ -95,17 +95,23 @@ class PopulateMenu:
         self.exit_app = Node(option_label="Exit App")
         self.exit_app.add_procedure(self.menu.exit_app)
 
+    def update_title_labels(self, inst, ref_node):
+        '''
+        updates labels in cli based on selected instance
+        '''
+        ref_node.data_ref = inst # store selected unit
+        ref_node.title_label = f"Options for: {inst}"
+
+        for child in ref_node.children:
+            child.title_label = f"Options for: {inst}"
+
     def store_selected_instance(self, cls, ref_node):
         '''
         adds reference to selected instance within specified node
         '''
-        selected_inst, index = pick(cls.get_all_instances(), "Select Unit from options below")
+        selected_inst, index = pick(cls.get_all_instances(), f"Select {cls.__name__} from options below")
 
-        ref_node.data_ref = selected_inst # store selected unit
-        ref_node.title_label = f"Options for: {selected_inst}"
-
-        for child in ref_node.children:
-            child.title_label = f"Options for: {selected_inst}"
+        self.update_title_labels(selected_inst, ref_node)
 
     # ///////////////////////////////////////////////////////////////
     # REUSABLE CLI FUNCTIONALITY
@@ -145,7 +151,8 @@ class PopulateMenu:
 
         while True:
             try:
-                user_input = float(user_input) if key=="amount" else user_input
+                func_name = val_func.__name__
+                user_input = float(user_input) if func_name=="dollar_amt_validation" else user_input
                 value = val_func(user_input)
 
                 # show selected value if using pick functionality
@@ -239,7 +246,13 @@ class PopulateMenu:
         setattr(inst, key, value)
 
         self.update_itm_validation(inst)
-    
+
+    def finalize_update(self, ref_node):
+        inst = ref_node.data_ref
+        inst.update()
+
+        self.update_title_labels(inst, ref_node)
+
     def update_selected_instance(self, ref_node):
         '''
         updates an existing class instance and saves changes to DB
@@ -263,7 +276,34 @@ class PopulateMenu:
         print(f"Updated: [yellow]{inst}[/yellow]")
         print("")
 
-        self.run_func_if_confirm('Save changes?', inst.update)
+        self.run_func_if_confirm('Save changes?', lambda: self.finalize_update(ref_node))
+
+    def finalize_delete(self, ref_node):
+        inst = ref_node.data_ref
+        inst.delete()
+
+        ref_node.data_ref = None
+
+    def delete_selected_instance(self, ref_node):
+        '''
+        deletes an existing class instance and saves changes to DB
+
+        Parameters
+        ---------
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
+        '''
+        inst = ref_node.data_ref
+        class_name = inst.__class__.__name__
+
+        print(f"[red]Delete {class_name}[/red]")
+        print(f"Current: [magenta]{inst}[/magenta]")
+        self.menu.print_cancellation_directions()
+        print("")
+
+        self.run_func_if_confirm('Confirm delete?', lambda: self.finalize_delete(ref_node))
+
+        return Node.last_node.parent
     
     def print_to_csv(self, df, report_type, report_for):
         '''
@@ -420,8 +460,8 @@ class PopulateMenu:
         ref_node.data_ref = selected_tenant # store selected unit
 
         ref_node.title_label = f"Options for: {selected_tenant}"
-
-    def print_payment_history(self, ref_node):
+        
+    def payment_rollforward(self, ref_node):
         '''
         displays tenant payment history and optionally prints to csv
 
@@ -478,24 +518,46 @@ class PopulateMenu:
         self.select_tenant = Node(option_label="Select Tenant")
         self.select_tenant.add_procedure(lambda: self.store_selected_tenant(self.select_tenant))
 
-        # view payment history
+        # view payment rollforward
 
-        view_payments = Node(option_label="View Payments History")
-        view_payments.add_procedure(lambda: self.print_payment_history(self.select_tenant))
+        rollforward = Node(option_label="View Payments Rollforward")
+        rollforward.add_procedure(lambda: self.payment_rollforward(self.select_tenant))
+
+        # select payment
+
+        select_payment = Node(option_label="View Payments")
+        select_payment.add_procedure(lambda: self.store_selected_instance(Payment, select_payment))
 
         # add payment
 
         add_payment = Node(option_label="Add Payment")
         add_payment.add_procedure(lambda: self.save_payment_info(self.select_tenant))
 
+        # edit payment information
+        
+        edit_payment = Node(option_label="Update Payment Information")
+        edit_payment.add_procedure(lambda: self.update_selected_instance(select_payment))
+
+        # delete payment information
+        
+        delete_payment = Node(option_label="Delete Payment")
+        delete_payment.add_procedure(lambda: self.delete_selected_instance(select_payment))
+
         # edit tenant information
         
         edit_tenant = Node(option_label="Update Tenant Information")
         edit_tenant.add_procedure(lambda: self.update_selected_instance(self.select_tenant))
+
+        # delete tenant record
+        
+        delete_tenant = Node(option_label="Remove Tenant from Records")
+        delete_tenant.add_procedure(lambda: self.delete_selected_instance(self.select_tenant))
         
         # attach nodes to parent elements
-        
-        self.select_tenant.add_children([view_payments, add_payment, edit_tenant, self.to_main, self.exit_app])
+
+        select_payment.add_children([edit_payment, delete_payment, self.to_main, self.exit_app])
+                
+        self.select_tenant.add_children([rollforward, select_payment, add_payment, edit_tenant, delete_tenant, self.to_main, self.exit_app])
         
         tenants.add_children([self.select_tenant, self.to_main, self.exit_app])
         
@@ -582,10 +644,35 @@ class PopulateMenu:
         view_transactions = Node(option_label="Transaction History")
         view_transactions.add_procedure(lambda: self.print_transaction_history(self.select_unit))
 
+        # edit unit information
+        
+        edit_unit = Node(option_label="Update Unit Information")
+        edit_unit.add_procedure(lambda: self.update_selected_instance(self.select_unit))
+
+        # delete expense information
+        
+        delete_unit = Node(option_label="Delete Unit Record")
+        delete_unit.add_procedure(lambda: self.delete_selected_instance(self.select_unit))
+
+        # edit expense information
+        
+        select_expense = Node(option_label="View Expenses")
+        select_expense.add_procedure(lambda: self.store_selected_instance(Expense, select_expense))
+
         # add expense
         
         add_expense = Node(option_label="Add Expense")
         add_expense.add_procedure(lambda: self.save_expense_info(self.select_unit))
+
+        # edit expense information
+        
+        edit_expense = Node(option_label="Update Expense Information")
+        edit_expense.add_procedure(lambda: self.update_selected_instance(select_expense))
+
+        # delete expense information
+        
+        delete_expense = Node(option_label="Delete Expense")
+        delete_expense.add_procedure(lambda: self.delete_selected_instance(select_expense))
 
         # add tenant
         
@@ -593,9 +680,11 @@ class PopulateMenu:
         add_tenant.add_procedure(lambda: self.save_tenant_info(self.select_unit))
 
         # attach nodes to parent elements
-        unit_transactions.add_children([transaction_summary, view_transactions, add_expense, self.go_back, self.to_main, self.exit_app])
+
+        select_expense.add_children([edit_expense, delete_expense, self.go_back, self.to_main, self.exit_app])
+        unit_transactions.add_children([transaction_summary, view_transactions, select_expense, add_expense, self.go_back, self.to_main, self.exit_app])
         unit_tenants.add_children([self.select_tenant, add_tenant, self.go_back, self.to_main, self.exit_app])
-        self.select_unit.add_children([unit_transactions, unit_tenants, self.go_back, self.to_main, self.exit_app])
+        self.select_unit.add_children([unit_transactions, unit_tenants, edit_unit, delete_unit, self.go_back, self.to_main, self.exit_app])
         rentals.add_children([self.select_unit, self.to_main, self.exit_app])
         self.main.add_child(rentals)
 

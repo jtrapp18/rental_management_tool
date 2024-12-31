@@ -253,7 +253,7 @@ class Tenant:
             move_in_date DATE,
             move_out_date DATE,
             unit_id INTEGER,
-            FOREIGN KEY (unit_id) REFERENCES units(id))
+            FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE)
         """
         CURSOR.execute(sql)
         CONN.commit()
