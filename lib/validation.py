@@ -55,7 +55,7 @@ def phone_validation(phone_number):
         return phone_number
     else:
         raise ValueError(f"Did not enter valid phone number")
-phone_validation.constraints = "valid phone number"
+phone_validation.constraints = "valid 10-digit phone number"
 
 def date_validation(date):
     '''

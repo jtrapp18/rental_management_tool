@@ -167,6 +167,7 @@ def get_transaction_summary():
     df['Date'] = pd.to_datetime(df['Date'])
     df['Year'] = df['Date'].dt.year
     
-    df_pivot = df.pivot_table(index='Year', columns='Type', values='Amount', aggfunc='sum')
+    df_pivot = df.pivot_table(index='Year', columns=['Type', 'Unit'], values='Amount', aggfunc='sum')
+    df_pivot = df_pivot['payment'] - df_pivot['expense']
 
     return df_pivot

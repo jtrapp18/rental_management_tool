@@ -4,6 +4,7 @@ from tenant import Tenant
 import validation as val
 import sql_helper as sql
 import pandas as pd
+from datetime import datetime
 
 class Payment:
     '''
@@ -305,7 +306,7 @@ class Payment:
         tenant = Tenant.find_by_id(self.tenant_id)
         unit = Unit.find_by_id(tenant.unit_id)
 
-        filename = f"RECEIPT_FOR_{tenant.name.upper()}.pdf"
+        filename = f"RECEIPT_FOR_{tenant.name.upper()}_{self.pmt_date}.pdf"
         doc = SimpleDocTemplate(f"./outputs/{filename}")
 
         table_style = TableStyle([

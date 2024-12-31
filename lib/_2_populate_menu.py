@@ -37,6 +37,7 @@ class PopulateMenu:
     - new_itm_validation: creates and validates new object to be used to create a new instance
     - update_itm_validation: updates an existing instance after validating user inputs
     - print_to_csv: prints data to csv file
+    - run_func_if_confirm: confirms if a specific procedure should be run then runs that procedure
     - print_transaction_history: displays unit transactions and optionally prints results to csv
     - save_tenant_info: allows user to create new Tenant instance and optionally saves to DB
     - save_expense_info: allows user to create new Expense instance and optionally saves to DB
@@ -97,13 +98,13 @@ class PopulateMenu:
         '''
         adds reference to selected instance within specified node
         '''
-        selected_inst, index = pick(cls.get_all_instances(), "Choose Unit")
+        selected_inst, index = pick(cls.get_all_instances(), "Select Unit from options below")
 
         ref_node.data_ref = selected_inst # store selected unit
-        ref_node.title_label = f"Selected: {selected_inst}"
+        ref_node.title_label = f"Options for: {selected_inst}"
 
         for child in ref_node.children:
-            child.title_label = f"{child.title_label}: {selected_inst}"
+            child.title_label = f"Options for: {selected_inst}"
 
     # ///////////////////////////////////////////////////////////////
     # REUSABLE CLI FUNCTIONALITY
@@ -147,17 +148,20 @@ class PopulateMenu:
                 value = val_func(user_input)
                 return value
             except:
-                self.invalid_option()
+                self.menu.invalid_option()
                 user_input = user_selection(constraints, key)
+
+                if user_input == 'exit' or user_input =='e':
+                    return 'exit'
     
-    def new_itm_validation(self, val_dict):
+    def new_itm_validation(self, cls):
         '''
         creates and validates new object to be used to create a new instance
 
         Parameters
         ---------
-        val_func: dict
-            - dictionary which stores validation functions for various class attributes
+        cls: class
+            - class to use for new instance
 
         Returns
         ---------
@@ -165,6 +169,11 @@ class PopulateMenu:
             - dictionary containing information needed to create a new class instance
         '''
         new_obj = {}
+        print(f"[yellow]Add New {cls.__name__}[/yellow]")
+        self.menu.print_cancellation_directions()
+        print("")
+
+        val_dict = cls.VALIDATION_DICT
         
         for key, val_func in val_dict.items():
             value = self.show_user_selections(val_func, key)
@@ -176,7 +185,7 @@ class PopulateMenu:
 
         return new_obj
 
-    def update_itm_validation(self, inst, val_dict):
+    def update_itm_validation(self, inst):
         '''
         updates an existing instance after validating user's desired changes
 
@@ -184,15 +193,16 @@ class PopulateMenu:
         ---------
         inst: class instance (e.g. Tenant)
             - instance to be updated by user
-        val_func: dict
-            - dictionary which stores validation functions for various class attributes
 
         Procedures
         ---------
         - updates selected instance with user-selected or user-entered values
         '''
+        cls = inst.__class__
+        val_dict = cls.VALIDATION_DICT
         attributes = [f"{key}: {getattr(inst, key, None)}" for key in val_dict]
-        itm_to_update, index = pick(attributes+['SUBMIT CHANGES'], "Choose item to update")
+        itm_to_update, index = pick(attributes+['SUBMIT CHANGES'], 
+                                    f"Select Attribute of {cls.__name__} to Update")
 
         if itm_to_update == 'SUBMIT CHANGES':
             return
@@ -207,7 +217,7 @@ class PopulateMenu:
         
         setattr(inst, key, value)
 
-        self.update_itm_validation(inst, val_dict)
+        self.update_itm_validation(inst)
     
     def print_to_csv(self, df, report_type, report_for):
         '''
@@ -222,18 +232,29 @@ class PopulateMenu:
         report_for: str
             - used in the filename to specify report filters (e.g. tenant name)
         '''
-        print(report_for)
-        print('---------------------------------------------------')
-        print(df)
+        date_today = datetime.now().strftime('%Y-%m-%d')
+        label = f"{report_type}_AS_OF_{date_today}_FOR_{report_for}"
+        self.menu.data_output(label, df)
               
-        confirm = input(f"Print output to CSV? (y/N)")
-        
-        if confirm.lower() == "y":
-            date_today = datetime.now().strftime('%Y-%m-%d')
-            path = f"./outputs/{report_type}_AS_OF_{date_today}_FOR_{report_for}.csv"
-            df.to_csv(path, index=False)
+        self.run_func_if_confirm('Print output to CSV?', lambda: df.to_csv(f"./outputs/{label}.csv", index=False))
 
-            self.menu.print_message(path)
+    def run_func_if_confirm(self, prompt, func):
+        '''
+        confirms if a specific procedure should be run then runs that procedure
+        
+        Parameters
+        ---------
+        prompt: str
+            - 
+        func: callable object
+            - function to run if user confirms
+        '''
+        confirm = input(f"{prompt} (y/N) ")
+
+        if confirm.lower() == "y":
+            func()
+
+            print("")
 
     # ///////////////////////////////////////////////////////////////
     # SET UP TENANT OPERATIONS
@@ -249,7 +270,7 @@ class PopulateMenu:
         '''
         tenants = Tenant.get_all_instances()
 
-        filter, index = pick([True, False], "Filter by Active Only?")
+        filter, index = pick([True, False], "Filter on Active Tenants Only?")
         tenant_list = []
         
         if filter:
@@ -267,11 +288,11 @@ class PopulateMenu:
             unit = self.select_unit.data_ref
             tenant_list = [tenant for tenant in tenant_list if tenant.unit_id==unit.id]
 
-        selected_tenant, index = pick(tenant_list, "Choose Tenant")
+        selected_tenant, index = pick(tenant_list, "Select Tenant from options below")
 
         ref_node.data_ref = selected_tenant # store selected unit
 
-        ref_node.title_label = f"Selected: {selected_tenant}"
+        ref_node.title_label = f"Options for: {selected_tenant}"
 
     def update_selected_tenant(self, ref_node):
         '''
@@ -283,21 +304,23 @@ class PopulateMenu:
             - node which stores the reference to the user-selected instance
         '''
         tenant = ref_node.data_ref
-        print('Original:')
-        print(tenant)        
-        self.update_itm_validation(inst=tenant, val_dict=Tenant.VALIDATION_DICT)
 
-        print("Updated:")
+        print(f"[yellow]Update Tenant Information[/yellow]")
+        self.menu.print_cancellation_directions()
+        print("")
+
+        print('[cyan]Original:[/cyan]')
         print(tenant)
+        print("")
 
-        confirm = input(f"Save changes? (y/N)")
+        self.update_itm_validation(inst=tenant)
+        print("")
 
-        if confirm.lower() == "y":
-            tenant.update()
+        print("[yellow]Updated:[/yellow]")
+        print(tenant)
+        print("")
 
-            print("")
-        else:
-            print("Changes not saved")
+        self.run_func_if_confirm('Save changes?', tenant.update)
 
     def print_payment_history(self, ref_node):
         '''
@@ -324,16 +347,19 @@ class PopulateMenu:
         '''
         tenant = ref_node.data_ref
 
-        new_payment = self.new_itm_validation(Payment.VALIDATION_DICT)  
+        new_payment = self.new_itm_validation(Payment)  
 
         if not new_payment:
             return
         
         new_payment["tenant_id"] = tenant.id
 
+        print("")
+        print("[bright_green]New Payment:[/bright_green]")
         print(new_payment)
+        print("")
 
-        confirm = input(f"Save payment? (y/N)")
+        confirm = input(f"Save payment? (y/N) ")
         
         if confirm.lower() == "y":
             payment = Payment(
@@ -379,12 +405,12 @@ class PopulateMenu:
 
         # edit tenant information
         
-        edit_tenant = Node(option_label="Edit Tenant Information")
+        edit_tenant = Node(option_label="Update Tenant Information")
         edit_tenant.add_procedure(lambda: self.update_selected_tenant(self.select_tenant))
         
         # attach nodes to parent elements
         
-        self.select_tenant.add_children([view_payments, add_payment, edit_tenant, self.go_back, self.to_main, self.exit_app])
+        self.select_tenant.add_children([view_payments, add_payment, edit_tenant, self.to_main, self.exit_app])
         
         tenants.add_children([self.select_tenant, self.to_main, self.exit_app])
         
@@ -416,9 +442,7 @@ class PopulateMenu:
         ref_node: Node instance
             - node which stores the reference to the user-selected instance
         '''
-        print("[pink]Add Tenant[/pink]")
-        print("---------------------------------------")
-        new_tenant = self.new_itm_validation(Tenant.VALIDATION_DICT)  
+        new_tenant = self.new_itm_validation(Tenant)  
 
         if not new_tenant:
             return
@@ -427,7 +451,7 @@ class PopulateMenu:
 
         print(new_tenant)
 
-        confirm = input(f"Save tenant? (y/N)")
+        confirm = input(f"Save tenant? (y/N) ")
         
         if confirm.lower() == "y":
             tenant = Tenant(
@@ -450,7 +474,7 @@ class PopulateMenu:
         ref_node: Node instance
             - node which stores the reference to the user-selected instance
         '''
-        new_expense = self.new_itm_validation(Expense.VALIDATION_DICT)
+        new_expense = self.new_itm_validation(Expense)
 
         if not new_expense:
             return
@@ -459,7 +483,7 @@ class PopulateMenu:
 
         print(new_expense)
 
-        confirm = input(f"Save expense? (y/N)")
+        confirm = input(f"Save expense? (y/N) ")
         
         if confirm.lower() == "y":
             expense = Expense(
@@ -520,7 +544,6 @@ class PopulateMenu:
         displays transactions made and allows user to print to csv
         '''
         df = sql.get_all_transactions()
-        self.menu.data_output('Transactions', 'for all units', df)
         self.print_to_csv(df, "TRANSACTIONS", "ALL_UNITS")
 
     def print_transaction_summary(self):
@@ -528,8 +551,6 @@ class PopulateMenu:
         displays summary of transactions made and allows user to print to csv
         '''
         df = sql.get_transaction_summary()
-        self.menu.data_output('Summary of Transactions', 'for all units', df)
-
         self.print_to_csv(df, "INCOME_SUMMARY", "ALL_UNITS")
 
     def output_revenue_report(self):
@@ -544,7 +565,7 @@ class PopulateMenu:
 
         years = df['Year'].unique()
 
-        year, index = pick(years, "Choose Year")
+        year, index = pick(years, "Select Year from options below")
         generate_income_report(year)
 
     def add_summary_ops(self):
