@@ -5,6 +5,7 @@ import pandas as pd
 from menu_tree import MenuTree, Node
 from rich import print
 from rich.console import Console
+from rich.table import Table
 from pick import pick
 from unit import Unit
 from tenant import Tenant
@@ -36,6 +37,7 @@ class PopulateMenu:
     - show_user_selections: displays user selections for adding or updating an instance
     - new_itm_validation: creates and validates new object to be used to create a new instance
     - update_itm_validation: updates an existing instance after validating user inputs
+    - update_selected_instance: updates an existing class instance and saves changes to DB
     - print_to_csv: prints data to csv file
     - run_func_if_confirm: confirms if a specific procedure should be run then runs that procedure
     - print_transaction_history: displays unit transactions and optionally prints results to csv
@@ -43,7 +45,6 @@ class PopulateMenu:
     - save_expense_info: allows user to create new Expense instance and optionally saves to DB
     - add_unit_ops: creates and links nodes related to unit operations
     - store_selected_tenant: adds reference to selected Tenant instance within specified node
-    - update_selected_tenant: updates an existing Tenant instance and saves changes to DB
     - print_payment_history: displays tenant payment history and optionally prints to csv
     - save_payment_info: allows user to create a new Payment instance and optionally saves to DB
     - add_tenant_ops: creates and links nodes related to tenant operations
@@ -154,7 +155,7 @@ class PopulateMenu:
                 if user_input == 'exit' or user_input =='e':
                     return 'exit'
     
-    def new_itm_validation(self, cls):
+    def new_itm_validation(self, cls, parent):
         '''
         creates and validates new object to be used to create a new instance
 
@@ -162,6 +163,8 @@ class PopulateMenu:
         ---------
         cls: class
             - class to use for new instance
+        parent: class instance
+            - instance of parent class to link new item with
 
         Returns
         ---------
@@ -169,7 +172,10 @@ class PopulateMenu:
             - dictionary containing information needed to create a new class instance
         '''
         new_obj = {}
+        parent_name = parent.__class__.__name__
+        
         print(f"[yellow]Add New {cls.__name__}[/yellow]")
+        print(f"For: [magenta]{parent}[/magenta]")
         self.menu.print_cancellation_directions()
         print("")
 
@@ -183,7 +189,17 @@ class PopulateMenu:
             
             new_obj[key] = value
 
-        return new_obj
+        new_obj[f"{parent_name.lower()}_id"] = parent.id
+
+        print("")
+        print(f"[bright_green]New {cls.__name__} Details:[/bright_green]")
+        print(new_obj)
+        print("")
+
+        confirm = input(f"Save {cls.__name__}? (Y/N) ")
+        
+        if confirm.lower() == "y":
+            return new_obj
 
     def update_itm_validation(self, inst):
         '''
@@ -234,9 +250,39 @@ class PopulateMenu:
         '''
         date_today = datetime.now().strftime('%Y-%m-%d')
         label = f"{report_type}_AS_OF_{date_today}_FOR_{report_for}"
-        self.menu.data_output(label, df)
+       
+        print(f"[yellow]{label}[/yellow]")
+        print("")
+        print(df)
+        print("")
               
-        self.run_func_if_confirm('Print output to CSV?', lambda: df.to_csv(f"./outputs/{label}.csv", index=False))
+        self.run_func_if_confirm('Print data to CSV in outputs folder?', 
+                                 lambda: df.to_csv(f"./outputs/{label}.csv"))
+
+    def update_selected_instance(self, ref_node):
+        '''
+        updates an existing class instance and saves changes to DB
+
+        Parameters
+        ---------
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
+        '''
+        inst = ref_node.data_ref
+        class_name = inst.__class__.__name__
+
+        print(f"[yellow]Update {class_name} Information[/yellow]")
+        print(f"For: [magenta]{inst}[/magenta]")
+        self.menu.print_cancellation_directions()
+        print("")
+
+        self.update_itm_validation(inst=inst)
+        print("")
+
+        print(f"Updated:[yellow]{inst}[/yellow]")
+        print("")
+
+        self.run_func_if_confirm('Save changes?', inst.update)
 
     def run_func_if_confirm(self, prompt, func):
         '''
@@ -249,7 +295,7 @@ class PopulateMenu:
         func: callable object
             - function to run if user confirms
         '''
-        confirm = input(f"{prompt} (y/N) ")
+        confirm = input(f"{prompt} (Y/N) ")
 
         if confirm.lower() == "y":
             func()
@@ -282,8 +328,6 @@ class PopulateMenu:
         else:
             tenant_list = tenants
 
-        print("tenant list", Node.last_node.parent)
-
         if self.select_unit.data_ref:
             unit = self.select_unit.data_ref
             tenant_list = [tenant for tenant in tenant_list if tenant.unit_id==unit.id]
@@ -293,34 +337,6 @@ class PopulateMenu:
         ref_node.data_ref = selected_tenant # store selected unit
 
         ref_node.title_label = f"Options for: {selected_tenant}"
-
-    def update_selected_tenant(self, ref_node):
-        '''
-        updates an existing Tenant instance and saves changes to DB
-
-        Parameters
-        ---------
-        ref_node: Node instance
-            - node which stores the reference to the user-selected instance
-        '''
-        tenant = ref_node.data_ref
-
-        print(f"[yellow]Update Tenant Information[/yellow]")
-        self.menu.print_cancellation_directions()
-        print("")
-
-        print('[cyan]Original:[/cyan]')
-        print(tenant)
-        print("")
-
-        self.update_itm_validation(inst=tenant)
-        print("")
-
-        print("[yellow]Updated:[/yellow]")
-        print(tenant)
-        print("")
-
-        self.run_func_if_confirm('Save changes?', tenant.update)
 
     def print_payment_history(self, ref_node):
         '''
@@ -347,34 +363,20 @@ class PopulateMenu:
         '''
         tenant = ref_node.data_ref
 
-        new_payment = self.new_itm_validation(Payment)  
+        new_payment = self.new_itm_validation(Payment, tenant)  
 
         if not new_payment:
             return
-        
-        new_payment["tenant_id"] = tenant.id
 
-        print("")
-        print("[bright_green]New Payment:[/bright_green]")
-        print(new_payment)
-        print("")
-
-        confirm = input(f"Save payment? (y/N) ")
-        
-        if confirm.lower() == "y":
-            payment = Payment(
-                amount=float(new_payment["amount"]),
-                pmt_date=new_payment["pmt_date"],
-                method=new_payment["method"],
-                tenant_id=int(new_payment["tenant_id"]),                
-                pmt_type=new_payment["pmt_type"],
-            )
-            payment.save()
-            payment.print_receipt()
-
-            print("")
-        else:
-            print("Did not save to database")
+        payment = Payment(
+            amount=float(new_payment["amount"]),
+            pmt_date=new_payment["pmt_date"],
+            method=new_payment["method"],
+            tenant_id=int(new_payment["tenant_id"]),                
+            pmt_type=new_payment["pmt_type"],
+        )
+        payment.save()
+        payment.print_receipt()
 
     def add_tenant_ops(self):
         '''
@@ -406,7 +408,7 @@ class PopulateMenu:
         # edit tenant information
         
         edit_tenant = Node(option_label="Update Tenant Information")
-        edit_tenant.add_procedure(lambda: self.update_selected_tenant(self.select_tenant))
+        edit_tenant.add_procedure(lambda: self.update_selected_instance(self.select_tenant))
         
         # attach nodes to parent elements
         
@@ -442,28 +444,21 @@ class PopulateMenu:
         ref_node: Node instance
             - node which stores the reference to the user-selected instance
         '''
-        new_tenant = self.new_itm_validation(Tenant)  
+        unit = ref_node.data_ref
+
+        new_tenant = self.new_itm_validation(Tenant, unit)  
 
         if not new_tenant:
             return
-    
-        new_tenant["unit_id"] = ref_node.data_ref.id
 
-        print(new_tenant)
-
-        confirm = input(f"Save tenant? (y/N) ")
-        
-        if confirm.lower() == "y":
-            tenant = Tenant(
-                name=new_tenant["name"],
-                email_address=new_tenant["email_address"],
-                phone_number=new_tenant["phone_number"],
-                move_in_date=new_tenant["move_in_date"],
-                unit_id=int(new_tenant["unit_id"])             
-            )
-            tenant.save()
-        else:
-            print("Did not save to database")
+        tenant = Tenant(
+            name=new_tenant["name"],
+            email_address=new_tenant["email_address"],
+            phone_number=new_tenant["phone_number"],
+            move_in_date=new_tenant["move_in_date"],
+            unit_id=int(new_tenant["unit_id"])             
+        )
+        tenant.save()
 
     def save_expense_info(self, ref_node):
         '''
@@ -474,27 +469,20 @@ class PopulateMenu:
         ref_node: Node instance
             - node which stores the reference to the user-selected instance
         '''
-        new_expense = self.new_itm_validation(Expense)
+        unit = ref_node.data_ref
+
+        new_expense = self.new_itm_validation(Expense, unit)
 
         if not new_expense:
             return
-
-        new_expense["unit_id"] = ref_node.data_ref.id
-
-        print(new_expense)
-
-        confirm = input(f"Save expense? (y/N) ")
         
-        if confirm.lower() == "y":
-            expense = Expense(
-                descr=new_expense["descr"],
-                amount=float(new_expense["amount"]),
-                exp_date=new_expense["exp_date"],
-                unit_id=int(new_expense["unit_id"]),                
-            )
-            expense.save()
-        else:
-            print("Did not save to database")
+        expense = Expense(
+            descr=new_expense["descr"],
+            amount=float(new_expense["amount"]),
+            exp_date=new_expense["exp_date"],
+            unit_id=int(new_expense["unit_id"]),                
+        )
+        expense.save()
 
     def add_unit_ops(self):
         '''

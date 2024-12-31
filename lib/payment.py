@@ -32,7 +32,7 @@ class Payment:
         - date payment was incurred
     method: str
         - method used to pay (e.g. check, cash)
-    pmt_type: str
+    category: str
         - type of payment (e.g. rent, security deposit)
     tenant_id: int
         - id of parent tenant
@@ -55,18 +55,18 @@ class Payment:
     - get_dataframe_w_unit: return a Pandas DataFrame which includes unit ID
     - create_table: create a new table to persist the attributes of all instances
     '''
-    DF_COLUMNS = ("id", "Payment Type", "Amount", "Date", "Method", "Tenant ID")
+    DF_COLUMNS = ("id", "Category", "Amount", "Date", "Method", "Tenant ID")
     VALIDATION_DICT = {
         "amount": val.dollar_amt_validation,
         "pmt_date": val.date_validation,
         "method": val.method_validation,
-        "pmt_type": val.pmt_type_validation
+        "category": val.pmt_category_validation
         }
 
     # Dictionary of objects saved to the database.
     all = {}
 
-    def __init__(self, amount, pmt_date, method, tenant_id, pmt_type="rent", id=None):
+    def __init__(self, amount, pmt_date, method, tenant_id, category="rent", id=None):
         '''
         Constructs the necessary attributes for the Payment object.
 
@@ -80,7 +80,7 @@ class Payment:
             - method used to pay (e.g. check, cash)
         tenant_id: int
             - id of parent tenant
-        pmt_type: str
+        category: str
             - type of payment (e.g. rent, security deposit)
         id: int
             - unique identifier for instance
@@ -89,12 +89,12 @@ class Payment:
         self.amount = amount
         self.pmt_date = pmt_date
         self.method = method
-        self.pmt_type = pmt_type
+        self.category = category
         self.tenant_id = tenant_id
 
     def __repr__(self):
         return (
-            f"<Payment {self.id}: {self.pmt_type}, {self.pmt_date}, {self.amount}, {self.method}, "
+            f"<Payment {self.id}: {self.category}, {self.pmt_date}, {self.amount}, {self.method}, "
             + f"Tenant: {self.tenant_id}>"
         )
     
@@ -127,12 +127,12 @@ class Payment:
         self._method = val.method_validation(method)
         
     @property
-    def pmt_type(self):
-        return self._pmt_type
+    def category(self):
+        return self._category
 
-    @pmt_type.setter
-    def pmt_type(self, pmt_type):
-        self._pmt_type = val.pmt_type_validation(pmt_type)
+    @category.setter
+    def category(self, category):
+        self._category = val.pmt_category_validation(category)
 
     @property
     def tenant_id(self):
@@ -146,11 +146,11 @@ class Payment:
     # MANAGE CLASS INSTANCES
 
     @classmethod
-    def create(cls, amount, pmt_date, method, tenant_id, pmt_type):
+    def create(cls, amount, pmt_date, method, tenant_id, category):
         '''
         initialize a new instance and save the object to the database
         '''
-        payment = cls(amount, pmt_date, method, tenant_id, pmt_type)
+        payment = cls(amount, pmt_date, method, tenant_id, category)
         payment.save()
         return payment
    
@@ -163,7 +163,7 @@ class Payment:
         payment = cls.all.get(row[0])
 
         id = row[0]
-        pmt_type = row[1]
+        category = row[1]
         amount = row[2]
         pmt_date = row[3]
         method = row[4]
@@ -171,14 +171,14 @@ class Payment:
         
         if payment:
             # ensure attributes match row values in case local object was modified
-            payment.pmt_type = pmt_type
+            payment.category = category
             payment.amount = amount
             payment.pmt_date = pmt_date
             payment.method = method
             payment.tenant_id = tenant_id
         else:
             # not in dictionary, create new instance and add to dictionary
-            payment = cls(amount, pmt_date, method, tenant_id, pmt_type, id) # reordering due to optional values
+            payment = cls(amount, pmt_date, method, tenant_id, category, id) # reordering due to optional values
             cls.all[payment.id] = payment
         return payment
     
@@ -228,7 +228,7 @@ class Payment:
         sql = """
         SELECT
             p.id,
-            p.pmt_type,
+            p.category,
             p.amount, 
             p.pmt_date,
             p.method,
@@ -242,7 +242,7 @@ class Payment:
 
         rows = CURSOR.fetchall()
 
-        return pd.DataFrame(rows, columns=Payment.DF_COLUMNS + ('Unit ID',))
+        return pd.DataFrame(rows, columns=Payment.DF_COLUMNS + ('Unit',))
     
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS
@@ -255,7 +255,7 @@ class Payment:
         sql = """
             CREATE TABLE IF NOT EXISTS payments (
             id INTEGER PRIMARY KEY,
-            pmt_type TEXT,
+            category TEXT,
             amount FLOAT,
             pmt_date DATE,
             method TEXT,
@@ -270,11 +270,11 @@ class Payment:
         insert a new row with the values of the current object
         '''
         sql = """
-            INSERT INTO payments (pmt_type, amount, pmt_date, method, tenant_id)
+            INSERT INTO payments (category, amount, pmt_date, method, tenant_id)
             VALUES (?, ?, ?, ?, ?)
         """
 
-        CURSOR.execute(sql, (self.pmt_type, self.amount, 
+        CURSOR.execute(sql, (self.category, self.amount, 
                              self.pmt_date, self.method, 
                              self.tenant_id))
         CONN.commit()
@@ -288,10 +288,10 @@ class Payment:
         '''
         sql = """
             UPDATE payments
-            SET pmt_type = ?, amount = ?, pmt_date = ?, method = ?, tenant_id = ?
+            SET category = ?, amount = ?, pmt_date = ?, method = ?, tenant_id = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.pmt_type, self.amount, 
+        CURSOR.execute(sql, (self.category, self.amount, 
                              self.pmt_date, self.method, 
                              self.tenant_id, self.id))
         CONN.commit()
@@ -322,7 +322,7 @@ class Payment:
         payment_info = [
             [f"Receipt of Payment", ""],
             ["Receipt Number:", self.id],
-            ["For:", self.pmt_type.title()],             
+            ["For:", self.category.title()],             
             ["Date:", self.pmt_date],
             ["Amount:", f"${self.amount:,.2f}"],
             ["Method:", self.method],

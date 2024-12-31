@@ -119,7 +119,7 @@ def get_all_transactions(unit_id=None):
     output: Pandas DataFrame
         - DataFrame containing all transactions (payments, expenses) for specified unit
     '''
-    columns = ["ID", "Type", "Amount", "Date", "Detail", "Unit"]
+    columns = ["ID", "Type", "Amount", "Date", "Category", "Unit"]
 
     sql_expenses = """
     SELECT 
@@ -127,7 +127,7 @@ def get_all_transactions(unit_id=None):
         'expense' AS Type, 
         e.amount AS Amount, 
         e.exp_date AS Date, 
-        e.descr AS Detail, 
+        e.category AS Category, 
         e.unit_id AS Unit
     FROM expenses AS e"""
 
@@ -139,7 +139,7 @@ def get_all_transactions(unit_id=None):
         'payment' AS Type, 
         p.amount AS Amount, 
         p.pmt_date AS Date, 
-        p.pmt_type AS Detail, 
+        p.category AS Category, 
         t.unit_id AS Unit
     FROM payments AS p
     JOIN tenants AS t
@@ -167,7 +167,7 @@ def get_transaction_summary():
     df['Date'] = pd.to_datetime(df['Date'])
     df['Year'] = df['Date'].dt.year
     
-    df_pivot = df.pivot_table(index='Year', columns=['Type', 'Unit'], values='Amount', aggfunc='sum')
-    df_pivot = df_pivot['payment'] - df_pivot['expense']
+    df_pivot = df.pivot_table(index='Year', columns='Type', values='Amount', aggfunc='sum')
+    df_pivot['net income'] = df_pivot['payment'] - df_pivot['expense']
 
     return df_pivot

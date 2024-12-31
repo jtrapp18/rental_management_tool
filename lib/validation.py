@@ -102,18 +102,29 @@ def method_validation(method):
         raise ValueError("Payment method must match one of the following:", approved_methods)
 method_validation.constraints = ["check", "venmo", "zelle", "cash"]
 
-
-def pmt_type_validation(pmt_type):
+def exp_category_validation(category):
     '''
     validate payment type input and return only if validation passes
     '''
-    approved_types = ["rent", "security deposit", "late fee"]
+    approved_categories = ["mortgage", "property mgmt", "repairs", "maintenance", "rennovations", "cleaning"]
 
-    if pmt_type in approved_types:
-        return pmt_type
+    if category in approved_categories:
+        return category
     else:
-        raise ValueError("Payment type must match one of the following:", approved_types)
-pmt_type_validation.constraints = ["rent", "security deposit", "late fee"]
+        raise ValueError("Payment type must match one of the following:", approved_categories)
+exp_category_validation.constraints = ["mortgage", "property mgmt", "repairs", "maintenance", "rennovations", "cleaning"]
+    
+def pmt_category_validation(category):
+    '''
+    validate payment type input and return only if validation passes
+    '''
+    approved_categories = ["rent", "security deposit", "late fee"]
+
+    if category in approved_categories:
+        return category
+    else:
+        raise ValueError("Payment type must match one of the following:", approved_categories)
+pmt_category_validation.constraints = ["rent", "security deposit", "late fee"]
     
 def parent_id_validation(parent_id, parent_cls):
     '''

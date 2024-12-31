@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
     print("Seeding expense table...")
 
-    maintenance_expenses = ["repairs", "regular maintenance", "home improvements", "cleaning fee"]
+    expense_categories = ["repairs", "maintenance", "rennovations", "cleaning"]
 
     expenses = []
 
@@ -60,9 +60,9 @@ if __name__ == "__main__":
 
         while exp_date <= datetime.now():
 
-            # Monthly mortgage payment
             expense = Expense(
-                descr="mortgage",
+                descr="monthly mortgage payment",
+                category="mortgage",
                 amount=monthly_mortgage,
                 exp_date=exp_date.strftime('%Y-%m-%d'),
                 unit_id=unit.id,
@@ -70,9 +70,9 @@ if __name__ == "__main__":
             expense.save()
             expenses.append(expense)
 
-            # Monthly property management fee
             expense = Expense(
-                descr="property mgmt fee",
+                descr="monthly property mgmt fee",
+                category="property mgmt",
                 amount=monthly_rent*0.1,
                 exp_date=exp_date.strftime('%Y-%m-%d'),
                 unit_id=unit.id,
@@ -84,10 +84,12 @@ if __name__ == "__main__":
             setfwd = random.randint(1, 30)
             misc_date = exp_date + timedelta(days=setfwd)
             misc_num = random.choices([0, 1, 2], weights=[0.7, 0.2, 0.1], k=1)[0]
+            category = random.choice(expense_categories)
 
             for i in range(0, misc_num):
                 expense = Expense(
-                    descr=random.choice(maintenance_expenses),
+                    descr=category,
+                    category=category,
                     amount=monthly_rent*0.1,
                     exp_date=misc_date.strftime('%Y-%m-%d'),
                     unit_id=unit.id,
@@ -160,7 +162,7 @@ if __name__ == "__main__":
                     pmt_date=pmt_date.strftime('%Y-%m-%d'),
                     method=preferred_pmt_method,
                     tenant_id=tenant.id,                
-                    pmt_type="security deposit",
+                    category="security deposit",
                 )
                 payment.save()
                 payments.append(payment)
@@ -170,7 +172,7 @@ if __name__ == "__main__":
                 pmt_date=pmt_date.strftime('%Y-%m-%d'),
                 method=preferred_pmt_method,
                 tenant_id=tenant.id,                
-                pmt_type="rent",
+                category="rent",
             )
             payment.save()
             payments.append(payment)

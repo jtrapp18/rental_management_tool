@@ -1,0 +1,328 @@
+,ID,Type,Amount,Date,Detail,Unit
+0,606,expense,2008.0,2017-03-20,mortgage,3
+1,607,expense,180.0,2017-03-20,property mgmt fee,3
+2,608,expense,2008.0,2017-04-20,mortgage,3
+3,609,expense,180.0,2017-04-20,property mgmt fee,3
+4,252,payment,1800.0,2017-04-26,security deposit,3
+5,253,payment,1800.0,2017-04-26,rent,3
+6,610,expense,2008.0,2017-05-20,mortgage,3
+7,611,expense,180.0,2017-05-20,property mgmt fee,3
+8,254,payment,1800.0,2017-05-26,rent,3
+9,612,expense,180.0,2017-05-30,repairs,3
+10,613,expense,2008.0,2017-06-20,mortgage,3
+11,614,expense,180.0,2017-06-20,property mgmt fee,3
+12,255,payment,1800.0,2017-06-26,rent,3
+13,615,expense,2008.0,2017-07-20,mortgage,3
+14,616,expense,180.0,2017-07-20,property mgmt fee,3
+15,256,payment,1800.0,2017-07-26,rent,3
+16,617,expense,2008.0,2017-08-20,mortgage,3
+17,618,expense,180.0,2017-08-20,property mgmt fee,3
+18,257,payment,1800.0,2017-08-26,rent,3
+19,619,expense,2008.0,2017-09-20,mortgage,3
+20,620,expense,180.0,2017-09-20,property mgmt fee,3
+21,258,payment,1800.0,2017-09-26,rent,3
+22,621,expense,180.0,2017-10-13,repairs,3
+23,623,expense,2008.0,2017-10-20,mortgage,3
+24,624,expense,180.0,2017-10-20,property mgmt fee,3
+25,259,payment,1800.0,2017-10-26,rent,3
+26,622,expense,180.0,2017-11-10,cleaning fee,3
+27,625,expense,2008.0,2017-11-20,mortgage,3
+28,626,expense,180.0,2017-11-20,property mgmt fee,3
+29,260,payment,1800.0,2017-11-26,rent,3
+30,627,expense,2008.0,2017-12-20,mortgage,3
+31,628,expense,180.0,2017-12-20,property mgmt fee,3
+32,261,payment,1800.0,2017-12-26,rent,3
+33,629,expense,2008.0,2018-01-20,mortgage,3
+34,630,expense,180.0,2018-01-20,property mgmt fee,3
+35,262,payment,1800.0,2018-01-26,rent,3
+36,631,expense,2008.0,2018-02-20,mortgage,3
+37,632,expense,180.0,2018-02-20,property mgmt fee,3
+38,263,payment,1800.0,2018-02-26,rent,3
+39,633,expense,2008.0,2018-03-20,mortgage,3
+40,634,expense,180.0,2018-03-20,property mgmt fee,3
+41,264,payment,1800.0,2018-03-26,rent,3
+42,635,expense,180.0,2018-03-28,home improvements,3
+43,636,expense,180.0,2018-04-03,home improvements,3
+44,637,expense,2008.0,2018-04-20,mortgage,3
+45,638,expense,180.0,2018-04-20,property mgmt fee,3
+46,265,payment,1800.0,2018-04-26,rent,3
+47,639,expense,2008.0,2018-05-20,mortgage,3
+48,640,expense,180.0,2018-05-20,property mgmt fee,3
+49,266,payment,1800.0,2018-05-26,rent,3
+50,641,expense,2008.0,2018-06-20,mortgage,3
+51,642,expense,180.0,2018-06-20,property mgmt fee,3
+52,643,expense,180.0,2018-06-24,home improvements,3
+53,267,payment,1800.0,2018-06-26,rent,3
+54,644,expense,2008.0,2018-07-20,mortgage,3
+55,645,expense,180.0,2018-07-20,property mgmt fee,3
+56,268,payment,1800.0,2018-07-26,rent,3
+57,646,expense,2008.0,2018-08-20,mortgage,3
+58,647,expense,180.0,2018-08-20,property mgmt fee,3
+59,648,expense,2008.0,2018-09-20,mortgage,3
+60,649,expense,180.0,2018-09-20,property mgmt fee,3
+61,269,payment,1800.0,2018-09-23,security deposit,3
+62,270,payment,1800.0,2018-09-23,rent,3
+63,650,expense,2008.0,2018-10-20,mortgage,3
+64,651,expense,180.0,2018-10-20,property mgmt fee,3
+65,271,payment,1800.0,2018-10-23,rent,3
+66,652,expense,2008.0,2018-11-20,mortgage,3
+67,653,expense,180.0,2018-11-20,property mgmt fee,3
+68,272,payment,1800.0,2018-11-23,rent,3
+69,654,expense,2008.0,2018-12-20,mortgage,3
+70,655,expense,180.0,2018-12-20,property mgmt fee,3
+71,273,payment,1800.0,2018-12-23,rent,3
+72,656,expense,2008.0,2019-01-20,mortgage,3
+73,657,expense,180.0,2019-01-20,property mgmt fee,3
+74,658,expense,180.0,2019-01-21,cleaning fee,3
+75,274,payment,1800.0,2019-01-23,rent,3
+76,659,expense,180.0,2019-02-02,cleaning fee,3
+77,660,expense,2008.0,2019-02-20,mortgage,3
+78,661,expense,180.0,2019-02-20,property mgmt fee,3
+79,275,payment,1800.0,2019-02-23,rent,3
+80,662,expense,180.0,2019-03-08,cleaning fee,3
+81,663,expense,2008.0,2019-03-20,mortgage,3
+82,664,expense,180.0,2019-03-20,property mgmt fee,3
+83,276,payment,1800.0,2019-03-23,rent,3
+84,665,expense,2008.0,2019-04-20,mortgage,3
+85,666,expense,180.0,2019-04-20,property mgmt fee,3
+86,277,payment,1800.0,2019-04-23,rent,3
+87,667,expense,2008.0,2019-05-20,mortgage,3
+88,668,expense,180.0,2019-05-20,property mgmt fee,3
+89,278,payment,1800.0,2019-05-23,rent,3
+90,669,expense,180.0,2019-06-01,regular maintenance,3
+91,671,expense,2008.0,2019-06-20,mortgage,3
+92,672,expense,180.0,2019-06-20,property mgmt fee,3
+93,279,payment,1800.0,2019-06-23,rent,3
+94,673,expense,180.0,2019-06-25,home improvements,3
+95,670,expense,180.0,2019-06-26,repairs,3
+96,674,expense,2008.0,2019-07-20,mortgage,3
+97,675,expense,180.0,2019-07-20,property mgmt fee,3
+98,280,payment,1800.0,2019-07-23,rent,3
+99,676,expense,180.0,2019-08-14,regular maintenance,3
+100,677,expense,180.0,2019-08-16,cleaning fee,3
+101,678,expense,2008.0,2019-08-20,mortgage,3
+102,679,expense,180.0,2019-08-20,property mgmt fee,3
+103,281,payment,1800.0,2019-08-23,rent,3
+104,680,expense,2008.0,2019-09-20,mortgage,3
+105,681,expense,180.0,2019-09-20,property mgmt fee,3
+106,282,payment,1800.0,2019-09-23,rent,3
+107,682,expense,2008.0,2019-10-20,mortgage,3
+108,683,expense,180.0,2019-10-20,property mgmt fee,3
+109,283,payment,1800.0,2019-10-23,rent,3
+110,684,expense,2008.0,2019-11-20,mortgage,3
+111,685,expense,180.0,2019-11-20,property mgmt fee,3
+112,284,payment,1800.0,2019-11-23,rent,3
+113,686,expense,2008.0,2019-12-20,mortgage,3
+114,687,expense,180.0,2019-12-20,property mgmt fee,3
+115,285,payment,1800.0,2019-12-23,rent,3
+116,688,expense,2008.0,2020-01-20,mortgage,3
+117,689,expense,180.0,2020-01-20,property mgmt fee,3
+118,286,payment,1800.0,2020-01-23,rent,3
+119,690,expense,2008.0,2020-02-20,mortgage,3
+120,691,expense,180.0,2020-02-20,property mgmt fee,3
+121,287,payment,1800.0,2020-02-23,rent,3
+122,692,expense,180.0,2020-03-16,home improvements,3
+123,694,expense,2008.0,2020-03-20,mortgage,3
+124,695,expense,180.0,2020-03-20,property mgmt fee,3
+125,288,payment,1800.0,2020-03-23,rent,3
+126,696,expense,180.0,2020-03-24,repairs,3
+127,693,expense,180.0,2020-04-05,home improvements,3
+128,697,expense,2008.0,2020-04-20,mortgage,3
+129,698,expense,180.0,2020-04-20,property mgmt fee,3
+130,289,payment,1800.0,2020-04-23,rent,3
+131,699,expense,2008.0,2020-05-20,mortgage,3
+132,700,expense,180.0,2020-05-20,property mgmt fee,3
+133,290,payment,1800.0,2020-05-23,rent,3
+134,701,expense,180.0,2020-05-27,regular maintenance,3
+135,702,expense,2008.0,2020-06-20,mortgage,3
+136,703,expense,180.0,2020-06-20,property mgmt fee,3
+137,291,payment,1800.0,2020-06-23,rent,3
+138,704,expense,2008.0,2020-07-20,mortgage,3
+139,705,expense,180.0,2020-07-20,property mgmt fee,3
+140,292,payment,1800.0,2020-07-23,rent,3
+141,706,expense,180.0,2020-08-07,repairs,3
+142,707,expense,2008.0,2020-08-20,mortgage,3
+143,708,expense,180.0,2020-08-20,property mgmt fee,3
+144,293,payment,1800.0,2020-08-23,rent,3
+145,709,expense,2008.0,2020-09-20,mortgage,3
+146,710,expense,180.0,2020-09-20,property mgmt fee,3
+147,294,payment,1800.0,2020-09-23,rent,3
+148,711,expense,180.0,2020-10-10,repairs,3
+149,712,expense,2008.0,2020-10-20,mortgage,3
+150,713,expense,180.0,2020-10-20,property mgmt fee,3
+151,295,payment,1800.0,2020-10-23,rent,3
+152,714,expense,2008.0,2020-11-20,mortgage,3
+153,715,expense,180.0,2020-11-20,property mgmt fee,3
+154,296,payment,1800.0,2020-11-23,rent,3
+155,716,expense,180.0,2020-11-28,cleaning fee,3
+156,717,expense,2008.0,2020-12-20,mortgage,3
+157,718,expense,180.0,2020-12-20,property mgmt fee,3
+158,297,payment,1800.0,2020-12-23,rent,3
+159,719,expense,180.0,2021-01-09,regular maintenance,3
+160,721,expense,2008.0,2021-01-20,mortgage,3
+161,722,expense,180.0,2021-01-20,property mgmt fee,3
+162,720,expense,180.0,2021-01-21,cleaning fee,3
+163,298,payment,1800.0,2021-01-23,rent,3
+164,723,expense,180.0,2021-02-04,home improvements,3
+165,724,expense,2008.0,2021-02-20,mortgage,3
+166,725,expense,180.0,2021-02-20,property mgmt fee,3
+167,299,payment,1800.0,2021-02-23,rent,3
+168,726,expense,2008.0,2021-03-20,mortgage,3
+169,727,expense,180.0,2021-03-20,property mgmt fee,3
+170,300,payment,1800.0,2021-03-23,rent,3
+171,728,expense,180.0,2021-04-16,cleaning fee,3
+172,729,expense,2008.0,2021-04-20,mortgage,3
+173,730,expense,180.0,2021-04-20,property mgmt fee,3
+174,301,payment,1800.0,2021-04-23,rent,3
+175,731,expense,2008.0,2021-05-20,mortgage,3
+176,732,expense,180.0,2021-05-20,property mgmt fee,3
+177,302,payment,1800.0,2021-05-23,rent,3
+178,733,expense,2008.0,2021-06-20,mortgage,3
+179,734,expense,180.0,2021-06-20,property mgmt fee,3
+180,303,payment,1800.0,2021-06-23,rent,3
+181,735,expense,2008.0,2021-07-20,mortgage,3
+182,736,expense,180.0,2021-07-20,property mgmt fee,3
+183,304,payment,1800.0,2021-07-23,rent,3
+184,737,expense,180.0,2021-08-15,home improvements,3
+185,739,expense,2008.0,2021-08-20,mortgage,3
+186,740,expense,180.0,2021-08-20,property mgmt fee,3
+187,305,payment,1800.0,2021-08-23,rent,3
+188,738,expense,180.0,2021-08-26,regular maintenance,3
+189,741,expense,2008.0,2021-09-20,mortgage,3
+190,742,expense,180.0,2021-09-20,property mgmt fee,3
+191,306,payment,1800.0,2021-09-23,rent,3
+192,743,expense,2008.0,2021-10-20,mortgage,3
+193,744,expense,180.0,2021-10-20,property mgmt fee,3
+194,307,payment,1800.0,2021-10-23,rent,3
+195,745,expense,180.0,2021-11-03,regular maintenance,3
+196,746,expense,2008.0,2021-11-20,mortgage,3
+197,747,expense,180.0,2021-11-20,property mgmt fee,3
+198,748,expense,180.0,2021-11-28,repairs,3
+199,308,payment,1800.0,2021-12-09,security deposit,3
+200,309,payment,1800.0,2021-12-09,rent,3
+201,749,expense,2008.0,2021-12-20,mortgage,3
+202,750,expense,180.0,2021-12-20,property mgmt fee,3
+203,310,payment,1800.0,2022-01-09,rent,3
+204,751,expense,2008.0,2022-01-20,mortgage,3
+205,752,expense,180.0,2022-01-20,property mgmt fee,3
+206,311,payment,1800.0,2022-02-09,rent,3
+207,753,expense,2008.0,2022-02-20,mortgage,3
+208,754,expense,180.0,2022-02-20,property mgmt fee,3
+209,312,payment,1800.0,2022-03-09,rent,3
+210,755,expense,2008.0,2022-03-20,mortgage,3
+211,756,expense,180.0,2022-03-20,property mgmt fee,3
+212,313,payment,1800.0,2022-04-09,rent,3
+213,757,expense,2008.0,2022-04-20,mortgage,3
+214,758,expense,180.0,2022-04-20,property mgmt fee,3
+215,314,payment,1800.0,2022-05-09,rent,3
+216,759,expense,2008.0,2022-05-20,mortgage,3
+217,760,expense,180.0,2022-05-20,property mgmt fee,3
+218,315,payment,1800.0,2022-06-09,rent,3
+219,761,expense,2008.0,2022-06-20,mortgage,3
+220,762,expense,180.0,2022-06-20,property mgmt fee,3
+221,316,payment,1800.0,2022-07-09,rent,3
+222,763,expense,2008.0,2022-07-20,mortgage,3
+223,764,expense,180.0,2022-07-20,property mgmt fee,3
+224,317,payment,1800.0,2022-08-09,rent,3
+225,765,expense,2008.0,2022-08-20,mortgage,3
+226,766,expense,180.0,2022-08-20,property mgmt fee,3
+227,318,payment,1800.0,2022-09-09,rent,3
+228,767,expense,180.0,2022-09-17,repairs,3
+229,768,expense,2008.0,2022-09-20,mortgage,3
+230,769,expense,180.0,2022-09-20,property mgmt fee,3
+231,770,expense,180.0,2022-09-27,home improvements,3
+232,319,payment,1800.0,2022-10-09,rent,3
+233,771,expense,2008.0,2022-10-20,mortgage,3
+234,772,expense,180.0,2022-10-20,property mgmt fee,3
+235,773,expense,180.0,2022-10-27,cleaning fee,3
+236,320,payment,1800.0,2022-11-09,rent,3
+237,774,expense,2008.0,2022-11-20,mortgage,3
+238,775,expense,180.0,2022-11-20,property mgmt fee,3
+239,776,expense,180.0,2022-11-28,repairs,3
+240,321,payment,1800.0,2022-12-09,rent,3
+241,777,expense,180.0,2022-12-18,home improvements,3
+242,778,expense,2008.0,2022-12-20,mortgage,3
+243,779,expense,180.0,2022-12-20,property mgmt fee,3
+244,322,payment,1800.0,2023-01-09,rent,3
+245,780,expense,2008.0,2023-01-20,mortgage,3
+246,781,expense,180.0,2023-01-20,property mgmt fee,3
+247,323,payment,1800.0,2023-02-09,rent,3
+248,782,expense,2008.0,2023-02-20,mortgage,3
+249,783,expense,180.0,2023-02-20,property mgmt fee,3
+250,324,payment,1800.0,2023-03-09,rent,3
+251,784,expense,2008.0,2023-03-20,mortgage,3
+252,785,expense,180.0,2023-03-20,property mgmt fee,3
+253,325,payment,1800.0,2023-04-09,rent,3
+254,786,expense,2008.0,2023-04-20,mortgage,3
+255,787,expense,180.0,2023-04-20,property mgmt fee,3
+256,326,payment,1800.0,2023-05-09,rent,3
+257,788,expense,2008.0,2023-05-20,mortgage,3
+258,789,expense,180.0,2023-05-20,property mgmt fee,3
+259,327,payment,1800.0,2023-06-09,rent,3
+260,790,expense,2008.0,2023-06-20,mortgage,3
+261,791,expense,180.0,2023-06-20,property mgmt fee,3
+262,328,payment,1800.0,2023-07-09,rent,3
+263,792,expense,2008.0,2023-07-20,mortgage,3
+264,793,expense,180.0,2023-07-20,property mgmt fee,3
+265,329,payment,1800.0,2023-08-09,rent,3
+266,794,expense,180.0,2023-08-09,cleaning fee,3
+267,795,expense,180.0,2023-08-16,repairs,3
+268,796,expense,2008.0,2023-08-20,mortgage,3
+269,797,expense,180.0,2023-08-20,property mgmt fee,3
+270,798,expense,180.0,2023-08-21,regular maintenance,3
+271,330,payment,1800.0,2023-09-09,rent,3
+272,799,expense,2008.0,2023-09-20,mortgage,3
+273,800,expense,180.0,2023-09-20,property mgmt fee,3
+274,331,payment,1800.0,2023-10-09,rent,3
+275,801,expense,2008.0,2023-10-20,mortgage,3
+276,802,expense,180.0,2023-10-20,property mgmt fee,3
+277,332,payment,1800.0,2023-11-09,rent,3
+278,803,expense,2008.0,2023-11-20,mortgage,3
+279,804,expense,180.0,2023-11-20,property mgmt fee,3
+280,333,payment,1800.0,2023-12-19,security deposit,3
+281,334,payment,1800.0,2023-12-19,rent,3
+282,805,expense,2008.0,2023-12-20,mortgage,3
+283,806,expense,180.0,2023-12-20,property mgmt fee,3
+284,807,expense,180.0,2024-01-05,home improvements,3
+285,335,payment,1800.0,2024-01-19,rent,3
+286,808,expense,2008.0,2024-01-20,mortgage,3
+287,809,expense,180.0,2024-01-20,property mgmt fee,3
+288,336,payment,1800.0,2024-02-19,rent,3
+289,810,expense,2008.0,2024-02-20,mortgage,3
+290,811,expense,180.0,2024-02-20,property mgmt fee,3
+291,337,payment,1800.0,2024-03-19,rent,3
+292,812,expense,2008.0,2024-03-20,mortgage,3
+293,813,expense,180.0,2024-03-20,property mgmt fee,3
+294,814,expense,180.0,2024-03-25,home improvements,3
+295,815,expense,180.0,2024-04-05,home improvements,3
+296,338,payment,1800.0,2024-04-19,rent,3
+297,816,expense,2008.0,2024-04-20,mortgage,3
+298,817,expense,180.0,2024-04-20,property mgmt fee,3
+299,818,expense,180.0,2024-05-12,regular maintenance,3
+300,819,expense,180.0,2024-05-17,home improvements,3
+301,339,payment,1800.0,2024-05-19,rent,3
+302,820,expense,2008.0,2024-05-20,mortgage,3
+303,821,expense,180.0,2024-05-20,property mgmt fee,3
+304,822,expense,180.0,2024-06-13,home improvements,3
+305,340,payment,1800.0,2024-06-19,rent,3
+306,823,expense,2008.0,2024-06-20,mortgage,3
+307,824,expense,180.0,2024-06-20,property mgmt fee,3
+308,341,payment,1800.0,2024-07-19,rent,3
+309,825,expense,2008.0,2024-07-20,mortgage,3
+310,826,expense,180.0,2024-07-20,property mgmt fee,3
+311,342,payment,1800.0,2024-08-19,rent,3
+312,827,expense,2008.0,2024-08-20,mortgage,3
+313,828,expense,180.0,2024-08-20,property mgmt fee,3
+314,343,payment,1800.0,2024-09-19,rent,3
+315,829,expense,2008.0,2024-09-20,mortgage,3
+316,830,expense,180.0,2024-09-20,property mgmt fee,3
+317,344,payment,1800.0,2024-10-19,rent,3
+318,831,expense,2008.0,2024-10-20,mortgage,3
+319,832,expense,180.0,2024-10-20,property mgmt fee,3
+320,833,expense,180.0,2024-11-03,repairs,3
+321,345,payment,1800.0,2024-11-19,rent,3
+322,834,expense,2008.0,2024-11-20,mortgage,3
+323,835,expense,180.0,2024-11-20,property mgmt fee,3
+324,346,payment,1800.0,2024-12-19,rent,3
+325,836,expense,2008.0,2024-12-20,mortgage,3
+326,837,expense,180.0,2024-12-20,property mgmt fee,3

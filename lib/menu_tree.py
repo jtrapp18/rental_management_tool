@@ -20,7 +20,6 @@ class MenuTree:
     - invalid_option: prints error message when user tries to enter an invalid
     - print_message: prints message with file location when user prints data to a csv file
     - print_cancellation_directions: prints note indicating how to cancel out of current menu
-    - data_output: prints formatted title, subtitle, and data
     - exit_app: prints goodbye message and exits out of the application
     - to_main: returns user to main menu
     '''
@@ -81,20 +80,6 @@ class MenuTree:
         prints note indicating how to cancel out of current menu
         '''
         print("[blue]Enter 'e' or 'exit' to cancel[/blue]")
-
-    def data_output(self, title, data):
-        '''
-        prints formatted title, subtitle, and data
-
-        Parameters
-        ---------
-        filename: str
-            - file path where the data should be saved
-        '''
-        print(f"[yellow]{title}[/yellow]")
-        print("")
-        print(f"[blue]{data}[/blue]")
-        print("")
 
     # ///////////////////////////////////////////////////////////////
     # CLI NAVIGATION

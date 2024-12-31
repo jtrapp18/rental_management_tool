@@ -341,7 +341,7 @@ class Tenant:
                     break
 
                 payments.remove(payment)  # Remove the payment from the list
-                if payment.pmt_type=='rent':
+                if payment.category=='rent':
                     payments_applied.append(payment)  # Add it to payments_applied
 
             bop_due = unit.monthly_rent + back_due

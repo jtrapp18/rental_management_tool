@@ -85,6 +85,8 @@ class Report:
     - add_cover_page: creates cover page and adds to report
     - add_section_cover: creates section cover and adds to report
     - add_figure: adds matplotly figure as a page to report
+    - group_data_for_year: groups data by specified year and column
+    - transaction_totals_annotation: creates figure showing transaction totals by type
     - add_transaction_bar: creates bar graph of transactions and adds to report
     - transaction_line_subplot: creates line graph of transactions
     - transaction_pie_subplot: creates pie chart of transactions
@@ -117,7 +119,7 @@ class Report:
             df = self.df_dict[type]
 
             df['Date'] = pd.to_datetime(df['Date'])
-            df['Year'] = df['Date'].dt.year
+            df['Year'] = self.df_dict[type]['Date'].dt.year
             self.df_dict[type] = df[df['Year'] <= self.year]
 
         self.units = self.df_dict['transactions']['Unit'].unique()
@@ -166,6 +168,69 @@ class Report:
         fig.savefig(self.report, format='pdf')
         plt.close(fig)
 
+    def group_data_for_year(self, df, col_to_group, unit='all'):
+        '''
+        groups data by specified year and column
+
+        Parameters
+        ---------
+        df: Pandas DataFrame
+            - initial data to be grouped
+        col_to_group: str
+            - name of column in dataframe to group by
+        unit (optional): int or str
+            - unit ID to filter data on
+
+        Returns
+        ---------
+        df_agg: Pandas DataFrame
+            - data grouped by specified year, column and optionally filtered on unit
+        '''
+        df_filtered = df[df['Year'] == self.year]
+        df_unit = df_filtered if unit=='all' else df_filtered[df_filtered['Unit']==unit]
+        df_agg = df_unit.groupby(col_to_group)['Amount'].sum()
+
+        return df_agg
+
+    def transaction_totals_annotation(self, ax, unit='all'):
+        '''
+        creates figure showing transaction totals by type
+
+        Parameters
+        ---------
+        ax: matplotly figure
+            - blank figure
+        unit (optional): int or str
+            - unit ID to filter data on
+
+        Returns
+        ---------
+        ax: matplotly figure
+            - annotation showing transaction totals by type (payment, expense, net)
+        '''
+        df = self.df_dict['transactions']
+        df_agg = self.group_data_for_year(df, 'Type', unit)
+
+        # Calculate totals
+        total_income = df_agg.get('payment', 0)
+        total_expenses = df_agg.get('expense', 0)
+        net_income = total_income - total_expenses  # Expenses are negative in the data
+
+        # Add totals as a label
+        summary_text = (
+            f"Total Income: ${total_income:,.0f}\n"
+            f"Total Expenses: ${total_expenses:,.0f}\n"
+            f"Net Income: ${net_income:,.0f}"
+        )
+        ax.text(
+            0.6, 0, summary_text,  # Position to the right of the pie chart
+            transform=ax.transAxes,
+            fontsize=10,
+            bbox=dict(facecolor='white', alpha=0.5, edgecolor='gray')
+        )
+
+        return ax
+
     def add_transaction_bar(self):
         '''
         creates bar graph of transactions and adds to report
@@ -177,7 +242,7 @@ class Report:
         '''
         df = self.df_dict['transactions'].copy()
 
-        df_filtered = df[df['Date'].dt.year == self.year]
+        df_filtered = df[df['Year'] == self.year]
         
         df_pivot = df_filtered.pivot_table(index='Unit', columns='Type', values='Amount', aggfunc='sum')
         df_pivot /= 1000
@@ -274,10 +339,7 @@ class Report:
             - pie chart of transactions
         '''
         df = self.df_dict['transactions'].copy()
-
-        df_filtered = df[df['Year'] == self.year]
-        df_unit = df_filtered if unit=='all' else df_filtered[df_filtered['Unit']==unit]
-        df_agg = df_unit.groupby('Type')['Amount'].sum()
+        df_agg = self.group_data_for_year(df, 'Type', unit)
 
         colors = {'expense': 'red', 'payment': 'green'}
 
@@ -285,7 +347,14 @@ class Report:
 
         ax.set_title('Transactions by Type', fontsize=20 if unit=='all' else 12)
         ax.axis('equal')
-        ax.legend(wedges, df_agg.index, title="Transaction Type", loc="upper left", ncol=1)
+
+        ax.legend(
+            wedges,
+            df_agg.index,
+            title="Transaction Type",
+            loc="upper left",
+            ncol=1
+        )
 
         return ax
     
@@ -306,16 +375,13 @@ class Report:
             - pie chart of expenses
         '''
         df = self.df_dict['expenses'].copy()
-
-        df_filtered = df[df['Year'] == self.year]
-        df_unit = df_filtered if unit=='all' else df_filtered[df_filtered['Unit ID']==unit]
-        df_agg = df_unit.groupby('Description')['Amount'].sum()
+        df_agg = self.group_data_for_year(df, 'Category', unit)
 
         wedges, texts, autotexts = ax.pie(df_agg, autopct='%1.1f%%', startangle=90)
 
-        ax.set_title('Expenses by Type', fontsize=20 if unit=='all' else 12)
+        ax.set_title('Expenses by Category', fontsize=20 if unit=='all' else 12)
         ax.axis('equal')
-        ax.legend(wedges, df_agg.index, title="Expense Type", loc="best", ncol=1)
+        ax.legend(wedges, df_agg.index, title="Category", loc="best", ncol=1)
 
         return ax
     
@@ -336,16 +402,13 @@ class Report:
             - pie chart of payments
         '''
         df = self.df_dict['payments'].copy()
-
-        df_filtered = df[df['Year'] == self.year]
-        df_unit = df_filtered if unit=='all' else df_filtered[df_filtered['Unit ID']==unit]
-        df_agg = df_unit.groupby('Payment Type')['Amount'].sum()
+        df_agg = self.group_data_for_year(df, 'Category', unit)
 
         wedges, texts, autotexts = ax.pie(df_agg, autopct='%1.1f%%', startangle=90)
 
-        ax.set_title('Payments by Type', fontsize=20 if unit=='all' else 12)
+        ax.set_title('Payments by Category', fontsize=20 if unit=='all' else 12)
         ax.axis('equal')
-        ax.legend(wedges, df_agg.index, title="Payment Type", loc="best", ncol=1)
+        ax.legend(wedges, df_agg.index, title="Category", loc="best", ncol=1)
 
         return ax
     
@@ -354,6 +417,7 @@ class Report:
         creates separate pages for each subplot and adds to report
         '''
         subplot_functions = [
+            self.transaction_totals_annotation,
             self.transaction_line_subplot,
             self.transaction_pie_subplot,
             self.expense_pie_subplot,
@@ -387,10 +451,12 @@ class Report:
                         width_ratios=(.5,.5), height_ratios=(.1, .45,.45))
         
         ax[(0, 0)].axis('off')
-        ax[(0, 1)].axis('off')
         ax[(0, 0)].text(0.5, 0.5, f"Unit {str(unit)} Performance", fontsize=30,
                     horizontalalignment='center', verticalalignment='center',
                     transform=ax[(0, 0)].transAxes)
+        
+        ax[(0, 1)].axis('off')
+        ax[(0, 1)] = self.transaction_totals_annotation(ax[(0, 1)], unit)
         
         ax[(1, 0)] = self.transaction_line_subplot(ax[(1, 0)], unit)
         ax[(1, 1)] = self.transaction_pie_subplot(ax[(1, 1)], unit)

@@ -26,6 +26,8 @@ class Expense:
         - unique identifier for instance
     descr: str
         - description of expense
+    category: str
+        - expense category
     amount: float
         - dollar value of expense
     exp_date: str
@@ -49,9 +51,10 @@ class Expense:
     - get_dataframe: return a Pandas DataFrame containing information from table
     - create_table: create a new table to persist the attributes of all instances
     '''
-    DF_COLUMNS = ("id", "Description", "Amount", "Date", "Unit ID")
+    DF_COLUMNS = ("id", "Description", "Category", "Amount", "Date", "Unit")
     VALIDATION_DICT = {
         "descr": val.descr_validation,
+        "category": val.exp_category_validation,
         "amount": val.dollar_amt_validation,
         "exp_date": val.date_validation
         }
@@ -59,7 +62,7 @@ class Expense:
     # Dictionary of objects saved to the database.
     all = {}
 
-    def __init__(self, descr, amount, exp_date, unit_id, id=None):
+    def __init__(self, descr, category, amount, exp_date, unit_id, id=None):
         '''
         Constructs the necessary attributes for the Expense object.
 
@@ -67,6 +70,8 @@ class Expense:
         ---------
         descr: str
             - description of expense
+        category: str
+            - expense category
         amount: float
             - dollar value of expense
         exp_date: str
@@ -78,13 +83,14 @@ class Expense:
         '''
         self.id = id
         self.descr = descr
+        self.category = category
         self.amount = amount
         self.exp_date = exp_date
         self.unit_id = unit_id
 
     def __repr__(self):
         return (
-            f"<expense {self.id}: {self.descr}, {self.amount}, {self.exp_date}, "
+            f"<expense {self.id}: {self.descr}, {self.category}, {self.amount}, {self.exp_date}, "
             + f"Unit: {self.unit_id}>"
         )
     
@@ -97,7 +103,15 @@ class Expense:
 
     @descr.setter
     def descr(self, descr):
-        self._descr = val.name_validation(descr)
+        self._descr = val.descr_validation(descr)
+
+    @property
+    def category(self):
+        return self._category
+
+    @category.setter
+    def category(self, category):
+        self._category = val.exp_category_validation(category)
 
     @property
     def amount(self):
@@ -127,11 +141,11 @@ class Expense:
     # MANAGE CLASS INSTANCES
 
     @classmethod
-    def create(cls, descr, amount, exp_date, unit_id):
+    def create(cls, descr, category, amount, exp_date, unit_id):
         '''
         initialize a new instance and save the object to the database
         '''
-        expense = cls(descr, amount, exp_date, unit_id)
+        expense = cls(descr, category, amount, exp_date, unit_id)
         expense.save()
         return expense
    
@@ -145,19 +159,21 @@ class Expense:
 
         id = row[0]
         descr = row[1]
-        amount = row[2]
-        exp_date = row[3]
-        unit_id = row[4]
+        category = row[2]
+        amount = row[3]
+        exp_date = row[4]
+        unit_id = row[5]
         
         if expense:
             # ensure attributes match row values in case local object was modified
             expense.descr = descr
+            expense.category = category
             expense.amount = amount
             expense.exp_date = exp_date
             expense.unit_id = unit_id
         else:
             # not in dictionary, create new instance and add to dictionary
-            expense = cls(descr, amount, exp_date, unit_id, id) # reordering due to optional values
+            expense = cls(descr, category, amount, exp_date, unit_id, id) # reordering due to optional values
             cls.all[expense.id] = expense
         return expense
     
@@ -210,6 +226,7 @@ class Expense:
             CREATE TABLE IF NOT EXISTS expenses (
             id INTEGER PRIMARY KEY,
             descr TEXT,
+            category TEXT,
             amount FLOAT,
             exp_date DATE,
             unit_id INTEGER,
@@ -223,11 +240,11 @@ class Expense:
         insert a new row with the values of the current object
         '''
         sql = """
-            INSERT INTO expenses (descr, amount, exp_date, unit_id)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO expenses (descr, category, amount, exp_date, unit_id)
+            VALUES (?, ?, ?, ?, ?)
         """
 
-        CURSOR.execute(sql, (self.descr, self.amount, 
+        CURSOR.execute(sql, (self.descr, self.category, self.amount, 
                              self.exp_date, self.unit_id))
         CONN.commit()
 
@@ -240,10 +257,9 @@ class Expense:
         '''
         sql = """
             UPDATE expenses
-            SET descr = ?, amount = ?, exp_date = ?, unit_id = ?
+            SET descr = ?, category = ?, amount = ?, exp_date = ?, unit_id = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.descr, self.amount, 
-                             self.exp_date, self.unit_id, 
-                             self.id))
+        CURSOR.execute(sql, (self.descr, self.category, self.amount, 
+                             self.exp_date, self.unit_id, self.id))
         CONN.commit()
