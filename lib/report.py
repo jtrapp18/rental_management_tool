@@ -134,7 +134,7 @@ class Report:
             'title_txt': f'Revenue Report',
             'subtitle2_txt': f'{str(self.year)}',
             'font_color': 'white',
-            'background': 'blue_background.jpg'
+            'background': './img/blue_background.jpg'
         }
         fig = text_figure(**params)
         fig.savefig(self.report, format='pdf')
@@ -148,7 +148,7 @@ class Report:
             'subtitle_txt': section,
             'body_txt': descr,
             'font_color': '#141919',
-            'background': 'section_cover.png'
+            'background': './img/section_cover.png'
         }
         fig = text_figure(**params)
         fig.savefig(self.report, format='pdf')
