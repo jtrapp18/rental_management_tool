@@ -7,7 +7,8 @@ import numpy as np
 from expense import Expense
 from payment import Payment
 
-def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=None, color='white'):
+def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=None, 
+                font_color='black', color='white', background=None):
     '''
     A class to create and manage pdf revenue reports
 
@@ -30,10 +31,10 @@ def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=
         - figure containing text only for report cover pages
     '''
     axes = {
-        1: {'txt': title_txt, 'height': .5, 'position': 0.2, 'fontsize': 70, 'color': 'black'},
-        2: {'txt': subtitle_txt, 'height': .1, 'position': 0.5, 'fontsize': 55, 'color': 'black'},
-        3: {'txt': subtitle2_txt, 'height': .1, 'position': 0.5, 'fontsize': 55, 'color': 'black'},
-        4: {'txt': body_txt, 'height': .3, 'position': 0.8, 'fontsize': 30, 'color': 'green'}
+        1: {'txt': title_txt, 'height': .5, 'position': 0.2, 'fontsize': 80},
+        2: {'txt': subtitle_txt, 'height': .1, 'position': 0.5, 'fontsize': 80},
+        3: {'txt': subtitle2_txt, 'height': .1, 'position': 0.5, 'fontsize': 80},
+        4: {'txt': body_txt, 'height': .3, 'position': 0.8, 'fontsize': 30}
     }
     height_ratios = tuple(axes[i]['height'] for i in axes)
     fig, (axes[1]['ax'], axes[2]['ax'], axes[3]['ax'], axes[4]['ax']) = \
@@ -49,12 +50,19 @@ def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=
                             axis['position'], 
                             axis['txt'],
                             fontsize=axis['fontsize'],
-                            color=axis['color'],
+                            color=font_color,
                             horizontalalignment='center', 
                             verticalalignment='center',
                             transform=axis['ax'].transAxes)
 
     fig.patch.set_facecolor(color)
+
+    if background:
+        img = plt.imread(background)
+        background_ax = fig.add_axes([0, 0, 1, 1], zorder=-1)
+        background_ax.imshow(img, aspect='auto', extent=[0, 1, 0, 1])
+        background_ax.axis('off')
+
     plt.close(fig)
 
     return fig
@@ -123,6 +131,8 @@ class Report:
         params = {
             'title_txt': f'Revenue Report',
             'subtitle2_txt': f'{str(self.year)}',
+            'font_color': 'white',
+            'background': 'blue_background.jpg'
         }
         fig = text_figure(**params)
         fig.savefig(self.report, format='pdf')
@@ -134,7 +144,9 @@ class Report:
         '''
         params = {
             'subtitle_txt': section,
-            'body_txt': descr
+            'body_txt': descr,
+            'font_color': '#141919',
+            'background': 'section_cover.png'
         }
         fig = text_figure(**params)
         fig.savefig(self.report, format='pdf')
@@ -222,8 +234,7 @@ class Report:
         '''
         df = self.df_dict['transactions'].copy()
 
-        df_filtered = df[df['Year'] <= self.year]
-        df_unit = df_filtered if unit=='all' else df_filtered[df_filtered['Unit']==unit]
+        df_unit = df if unit=='all' else df[df['Unit']==unit]
         df_pivot = df_unit.pivot_table(index='Year', columns='Type', values='Amount', aggfunc='sum')
 
         df_pivot /= 1000

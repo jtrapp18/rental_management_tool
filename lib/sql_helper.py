@@ -119,8 +119,6 @@ def get_all_transactions(unit_id=None):
     output: Pandas DataFrame
         - DataFrame containing all transactions (payments, expenses) for specified unit
     '''
-    """Return a list of transactions"""
-
     columns = ["ID", "Type", "Amount", "Date", "Detail", "Unit"]
 
     sql_expenses = """
@@ -155,3 +153,20 @@ def get_all_transactions(unit_id=None):
     rows = CURSOR.execute(sql, filt).fetchall()
 
     return pd.DataFrame(rows, columns=columns)
+
+def get_transaction_summary():
+    '''
+    retreives summary of transactions for all units
+
+    Returns
+    ---------
+    output: Pandas DataFrame
+        - DataFrame containing summary of transaction data
+    '''
+    df = get_all_transactions()
+    df['Date'] = pd.to_datetime(df['Date'])
+    df['Year'] = df['Date'].dt.year
+    
+    df_pivot = df.pivot_table(index='Year', columns='Type', values='Amount', aggfunc='sum')
+
+    return df_pivot

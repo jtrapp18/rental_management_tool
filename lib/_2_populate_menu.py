@@ -47,7 +47,7 @@ class PopulateMenu:
     - save_payment_info: allows user to create a new Payment instance and optionally saves to DB
     - add_tenant_ops: creates and links nodes related to tenant operations
     - print_transactions: displays transactions made and allows user to print to csv
-    - print_summary_report: displays summary of transactions made and allows user to print to csv
+    - print_transaction_summary: displays summary of transactions made and allows user to print to csv
     - output_revenue_report: generates revenue report and prints to pdf
     - add_summary_ops: creates and links nodes related to summary operations
     '''
@@ -226,9 +226,9 @@ class PopulateMenu:
         print('---------------------------------------------------')
         print(df)
               
-        confirm = input(f"Print output to CSV? (Y/N)")
+        confirm = input(f"Print output to CSV? (y/N)")
         
-        if confirm == "Y":
+        if confirm.lower() == "y":
             date_today = datetime.now().strftime('%Y-%m-%d')
             path = f"./outputs/{report_type}_AS_OF_{date_today}_FOR_{report_for}.csv"
             df.to_csv(path, index=False)
@@ -290,9 +290,9 @@ class PopulateMenu:
         print("Updated:")
         print(tenant)
 
-        confirm = input(f"Save changes? (Y/N)")
+        confirm = input(f"Save changes? (y/N)")
 
-        if confirm == "Y":
+        if confirm.lower() == "y":
             tenant.update()
 
             print("")
@@ -333,9 +333,9 @@ class PopulateMenu:
 
         print(new_payment)
 
-        confirm = input(f"Save payment? (Y/N)")
+        confirm = input(f"Save payment? (y/N)")
         
-        if confirm == "Y":
+        if confirm.lower() == "y":
             payment = Payment(
                 amount=float(new_payment["amount"]),
                 pmt_date=new_payment["pmt_date"],
@@ -427,9 +427,9 @@ class PopulateMenu:
 
         print(new_tenant)
 
-        confirm = input(f"Save tenant? (Y/N)")
+        confirm = input(f"Save tenant? (y/N)")
         
-        if confirm == "Y":
+        if confirm.lower() == "y":
             tenant = Tenant(
                 name=new_tenant["name"],
                 email_address=new_tenant["email_address"],
@@ -459,9 +459,9 @@ class PopulateMenu:
 
         print(new_expense)
 
-        confirm = input(f"Save expense? (Y/N)")
+        confirm = input(f"Save expense? (y/N)")
         
-        if confirm == "Y":
+        if confirm.lower() == "y":
             expense = Expense(
                 descr=new_expense["descr"],
                 amount=float(new_expense["amount"]),
@@ -520,16 +520,15 @@ class PopulateMenu:
         displays transactions made and allows user to print to csv
         '''
         df = sql.get_all_transactions()
-        print(df)
-
+        self.menu.data_output('Transactions', 'for all units', df)
         self.print_to_csv(df, "TRANSACTIONS", "ALL_UNITS")
 
-    def print_summary_report(self):
+    def print_transaction_summary(self):
         '''
         displays summary of transactions made and allows user to print to csv
         '''
-        df = sql.get_all_transactions()
-        print(df)
+        df = sql.get_transaction_summary()
+        self.menu.data_output('Summary of Transactions', 'for all units', df)
 
         self.print_to_csv(df, "INCOME_SUMMARY", "ALL_UNITS")
 
@@ -562,7 +561,7 @@ class PopulateMenu:
         # print summary report
 
         income_summary = Node(option_label="Summary of Income")
-        income_summary.add_procedure(self.print_summary_report)
+        income_summary.add_procedure(self.print_transaction_summary)
 
         # print detailed income information
 
@@ -597,7 +596,5 @@ def populate_menu():
     rental_mgmt.main.add_child(rental_mgmt.exit_app)
 
     menu = rental_mgmt.menu
-
-    menu.display_welcome()
 
     return menu
