@@ -147,6 +147,11 @@ class PopulateMenu:
             try:
                 user_input = float(user_input) if key=="amount" else user_input
                 value = val_func(user_input)
+
+                # show selected value if using pick functionality
+                if isinstance(constraints, list):
+                    print(f'Enter {key}: {value}')
+
                 return value
             except:
                 self.menu.invalid_option()
@@ -275,6 +280,11 @@ class PopulateMenu:
         '''
         df_filtered = df.copy()
 
+        print("[yellow]Enter date range for data[/yellow]")
+        self.menu.print_cancellation_directions()
+        print("[blue]Click enter to bypass date filters[/blue]")
+        print("")
+
         user_choices = {
             'start date': None,
             'end date': None
@@ -330,14 +340,14 @@ class PopulateMenu:
         class_name = inst.__class__.__name__
 
         print(f"[yellow]Update {class_name} Information[/yellow]")
-        print(f"For: [magenta]{inst}[/magenta]")
+        print(f"Current: [magenta]{inst}[/magenta]")
         self.menu.print_cancellation_directions()
         print("")
 
         self.update_itm_validation(inst=inst)
         print("")
 
-        print(f"Updated:[yellow]{inst}[/yellow]")
+        print(f"Updated: [yellow]{inst}[/yellow]")
         print("")
 
         self.run_func_if_confirm('Save changes?', inst.update)
@@ -431,7 +441,7 @@ class PopulateMenu:
             pmt_date=new_payment["pmt_date"],
             method=new_payment["method"],
             tenant_id=int(new_payment["tenant_id"]),                
-            pmt_type=new_payment["pmt_type"],
+            category=new_payment["category"],
         )
         payment.save()
         payment.print_receipt()
@@ -522,6 +532,7 @@ class PopulateMenu:
         
         expense = Expense(
             descr=new_expense["descr"],
+            category=new_expense["category"],
             amount=float(new_expense["amount"]),
             exp_date=new_expense["exp_date"],
             unit_id=int(new_expense["unit_id"]),                

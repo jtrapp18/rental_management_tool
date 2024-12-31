@@ -98,10 +98,11 @@ class Tenant:
         self.unit_id = unit_id
 
     def __repr__(self):
+        move_out_txt = self.move_out_date if self.move_out_date else 'Present'
         return (
             f"<Tenant {self.id}: {self.name} | " +
             f"Contact Info: {self.email_address}, {self.phone_number} | " +
-            f"Dates: {self.move_in_date} to {self.move_out_date} | " +
+            f"Dates: {self.move_in_date} to {move_out_txt} | " +
             f"Unit ID: {self.unit_id}>"
         )
 
