@@ -1,11 +1,10 @@
 import validation as val
 import sql_helper as sql
 import pandas as pd
+import art
 
 from menu_tree import MenuTree, Node
 from rich import print
-from rich.console import Console
-from rich.table import Table
 from pick import pick
 from unit import Unit
 from tenant import Tenant
@@ -107,6 +106,13 @@ class PopulateMenu:
     def update_title_labels(self, inst, ref_node):
         '''
         updates labels in cli based on selected instance
+
+        Parameters
+        ---------
+        inst: class instance (e.g. Tenant)
+            - instance to use for labeling
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
         '''
         ref_node.data_ref = inst # store selected unit
         ref_node.title_label = f"Options for: {inst}"
@@ -117,6 +123,17 @@ class PopulateMenu:
     def store_selected_instance(self, cls, ref_node, parent_ref=None, options=None):
         '''
         adds reference to selected instance within specified node
+
+        Parameters
+        ---------
+        cls: class
+            - class to choose instance from
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
+        parent_ref (optional): Node instance
+            - node which stores the reference to the parent of the user-selected instance
+        options (optional):
+            - list of user options to choose from (defaults to all class instances)
         '''
         if not options:
             options = cls.get_all_instances()
@@ -148,7 +165,9 @@ class PopulateMenu:
         Returns
         ---------
         value: object
-            - value selected or entered by user to be used for the new or updated class attribute 
+            - value selected or entered by user to be used for the new or updated class attribute
+        'exit': str
+            - returns 'exit' if user chooses to cancel input
         '''
         constraints = val_func.constraints
 
@@ -326,7 +345,7 @@ class PopulateMenu:
         self.run_func_if_confirm('Confirm delete?', lambda: self.finalize_delete(ref_node))
 
         return Node.last_node.parent
-    
+
     def print_to_csv(self, df, report_type, report_for):
         '''
         prints data to csv file
@@ -347,9 +366,15 @@ class PopulateMenu:
         print("")
         print(df)
         print("")
-              
+
+        path = f"./outputs/{label}.csv"
+
+        funcs_to_run = [
+            lambda: df.to_csv(path),
+            lambda: self.menu.print_output_message(path)
+        ]
         self.run_func_if_confirm('Print data to CSV in outputs folder?', 
-                                 lambda: df.to_csv(f"./outputs/{label}.csv"))
+                                 funcs_to_run)
         
     def filter_on_dates(self, df):
         '''
@@ -414,9 +439,14 @@ class PopulateMenu:
 
         self.print_to_csv(df_filtered, "TRANSACTIONS", label)
 
-    def print_transaction_summary(self, ref_node):
+    def print_transaction_summary(self, ref_node=None):
         '''
-        displays summary of transactions made and allows user to print to csv
+        displays summary of transactions made and allows user to print to 
+        
+        Parameters
+        ---------
+        ref_node (optional): Node instance
+            - node which stores the reference to the user-selected instance
         '''
         if ref_node:
             unit = ref_node.data_ref
@@ -437,14 +467,17 @@ class PopulateMenu:
         ---------
         prompt: str
             - 
-        func: callable object
+        func: callable object or list of callable objects
             - function to run if user confirms
         '''
         confirm = input(f"{prompt} (Y/N) ")
 
         if confirm.lower() == "y":
-            func()
-
+            if isinstance(func, list):
+                for f in func:
+                    f()
+            else:
+                func()
             print("")
 
     # ///////////////////////////////////////////////////////////////
@@ -473,17 +506,6 @@ class PopulateMenu:
             tenant_list = tenants
 
         self.store_selected_instance(Tenant, ref_node, self.select_unit, options=tenant_list)
-        # tenants = Tenant.get_all_instances()
-
-        # if self.select_unit.data_ref:
-        #     unit = self.select_unit.data_ref
-        #     tenant_list = [tenant for tenant in tenant_list if tenant.unit_id==unit.id]
-
-        # selected_tenant, index = pick(tenant_list, "Select Tenant from options below")
-
-        # ref_node.data_ref = selected_tenant # store selected unit
-
-        # ref_node.title_label = f"Options for: {selected_tenant}"
         
     def payment_rollforward(self, ref_node):
         '''
@@ -626,7 +648,7 @@ class PopulateMenu:
 
         Parameters
         ---------
-        ref_node: Node instance
+        ref_node (optional): Node instance
             - node which stores the reference to the user-selected instance
         '''
         if ref_node:
@@ -709,6 +731,10 @@ class PopulateMenu:
         view_transactions = Node(option_label="Transaction History")
         view_transactions.add_procedure(lambda: self.print_transaction_history(self.select_unit))
 
+        # manage unit
+        
+        manage_unit = Node(option_label="Manage Unit")
+
         # edit unit information
         
         edit_unit = Node(option_label="Update Unit Information")
@@ -744,7 +770,8 @@ class PopulateMenu:
         select_expense.add_children([edit_expense, delete_expense, self.go_back, self.to_main, self.exit_app])
         unit_transactions.add_children([transaction_summary, view_transactions, select_expense, add_expense, self.go_back, self.to_main, self.exit_app])
         unit_tenants.add_children([self.select_tenant, self.add_tenant, self.go_back, self.to_main, self.exit_app])
-        self.select_unit.add_children([unit_transactions, unit_tenants, edit_unit, delete_unit, self.go_back, self.to_main, self.exit_app])
+        manage_unit.add_children([edit_unit, delete_unit, self.go_back, self.to_main, self.exit_app])
+        self.select_unit.add_children([unit_transactions, unit_tenants, manage_unit, self.go_back, self.to_main, self.exit_app])
         rentals.add_children([self.select_unit, add_unit, self.to_main, self.exit_app])
         self.main.add_child(rentals)
 
@@ -764,7 +791,15 @@ class PopulateMenu:
         years = df['Year'].unique()
 
         year, index = pick(years, "Select Year from options below")
-        generate_income_report(year)
+        path = fr"./outputs/Revenue Report for {str(year)}.pdf"
+
+        funcs_to_run = [
+            lambda: print("[blue]generating report...[/blue]"),
+            lambda: generate_income_report(year, path),
+            lambda: self.menu.print_output_message(path)
+        ]
+        self.run_func_if_confirm(f'Create pdf revenue report for {year}?', 
+                                 funcs_to_run)
 
     def add_summary_ops(self):
         '''
@@ -815,5 +850,7 @@ def populate_menu():
     rental_mgmt.main.add_child(rental_mgmt.exit_app)
 
     menu = rental_mgmt.menu
+
+    menu.display_welcome()
 
     return menu

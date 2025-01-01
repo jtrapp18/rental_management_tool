@@ -13,6 +13,7 @@ faker = "*"
 rich = "*"
 python-dateutil = "*"
 pick = "*"
+art = "6.4"
 
 [dev-packages]
 

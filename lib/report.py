@@ -95,7 +95,7 @@ class Report:
     - add_subplots: creates separate pages for each subplot and adds to report
     - indiv_unit_charts: creates page for specified unit with subplots and adds to report
     '''
-    def __init__(self, year):
+    def __init__(self, year, path):
         '''
         Constructs the necessary attributes for the Report object.
 
@@ -105,9 +105,7 @@ class Report:
             - year for report
         '''
         self.year = year
-
-        pdf_name = f"Revenue Report for {str(year)}.pdf"
-        self.report = PdfPages(fr'./outputs/{pdf_name}')
+        self.report = PdfPages(path)
 
         self.df_dict = {
             'transactions': sql.get_all_transactions(),
@@ -285,7 +283,7 @@ class Report:
     
     def transaction_line_subplot(self, ax, unit='all'):
         '''
-        creates line graph of transactions
+        creates line graph of transactions with points for data
 
         Parameters
         ---------
@@ -301,7 +299,7 @@ class Report:
         '''
         df = self.df_dict['transactions'].copy()
 
-        df_unit = df if unit=='all' else df[df['Unit']==unit]
+        df_unit = df if unit == 'all' else df[df['Unit'] == unit]
         df_pivot = df_unit.pivot_table(index='Year', columns='Type', values='Amount', aggfunc='sum')
 
         df_pivot /= 1000
@@ -314,14 +312,15 @@ class Report:
 
         for column in df_pivot.columns:
             ax.plot(df_pivot.index, df_pivot[column], label=column, color=colors[column])
-        
+            ax.scatter(df_pivot.index, df_pivot[column], color=colors[column], edgecolor='black', s=50)  # Add points
+
         ax.set_ylabel('Amount (in $1,000s)')
-        ax.set_title('Transactions by Year', fontsize=20 if unit=='all' else 12)
+        ax.set_title('Transactions by Year', fontsize=20 if unit == 'all' else 12)
         ax.legend(
-            title="Transaction Type", 
+            title="Transaction Type",
             loc='upper left',
             ncol=1
-            )
+        )
 
         ax.set_xticks(df_pivot.index)
         ax.xaxis.set_major_formatter(mticker.StrMethodFormatter("{x:.0f}"))
@@ -445,7 +444,7 @@ class Report:
 
         return fig
 
-def generate_income_report(year):
+def generate_income_report(year, path):
     '''
     generates and saves pdf report for specified year using Report class
 
@@ -453,8 +452,10 @@ def generate_income_report(year):
     ---------
     year: int
         - year for report
+    path: str
+        - file path to save report
     '''
-    rpt = Report(year)
+    rpt = Report(year, path)
 
     rpt.add_section_cover('All Units', 'Analytics for aggregated unit data')
     rpt.add_transaction_bar()

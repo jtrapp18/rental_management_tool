@@ -4,6 +4,7 @@ from pick import pick
 from rich import print
 from datetime import datetime
 import os
+import art
 
 class MenuTree:
     '''
@@ -18,7 +19,7 @@ class MenuTree:
     ---------
     - display_welcome: prints welcome message when user opens the application
     - invalid_option: prints error message when user tries to enter an invalid
-    - print_message: prints message with file location when user prints data to a csv file
+    - print_output_message: prints message with file location when user prints data to a csv file
     - print_cancellation_directions: prints note indicating how to cancel out of current menu
     - exit_app: prints goodbye message and exits out of the application
     - to_main: returns user to main menu
@@ -56,7 +57,15 @@ class MenuTree:
         '''
         prints welcome message when user opens the application
         '''
+        os.system('cls' if os.name == 'nt' else 'clear')
+        print(art.text2art("Welcome", font='tarty1'))
+        print(art.text2art("Rental Management Tool", font='tombstone'))
+        print(art.text2art("Manage units, tenants, payments, and expenses", font='tiny2'))
         print("[magenta]Hello! Welcome to [/magenta][bold cyan] My App![/bold cyan]")
+        # print(art.art_list())
+        # print(art.font_list())
+        print(art.art("house"))
+        input("press any key to continue")
 
     def invalid_option(self):
         '''
@@ -64,7 +73,7 @@ class MenuTree:
         '''
         print("[red]ERROR: Input not valid. Please try again using the format specified above.[/red]")
 
-    def print_message(self, filename):
+    def print_output_message(self, filename):
         '''
         prints message with file location when user prints data to a csv file
 
@@ -73,7 +82,8 @@ class MenuTree:
         filename: str
             - file path where the data should be saved
         '''
-        print(f"[pink]Output data to: {filename}[/pink]")
+        print(f"Output saved to: [bold green]{filename}[/bold green]")
+        input("press any key to continue")
 
     def print_cancellation_directions(self):
         '''
@@ -88,7 +98,7 @@ class MenuTree:
         '''
         prints goodbye message and exits out of the application
         '''
-        print("[cyan]Goodbye![/cyan]")
+        print(art.text2art("Goodbye!", font='tarty1'))
         sys.exit()
 
     def to_main(self):
