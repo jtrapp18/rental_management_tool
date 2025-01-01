@@ -29,6 +29,12 @@ class PopulateMenu:
         - node which takes user to previous menu when selected
     exit_app: Node instance
         - node which exits user from application when selected
+    select_tenant: Node instance
+        - node which allows user to select tenant
+    select_unit: Node instance
+        - node which allows user to select unit
+    add_tenant: Node instance
+        - node which allows user to add a new tenant
 
     Methods
     ---------
@@ -68,6 +74,8 @@ class PopulateMenu:
         self.select_tenant = None
         self.select_unit = None
 
+        self.add_tenant = None
+
     # ///////////////////////////////////////////////////////////////
     # BASIC OPERATIONS
 
@@ -83,7 +91,7 @@ class PopulateMenu:
         '''
         # go to main menu
 
-        self.to_main = Node(option_label="Go to Main Menu")
+        self.to_main = Node(option_label="Main Menu")
         self.to_main.add_procedure(self.menu.to_main)
 
         # go to previous menu
@@ -106,16 +114,18 @@ class PopulateMenu:
         for child in ref_node.children:
             child.title_label = f"Options for: {inst}"
 
-    def store_selected_instance(self, cls, ref_node, parent_ref=None):
+    def store_selected_instance(self, cls, ref_node, parent_ref=None, options=None):
         '''
         adds reference to selected instance within specified node
         '''
-        options = cls.get_all_instances()
+        if not options:
+            options = cls.get_all_instances()
         
         if parent_ref:
-            parent = parent_ref.data_ref
-            parent_name = parent.__class__.__name__.lower()
-            options = [inst for inst in options if getattr(inst, f"{parent_name}_id")==parent.id]
+            if parent_ref.data_ref:
+                parent = parent_ref.data_ref
+                parent_name = parent.__class__.__name__.lower()
+                options = [inst for inst in options if getattr(inst, f"{parent_name}_id")==parent.id]
 
         selected_inst, index = pick(options, f"Select {cls.__name__} from options below")
 
@@ -449,11 +459,10 @@ class PopulateMenu:
         ref_node: Node instance
             - node which stores the reference to the user-selected instance
         '''
-        tenants = Tenant.get_all_instances()
-
         filter, index = pick([True, False], "Filter on Active Tenants Only?")
         tenant_list = []
-        
+        tenants = Tenant.get_all_instances()
+
         if filter:
             for tenant in tenants:
                 if tenant.move_out_date is None:
@@ -463,15 +472,18 @@ class PopulateMenu:
         else:
             tenant_list = tenants
 
-        if self.select_unit.data_ref:
-            unit = self.select_unit.data_ref
-            tenant_list = [tenant for tenant in tenant_list if tenant.unit_id==unit.id]
+        self.store_selected_instance(Tenant, ref_node, self.select_unit, options=tenant_list)
+        # tenants = Tenant.get_all_instances()
 
-        selected_tenant, index = pick(tenant_list, "Select Tenant from options below")
+        # if self.select_unit.data_ref:
+        #     unit = self.select_unit.data_ref
+        #     tenant_list = [tenant for tenant in tenant_list if tenant.unit_id==unit.id]
 
-        ref_node.data_ref = selected_tenant # store selected unit
+        # selected_tenant, index = pick(tenant_list, "Select Tenant from options below")
 
-        ref_node.title_label = f"Options for: {selected_tenant}"
+        # ref_node.data_ref = selected_tenant # store selected unit
+
+        # ref_node.title_label = f"Options for: {selected_tenant}"
         
     def payment_rollforward(self, ref_node):
         '''
@@ -530,6 +542,15 @@ class PopulateMenu:
         self.select_tenant = Node(option_label="Select Tenant")
         self.select_tenant.add_procedure(lambda: self.store_selected_tenant(self.select_tenant))
 
+        # add tenant
+        
+        self.add_tenant = Node(option_label="Add Tenant")
+        self.add_tenant.add_procedure(lambda: self.save_tenant_info(self.select_unit))
+
+        # payments
+
+        payments = Node(option_label="Payments")
+
         # view payment rollforward
 
         rollforward = Node(option_label="View Payments Rollforward")
@@ -555,6 +576,10 @@ class PopulateMenu:
         delete_payment = Node(option_label="Delete Payment")
         delete_payment.add_procedure(lambda: self.delete_selected_instance(select_payment))
 
+        # manage tenant
+
+        manage_tenant = Node(option_label="Manage Tenant")
+
         # edit tenant information
         
         edit_tenant = Node(option_label="Update Tenant Information")
@@ -568,11 +593,10 @@ class PopulateMenu:
         # attach nodes to parent elements
 
         select_payment.add_children([edit_payment, delete_payment, self.to_main, self.exit_app])
-                
-        self.select_tenant.add_children([rollforward, select_payment, add_payment, edit_tenant, delete_tenant, self.to_main, self.exit_app])
-        
-        tenants.add_children([self.select_tenant, self.to_main, self.exit_app])
-        
+        payments.add_children([rollforward, select_payment, add_payment, self.to_main, self.exit_app])
+        manage_tenant.add_children([edit_tenant, delete_tenant, self.to_main, self.exit_app])
+        self.select_tenant.add_children([payments, manage_tenant, self.to_main, self.exit_app])
+        tenants.add_children([self.select_tenant, self.add_tenant, self.to_main, self.exit_app])
         self.main.add_child(tenants)
 
     # ///////////////////////////////////////////////////////////////
@@ -596,7 +620,7 @@ class PopulateMenu:
         )
         unit.save()
 
-    def save_tenant_info(self, ref_node):
+    def save_tenant_info(self, ref_node=None):
         '''
         allows user to create new Tenant instance and optionally saves to DB
 
@@ -605,7 +629,13 @@ class PopulateMenu:
         ref_node: Node instance
             - node which stores the reference to the user-selected instance
         '''
-        unit = ref_node.data_ref
+        if ref_node:
+            if ref_node.data_ref:
+                unit = ref_node.data_ref
+            else:
+                unit = pick(Unit.get_all_instances(), "Select Unit")
+        else:
+            unit = pick(Unit.get_all_instances(), "Select Unit")
 
         new_tenant = self.new_itm_validation(Tenant, unit)  
 
@@ -709,16 +739,11 @@ class PopulateMenu:
         delete_expense = Node(option_label="Delete Expense")
         delete_expense.add_procedure(lambda: self.delete_selected_instance(select_expense))
 
-        # add tenant
-        
-        add_tenant = Node(option_label="Add Tenant")
-        add_tenant.add_procedure(lambda: self.save_tenant_info(self.select_unit))
-
         # attach nodes to parent elements
 
         select_expense.add_children([edit_expense, delete_expense, self.go_back, self.to_main, self.exit_app])
         unit_transactions.add_children([transaction_summary, view_transactions, select_expense, add_expense, self.go_back, self.to_main, self.exit_app])
-        unit_tenants.add_children([self.select_tenant, add_tenant, self.go_back, self.to_main, self.exit_app])
+        unit_tenants.add_children([self.select_tenant, self.add_tenant, self.go_back, self.to_main, self.exit_app])
         self.select_unit.add_children([unit_transactions, unit_tenants, edit_unit, delete_unit, self.go_back, self.to_main, self.exit_app])
         rentals.add_children([self.select_unit, add_unit, self.to_main, self.exit_app])
         self.main.add_child(rentals)
