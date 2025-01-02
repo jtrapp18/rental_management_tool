@@ -1,8 +1,8 @@
-# lib/department.py
-from __init__ import CURSOR, CONN
-import sql_helper as sql
-import validation as val
 import pandas as pd
+
+# project modules
+from lib.helper import validation as val
+from lib.helper import sql_helper as sql
 
 class Unit:
     '''
@@ -230,7 +230,7 @@ class Unit:
         '''
         create a new table to persist the attributes of all instances
         '''
-        sql = """
+        query = """
             CREATE TABLE IF NOT EXISTS units (
             id INTEGER PRIMARY KEY,
             acquisition_date DATE,
@@ -239,38 +239,37 @@ class Unit:
             monthly_rent NUMERIC,
             late_fee NUMERIC)
         """
-        CURSOR.execute(sql)
-        CONN.commit()
+        sql.CURSOR.execute(query)
+        sql.CONN.commit()
 
     def save(self):
         '''
         insert a new row with the values of the current object
         '''
-        sql = """
+        query = """
             INSERT INTO units (acquisition_date, address, monthly_mortgage, monthly_rent, late_fee)
             VALUES (?, ?, ?, ?, ?)
         """
-
-        CURSOR.execute(sql, (self.acquisition_date, self.address, self._monthly_mortgage, self.monthly_rent, 
+        sql.CURSOR.execute(query, (self.acquisition_date, self.address, self._monthly_mortgage, self.monthly_rent, 
                              self.late_fee))
-        CONN.commit()
+        sql.CONN.commit()
 
-        self.id = CURSOR.lastrowid
+        self.id = sql.CURSOR.lastrowid
         type(self).all[self.id] = self
 
     def update(self):
         '''
         update the table row corresponding to the current instance
         '''
-        sql = """
+        query = """
             UPDATE units
             SET acquisition_date = ?, address = ?, monthly_mortgage = ?, 
             monthly_rent = ?, late_fee = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.acquisition_date, self.address, self.monthly_mortgage, 
+        sql.CURSOR.execute(query, (self.acquisition_date, self.address, self.monthly_mortgage, 
                              self.monthly_rent, self.late_fee, self.id))
-        CONN.commit()
+        sql.CONN.commit()
 
     
     # ///////////////////////////////////////////////////////////////
@@ -280,14 +279,15 @@ class Unit:
         '''
         returns list of tenants associated with current unit
         '''
-        from tenant import Tenant
-        sql = """
+        from lib import Tenant
+
+        query = """
             SELECT * FROM tenants
             WHERE unit_id = ?
         """
-        CURSOR.execute(sql, (self.id,),)
+        sql.CURSOR.execute(query, (self.id,),)
 
-        rows = CURSOR.fetchall()
+        rows = sql.CURSOR.fetchall()
 
         return pd.DataFrame(rows, columns=Tenant.DF_COLUMNS)
 
@@ -295,14 +295,14 @@ class Unit:
         '''
         returns list of expenses associated with current unit
         '''
-        from expense import Expense
-        sql = """
+        from lib import Expense
+        query = """
             SELECT * FROM expenses
             WHERE unit_id = ?
         """
-        CURSOR.execute(sql, (self.id,),)
+        sql.CURSOR.execute(query, (self.id,),)
 
-        rows = CURSOR.fetchall()
+        rows = sql.CURSOR.fetchall()
 
         return pd.DataFrame(rows, columns=Expense.DF_COLUMNS)
     

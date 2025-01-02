@@ -5,7 +5,9 @@ from rich import print
 from datetime import datetime
 import os
 import art
-import ascii
+
+# project modules
+from lib.helper import ascii
 
 class MenuTree:
     '''

@@ -1,8 +1,9 @@
-from __init__ import CURSOR, CONN
-from unit import Unit
-import validation as val
-import sql_helper as sql
 import pandas as pd
+
+# project modules
+from lib import Unit
+from lib.helper import validation as val
+from lib.helper import sql_helper as sql
 
 class Expense:
     '''
@@ -222,7 +223,7 @@ class Expense:
         '''
         create a new table to persist the attributes of all instances
         '''
-        sql = """
+        query = """
             CREATE TABLE IF NOT EXISTS expenses (
             id INTEGER PRIMARY KEY,
             descr TEXT,
@@ -232,34 +233,34 @@ class Expense:
             unit_id INTEGER,
             FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE)
         """
-        CURSOR.execute(sql)
-        CONN.commit()
+        sql.CURSOR.execute(query)
+        sql.CONN.commit()
 
     def save(self):
         '''
         insert a new row with the values of the current object
         '''
-        sql = """
+        query = """
             INSERT INTO expenses (descr, category, amount, exp_date, unit_id)
             VALUES (?, ?, ?, ?, ?)
         """
 
-        CURSOR.execute(sql, (self.descr, self.category, self.amount, 
+        sql.CURSOR.execute(query, (self.descr, self.category, self.amount, 
                              self.exp_date, self.unit_id))
-        CONN.commit()
+        sql.CONN.commit()
 
-        self.id = CURSOR.lastrowid
+        self.id = sql.CURSOR.lastrowid
         type(self).all[self.id] = self
 
     def update(self):
         '''
         update the table row corresponding to the current instance
         '''
-        sql = """
+        query = """
             UPDATE expenses
             SET descr = ?, category = ?, amount = ?, exp_date = ?, unit_id = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.descr, self.category, self.amount, 
+        sql.CURSOR.execute(query, (self.descr, self.category, self.amount, 
                              self.exp_date, self.unit_id, self.id))
-        CONN.commit()
+        sql.CONN.commit()

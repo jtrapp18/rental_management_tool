@@ -1,5 +1,10 @@
 import pandas as pd
-from __init__ import CURSOR, CONN
+import sqlite3
+
+# Database connection and cursor
+CONN = sqlite3.connect('rental_management.db')
+CONN.execute("PRAGMA foreign_keys = ON;")
+CURSOR = CONN.cursor()
 
 def find_by_id(cls, table, id):
     '''
@@ -23,9 +28,9 @@ def find_by_id(cls, table, id):
     if not table.isidentifier():
         raise ValueError("Invalid table name")
     
-    sql = "SELECT * FROM " + table + " WHERE id = ?;"
+    query = "SELECT * FROM " + table + " WHERE id = ?;"
 
-    row = CURSOR.execute(sql, (id,)).fetchone()
+    row = CURSOR.execute(query, (id,)).fetchone()
     return cls.instance_from_db(row) if row else None
 
 def drop_table(table):
@@ -41,9 +46,9 @@ def drop_table(table):
     if not table.isidentifier():
         raise ValueError("Invalid table name")
 
-    sql = "DROP TABLE IF EXISTS " + table + ";"
+    query = "DROP TABLE IF EXISTS " + table + ";"
     
-    CURSOR.execute(sql)
+    CURSOR.execute(query)
     CONN.commit()
 
 def delete(inst, table):
@@ -61,9 +66,9 @@ def delete(inst, table):
     if not table.isidentifier():
         raise ValueError("Invalid table name")
 
-    sql = "DELETE FROM " + table + " WHERE id = ?;"
+    query = "DELETE FROM " + table + " WHERE id = ?;"
 
-    CURSOR.execute(sql, (inst.id,))
+    CURSOR.execute(query, (inst.id,))
     CONN.commit()
 
     # Delete the dictionary entry using id as the key
@@ -95,9 +100,9 @@ def get_all(cls, table, output_as_instances=False):
     if not table.isidentifier():
         raise ValueError("Invalid table name")
 
-    sql = "SELECT * FROM " + table + ";"
+    query = "SELECT * FROM " + table + ";"
 
-    rows = CURSOR.execute(sql).fetchall()
+    rows = CURSOR.execute(query).fetchall()
 
     output = [cls.instance_from_db(row) for row in rows] \
         if output_as_instances else pd.DataFrame(rows, columns=cls.DF_COLUMNS)
@@ -147,10 +152,10 @@ def get_all_transactions(unit_id=None):
 
     sql_payments += " WHERE t.unit_id = ?" if unit_id else ""
 
-    sql = f"{sql_expenses} UNION {sql_payments} ORDER BY Unit, Date"
+    query = f"{sql_expenses} UNION {sql_payments} ORDER BY Unit, Date"
 
     filt = (unit_id, unit_id) if unit_id else ()
-    rows = CURSOR.execute(sql, filt).fetchall()
+    rows = CURSOR.execute(query, filt).fetchall()
 
     return pd.DataFrame(rows, columns=columns).set_index('ID')
 
@@ -168,6 +173,10 @@ def get_transaction_summary(unit_id=None):
     df['Year'] = df['Date'].dt.year
     
     df_pivot = df.pivot_table(index='Year', columns='Type', values='Amount', aggfunc='sum')
-    df_pivot['net income'] = df_pivot['payment'] - df_pivot['expense']
+
+    try:
+        df_pivot['net income'] = df_pivot['payment'] - df_pivot['expense']
+    except:
+        pass
 
     return df_pivot

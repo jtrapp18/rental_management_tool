@@ -1,13 +1,16 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.ticker as mticker
 from matplotlib.transforms import Bbox
 from matplotlib.backends.backend_pdf import PdfPages
-import sql_helper as sql
-import numpy as np
-from expense import Expense
-from payment import Payment
 from functools import partial
+
+# project modules
+from lib.helper import sql_helper as sql
+from lib import Expense
+from lib import Payment
+
 
 def text_figure(title_txt=None, subtitle_txt=None, subtitle2_txt=None, body_txt=None, 
                 font_color='black', color='white', background=None):

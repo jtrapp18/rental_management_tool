@@ -1,5 +1,4 @@
 import re
-from datetime import datetime
 
 def name_validation(name):
     '''

@@ -1,17 +1,19 @@
-import validation as val
-import sql_helper as sql
+
 import pandas as pd
 import art
-import ascii
-
-from menu_tree import MenuTree, Node
+from lib import MenuTree, Node
 from rich import print
 from pick import pick
-from unit import Unit
-from tenant import Tenant
-from payment import Payment
-from expense import Expense
 from datetime import datetime
+
+# project modules
+from lib.helper import ascii
+from lib.helper import validation as val
+from lib.helper import sql_helper as sql
+from lib import Unit
+from lib import Tenant
+from lib import Payment
+from lib import Expense
 
 class PopulateMenu:
     '''
@@ -44,7 +46,7 @@ class PopulateMenu:
     - new_itm_validation: creates and validates new object to be used to create a new instance
     - finalize_add: saves new instance and prints confirmation message
     - update_itm_validation: updates an existing instance after validating user inputs
-    = finalize_update: updates instance based on user selections and prints confirmation message
+    - finalize_update: updates instance based on user selections and prints confirmation message
     - update_selected_instance: updates an existing class instance and saves changes to DB
     - finalize_delete: deletes instance and prints confirmation message
     - delete_selected_instance: deletes an existing class instance and saves changes to DB
@@ -844,7 +846,7 @@ class PopulateMenu:
         '''
         generates revenue report and prints to pdf
         '''
-        from report import generate_income_report
+        from lib.helper.report import generate_income_report
 
         df = sql.get_all_transactions()
         df['Date'] = pd.to_datetime(df['Date'])

@@ -15,6 +15,10 @@ python-dateutil = "*"
 pick = "*"
 art = "6.4"
 
+[scripts]
+seed = "python src/_1_seeds.py"
+start = "python src/_2_cli.py"
+
 [dev-packages]
 
 [requires]

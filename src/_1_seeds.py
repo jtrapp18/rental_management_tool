@@ -3,10 +3,10 @@ import random
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from faker import Faker
-from unit import Unit
-from tenant import Tenant
-from payment import Payment
-from expense import Expense
+from lib import Unit
+from lib import Tenant
+from lib import Payment
+from lib import Expense
 
 if __name__ == "__main__":
 

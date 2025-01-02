@@ -1,4 +1,4 @@
-from _2_populate_menu import populate_menu
+from lib import populate_menu
 
 if __name__ == "__main__":
     menu = populate_menu() # populate tree to create feedback loop

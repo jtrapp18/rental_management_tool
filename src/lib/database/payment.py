@@ -1,10 +1,11 @@
-from __init__ import CURSOR, CONN
-from unit import Unit
-from tenant import Tenant
-import validation as val
-import sql_helper as sql
 import pandas as pd
 from datetime import datetime
+
+# project modules
+from lib import Unit
+from lib import Tenant
+from lib.helper import validation as val
+from lib.helper import sql_helper as sql
 
 class Payment:
     '''
@@ -224,8 +225,7 @@ class Payment:
         '''
         return a Pandas DataFrame which includes unit ID
         '''
-        from payment import Payment
-        sql = """
+        query = """
         SELECT
             p.id,
             p.category,
@@ -238,11 +238,11 @@ class Payment:
         JOIN tenants AS t
         ON p.tenant_id = t.id
         """
-        CURSOR.execute(sql)
+        sql.CURSOR.execute(query)
 
-        rows = CURSOR.fetchall()
+        rows = sql.CURSOR.fetchall()
 
-        return pd.DataFrame(rows, columns=Payment.DF_COLUMNS + ('Unit',))
+        return pd.DataFrame(rows, columns=cls.DF_COLUMNS + ('Unit',))
     
     # ///////////////////////////////////////////////////////////////
     # CLASS-SPECIFIC DATABASE FUNCTIONS
@@ -252,7 +252,7 @@ class Payment:
         '''
         create a new table to persist the attributes of all instances
         '''
-        sql = """
+        query = """
             CREATE TABLE IF NOT EXISTS payments (
             id INTEGER PRIMARY KEY,
             category TEXT,
@@ -262,39 +262,39 @@ class Payment:
             tenant_id INTEGER,
             FOREIGN KEY (tenant_id) REFERENCES tenants(id) ON DELETE CASCADE)
         """
-        CURSOR.execute(sql)
-        CONN.commit()
+        sql.CURSOR.execute(query)
+        sql.CONN.commit()
 
     def save(self):
         '''
         insert a new row with the values of the current object
         '''
-        sql = """
+        query = """
             INSERT INTO payments (category, amount, pmt_date, method, tenant_id)
             VALUES (?, ?, ?, ?, ?)
         """
 
-        CURSOR.execute(sql, (self.category, self.amount, 
+        sql.CURSOR.execute(query, (self.category, self.amount, 
                              self.pmt_date, self.method, 
                              self.tenant_id))
-        CONN.commit()
+        sql.CONN.commit()
 
-        self.id = CURSOR.lastrowid
+        self.id = sql.CURSOR.lastrowid
         type(self).all[self.id] = self
 
     def update(self):
         '''
         update the table row corresponding to the current instance
         '''
-        sql = """
+        query = """
             UPDATE payments
             SET category = ?, amount = ?, pmt_date = ?, method = ?, tenant_id = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.category, self.amount, 
+        sql.CURSOR.execute(query, (self.category, self.amount, 
                              self.pmt_date, self.method, 
                              self.tenant_id, self.id))
-        CONN.commit()
+        sql.CONN.commit()
 
     def print_receipt(self, path):
         '''

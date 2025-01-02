@@ -1,9 +1,9 @@
-# lib/tenant.py
-from __init__ import CURSOR, CONN
-from unit import Unit
-import validation as val
-import sql_helper as sql
 import pandas as pd
+
+# project modules
+from lib import Unit
+from lib.helper import validation as val
+from lib.helper import sql_helper as sql
 
 class Tenant:
     '''
@@ -244,7 +244,7 @@ class Tenant:
         '''
         create a new table to persist the attributes of all instances
         '''
-        sql = """
+        query = """
             CREATE TABLE IF NOT EXISTS tenants (
             id INTEGER PRIMARY KEY,
             name TEXT,
@@ -255,41 +255,41 @@ class Tenant:
             unit_id INTEGER,
             FOREIGN KEY (unit_id) REFERENCES units(id) ON DELETE CASCADE)
         """
-        CURSOR.execute(sql)
-        CONN.commit()
+        sql.CURSOR.execute(query)
+        sql.CONN.commit()
 
     def save(self):
         '''
         insert a new row with the values of the current object
         '''
-        sql = """
+        query = """
                 INSERT INTO tenants (name, email_address, phone_number, move_in_date, move_out_date, unit_id)
                 VALUES (?, ?, ?, ?, ?, ?)
         """
 
-        CURSOR.execute(sql, (self.name, 
+        sql.CURSOR.execute(query, (self.name, 
                              self.email_address, self.phone_number, 
                              self.move_in_date, self.move_out_date, 
                              self.unit_id))
-        CONN.commit()
+        sql.CONN.commit()
 
-        self.id = CURSOR.lastrowid
+        self.id = sql.CURSOR.lastrowid
         type(self).all[self.id] = self
 
     def update(self):
         '''
         update the table row corresponding to the current instance
         '''
-        sql = """
+        query = """
             UPDATE tenants
             SET name = ?, email_address = ?, phone_number = ?, move_in_date = ?, move_out_date = ?, unit_id = ?
             WHERE id = ?
         """
-        CURSOR.execute(sql, (self.name, 
+        sql.CURSOR.execute(query, (self.name, 
                              self.email_address, self.phone_number,
                              self.move_in_date, self.move_out_date,
                              self.unit_id, self.id))
-        CONN.commit()
+        sql.CONN.commit()
 
     # ///////////////////////////////////////////////////////////////
     # LOOKUPS FROM LINKED TABLES
@@ -298,14 +298,14 @@ class Tenant:
         '''
         returns list of payments associated with current unit
         '''        
-        from payment import Payment
-        sql = """
+        from lib import Payment
+        query = """
             SELECT * FROM payments
             WHERE tenant_id = ?
         """
-        CURSOR.execute(sql, (self.id,),)
+        sql.CURSOR.execute(query, (self.id,),)
 
-        rows = CURSOR.fetchall()
+        rows = sql.CURSOR.fetchall()
 
         output = [Payment.instance_from_db(row) for row in rows] \
             if output_as_instances else pd.DataFrame(rows, columns=Payment.DF_COLUMNS)
