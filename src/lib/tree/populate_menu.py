@@ -606,7 +606,8 @@ class PopulateMenu:
             tenant_id=int(new_payment["tenant_id"]),                
             category=new_payment["category"],
         )
-        path = fr"./outputs/RECEIPT_FOR_{tenant.name.upper()}_{new_payment['pmt_date']}.pdf"
+        filename = f"RECEIPT_FOR_{tenant.name}_{new_payment['pmt_date']}".replace(' ', '_').upper()
+        path = f"./outputs/{filename}.pdf"
         payment.print_receipt(path)
         self.finalize_add(payment)
         self.menu.print_output_message(path)
