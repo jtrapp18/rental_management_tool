@@ -296,9 +296,12 @@ class Payment:
                              self.tenant_id, self.id))
         CONN.commit()
 
-    def print_receipt(self):
+    def print_receipt(self, path):
         '''
         generates and prints receipt to pdf for a single payment
+
+        path: str
+            - file path to save receipt
         '''
         from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
         from reportlab.lib import colors
@@ -306,8 +309,7 @@ class Payment:
         tenant = Tenant.find_by_id(self.tenant_id)
         unit = Unit.find_by_id(tenant.unit_id)
 
-        filename = f"RECEIPT_FOR_{tenant.name.upper()}_{self.pmt_date}.pdf"
-        doc = SimpleDocTemplate(f"./outputs/{filename}")
+        doc = SimpleDocTemplate(path)
 
         table_style = TableStyle([
             ('FONT', (0, 0), (1, 0), 'Helvetica-Bold', 20),  # Bold title

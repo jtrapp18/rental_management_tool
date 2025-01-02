@@ -5,6 +5,7 @@ from rich import print
 from datetime import datetime
 import os
 import art
+import ascii
 
 class MenuTree:
     '''
@@ -20,7 +21,10 @@ class MenuTree:
     - display_welcome: prints welcome message when user opens the application
     - invalid_option: prints error message when user tries to enter an invalid
     - print_output_message: prints message with file location when user prints data to a csv file
+    - print_continue_message: prints message with blank input to freeze page before going to next menu
+    - print_directions: prints directions on page in a specific format
     - print_cancellation_directions: prints note indicating how to cancel out of current menu
+    - print page header: prints page header and subheader in specific format
     - exit_app: prints goodbye message and exits out of the application
     - to_main: returns user to main menu
     '''
@@ -58,14 +62,13 @@ class MenuTree:
         prints welcome message when user opens the application
         '''
         os.system('cls' if os.name == 'nt' else 'clear')
-        print(art.text2art("Welcome", font='tarty1'))
-        print(art.text2art("Rental Management Tool", font='tombstone'))
-        print(art.text2art("Manage units, tenants, payments, and expenses", font='tiny2'))
-        print("[magenta]Hello! Welcome to [/magenta][bold cyan] My App![/bold cyan]")
-        # print(art.art_list())
-        # print(art.font_list())
-        print(art.art("house"))
-        input("press any key to continue")
+        print(art.text2art("Rental", font='tarty7'))
+        print(art.text2art("Management", font='tarty7'))
+        print("[blue]--------------------------------------------------------------------[/blue]")
+        print("[bold cyan]MANAGE RENTAL UNITS, TENANT INFORMATION, AND RELATED PAYMENTS AND EXPENSES[/bold cyan]")
+        print(ascii.buildings("white"))
+        print(f"[yellow]{art.text2art('press any key to continue', font='tiny2')}[/yellow]")
+        input("")
 
     def invalid_option(self):
         '''
@@ -83,13 +86,35 @@ class MenuTree:
             - file path where the data should be saved
         '''
         print(f"Output saved to: [bold green]{filename}[/bold green]")
-        input("press any key to continue")
+        self.print_continue_message()
+
+    def print_continue_message(self):
+        '''
+        prints message with blank input to freeze page before going to next menu
+        '''
+        print(f"[yellow]{art.text2art('press any key to continue', font='tiny2')}[/yellow]")
+        input("")
+
+    def print_directions(self, directions):
+        '''
+        prints directions on page in a specific format
+        '''
+        print(f"[cyan]{directions}[/cyan]")
 
     def print_cancellation_directions(self):
         '''
         prints note indicating how to cancel out of current menu
         '''
-        print("[blue]Enter 'e' or 'exit' to cancel[/blue]")
+        self.print_directions('Enter `e` or `exit` to cancel')
+
+    def print_page_header(self, header, subheader=False):
+        '''
+        prints page header and subheader in specific format
+        '''
+        print(art.text2art(f"{header}", font='tarty4'))
+        print("")
+        print(f"[yellow]{subheader}[/yellow]")
+        print("")
 
     # ///////////////////////////////////////////////////////////////
     # CLI NAVIGATION
@@ -98,7 +123,8 @@ class MenuTree:
         '''
         prints goodbye message and exits out of the application
         '''
-        print(art.text2art("Goodbye!", font='tarty1'))
+        print(art.text2art("Goodbye!", font='tarty7'))
+        print("")
         sys.exit()
 
     def to_main(self):

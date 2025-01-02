@@ -2,6 +2,7 @@ import validation as val
 import sql_helper as sql
 import pandas as pd
 import art
+import ascii
 
 from menu_tree import MenuTree, Node
 from rich import print
@@ -41,8 +42,12 @@ class PopulateMenu:
     - store_selected_instance: adds reference to selected instance within specified node
     - show_user_selections: displays user selections for adding or updating an instance
     - new_itm_validation: creates and validates new object to be used to create a new instance
+    - finalize_add: saves new instance and prints confirmation message
     - update_itm_validation: updates an existing instance after validating user inputs
+    = finalize_update: updates instance based on user selections and prints confirmation message
     - update_selected_instance: updates an existing class instance and saves changes to DB
+    - finalize_delete: deletes instance and prints confirmation message
+    - delete_selected_instance: deletes an existing class instance and saves changes to DB
     - print_to_csv: prints data to csv file
     - filter_on_dates: filters dataframe by user-specified start and end dates
     - print_transaction_history: displays unit transactions and optionally prints results to csv
@@ -183,7 +188,7 @@ class PopulateMenu:
         
         user_input = user_selection(constraints, key)
 
-        if user_input == 'exit' or user_input =='e':
+        if user_input.lower() == 'exit' or user_input.lower() =='e':
             return 'exit'
 
         while True:
@@ -221,8 +226,14 @@ class PopulateMenu:
             - dictionary containing information needed to create a new class instance
         '''
         new_obj = {}
+        img_dict = {
+            Unit: ascii.house(),
+            Payment: ascii.money(),
+            Expense: ascii.money()
+        }
         
-        print(f"[yellow]Add New {cls.__name__}[/yellow]")
+        self.menu.print_page_header(f"Add {cls.__name__}", f"Add information for new {cls.__name__} record below")
+        print(img_dict.get(cls, ""))
 
         if parent:
             parent_name = parent.__class__.__name__
@@ -253,6 +264,22 @@ class PopulateMenu:
         
         if confirm.lower() == "y":
             return new_obj
+        
+    def finalize_add(self, inst):
+        '''
+        saves new instance and prints confirmation message
+
+        Parameters
+        ---------
+        inst: class instance
+            - newly added instance
+        '''
+        inst.save()
+        
+        print("")
+        print(f"The following record was successfully added:")
+        print(f"[green]{inst}[/green]")
+        self.menu.print_continue_message()
 
     def update_itm_validation(self, inst):
         '''
@@ -270,10 +297,10 @@ class PopulateMenu:
         cls = inst.__class__
         val_dict = cls.VALIDATION_DICT
         attributes = [f"{key}: {getattr(inst, key, None)}" for key in val_dict]
-        itm_to_update, index = pick(attributes+['SUBMIT CHANGES'], 
+        itm_to_update, index = pick(attributes+['<SUBMIT CHANGES>'], 
                                     f"Select Attribute of {cls.__name__} to Update")
 
-        if itm_to_update == 'SUBMIT CHANGES':
+        if itm_to_update == '<SUBMIT CHANGES>':
             return
         
         key = itm_to_update.split(":")[0].strip()
@@ -289,10 +316,23 @@ class PopulateMenu:
         self.update_itm_validation(inst)
 
     def finalize_update(self, ref_node):
+        '''
+        updates instance based on user selections and prints confirmation message
+
+        Parameters
+        ---------
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
+        '''
         inst = ref_node.data_ref
         inst.update()
 
         self.update_title_labels(inst, ref_node)
+        
+        print("")
+        print(f"The following record was successfully saved:")
+        print(f"[green]{inst}[/green]")
+        self.menu.print_continue_message()
 
     def update_selected_instance(self, ref_node):
         '''
@@ -306,8 +346,7 @@ class PopulateMenu:
         inst = ref_node.data_ref
         class_name = inst.__class__.__name__
 
-        print(f"[yellow]Update {class_name} Information[/yellow]")
-        print(f"Current: [magenta]{inst}[/magenta]")
+        self.menu.print_page_header(f"Update {class_name}", inst)
         self.menu.print_cancellation_directions()
         print("")
 
@@ -320,10 +359,23 @@ class PopulateMenu:
         self.run_func_if_confirm('Save changes?', lambda: self.finalize_update(ref_node))
 
     def finalize_delete(self, ref_node):
+        '''
+        deletes instance and prints confirmation message
+
+        Parameters
+        ---------
+        ref_node: Node instance
+            - node which stores the reference to the user-selected instance
+        '''
         inst = ref_node.data_ref
         inst.delete()
 
         ref_node.data_ref = None
+
+        print("")
+        print(f"The following record was successfully deleted:")
+        print(f"[red]{inst}[/red]")
+        self.menu.print_continue_message()
 
     def delete_selected_instance(self, ref_node):
         '''
@@ -337,11 +389,7 @@ class PopulateMenu:
         inst = ref_node.data_ref
         class_name = inst.__class__.__name__
 
-        print(f"[red]Delete {class_name}[/red]")
-        print(f"Current: [magenta]{inst}[/magenta]")
-        self.menu.print_cancellation_directions()
-        print("")
-
+        self.menu.print_page_header(f"Delete {class_name} Record", inst)
         self.run_func_if_confirm('Confirm delete?', lambda: self.finalize_delete(ref_node))
 
         return Node.last_node.parent
@@ -360,14 +408,16 @@ class PopulateMenu:
             - used in the filename to specify report filters (e.g. tenant name)
         '''
         date_today = datetime.now().strftime('%Y-%m-%d')
-        label = f"{report_type}_AS_OF_{date_today}_FOR_{report_for}"
-       
-        print(f"[yellow]{label}[/yellow]")
+
+        print(art.text2art(f"{report_type}", font='tarty4'))
+        print("")
+        print(f"[yellow]For {report_for} as of {date_today}[/yellow]")
         print("")
         print(df)
         print("")
 
-        path = f"./outputs/{label}.csv"
+        filename = f"{report_type}_AS_OF_{date_today}_FOR_{report_for}".replace(' ', '_').upper()
+        path = f"./outputs/{filename}.csv"
 
         funcs_to_run = [
             lambda: df.to_csv(path),
@@ -392,9 +442,9 @@ class PopulateMenu:
         '''
         df_filtered = df.copy()
 
-        print("[yellow]Enter date range for data[/yellow]")
+        self.menu.print_page_header('Enter Date Range', 'Enter date range to filter data')
         self.menu.print_cancellation_directions()
-        print("[blue]Click enter to bypass date filters[/blue]")
+        self.menu.print_directions('Click enter to bypass date filters')
         print("")
 
         user_choices = {
@@ -415,6 +465,16 @@ class PopulateMenu:
         if user_choices['end date'] is not None:
             df_filtered = df_filtered[df_filtered['Date'] <= user_choices['end date']]
 
+        if user_choices['start date'] and user_choices['end date']:
+            print("")
+            print(f"Date filter applied: [bold green]{user_choices['start date']} to {user_choices['end date']}[/bold green]")
+        elif user_choices['end date'] and not user_choices['start date']:
+            print("")
+            print(f"Date filter applied: [bold green]before or on {user_choices['end date']}[/bold green]")
+        elif user_choices['start date'] and not user_choices['end date']:
+            print("")
+            print(f"Date filter applied: [bold green]on or after {user_choices['start date']}[/bold green]")
+
         return df_filtered
     
     def print_transaction_history(self, ref_node=None):
@@ -429,15 +489,15 @@ class PopulateMenu:
         if ref_node:
             unit = ref_node.data_ref
             unit_id = unit.id
-            label = f"UNIT_{str(unit.id)}"
+            label = f"Unit {str(unit.id)}"
         else:
             unit_id = None
-            label = "ALL UNITS"
+            label = "all units"
 
         df = sql.get_all_transactions(unit_id)
         df_filtered = self.filter_on_dates(df)
 
-        self.print_to_csv(df_filtered, "TRANSACTIONS", label)
+        self.print_to_csv(df_filtered, "Transactions", label)
 
     def print_transaction_summary(self, ref_node=None):
         '''
@@ -451,13 +511,13 @@ class PopulateMenu:
         if ref_node:
             unit = ref_node.data_ref
             unit_id = unit.id
-            label = f"UNIT_{str(unit.id)}"
+            label = f"Unit {str(unit.id)}"
         else:
             unit_id = None
-            label = "ALL UNITS"
+            label = "all units"
 
         df = sql.get_transaction_summary(unit_id)
-        self.print_to_csv(df, "INCOME_SUMMARY", label)
+        self.print_to_csv(df, "Income Summary", label)
 
     def run_func_if_confirm(self, prompt, func):
         '''
@@ -519,7 +579,7 @@ class PopulateMenu:
         tenant = ref_node.data_ref
         df = tenant.get_rollforward()
 
-        self.print_to_csv(df, "PMTS", tenant.name.upper())
+        self.print_to_csv(df, "PAYMENTS", tenant.name.upper())
 
     def save_payment_info(self, ref_node):
         '''
@@ -544,8 +604,10 @@ class PopulateMenu:
             tenant_id=int(new_payment["tenant_id"]),                
             category=new_payment["category"],
         )
-        payment.save()
-        payment.print_receipt()
+        path = fr"./outputs/RECEIPT_FOR_{tenant.name.upper()}_{new_payment['pmt_date']}.pdf"
+        payment.print_receipt(path)
+        self.finalize_add(payment)
+        self.menu.print_output_message(path)
 
     def add_tenant_ops(self):
         '''
@@ -640,7 +702,7 @@ class PopulateMenu:
             monthly_rent=float(new_unit["monthly_rent"]),
             late_fee=float(new_unit["late_fee"]),                
         )
-        unit.save()
+        self.finalize_add(unit)
 
     def save_tenant_info(self, ref_node=None):
         '''
@@ -655,7 +717,7 @@ class PopulateMenu:
             if ref_node.data_ref:
                 unit = ref_node.data_ref
             else:
-                unit = pick(Unit.get_all_instances(), "Select Unit")
+                unit, index = pick(Unit.get_all_instances(), "Select Unit")
         else:
             unit = pick(Unit.get_all_instances(), "Select Unit")
 
@@ -671,7 +733,7 @@ class PopulateMenu:
             move_in_date=new_tenant["move_in_date"],
             unit_id=int(new_tenant["unit_id"])             
         )
-        tenant.save()
+        self.finalize_add(tenant)
 
     def save_expense_info(self, ref_node):
         '''
@@ -696,7 +758,7 @@ class PopulateMenu:
             exp_date=new_expense["exp_date"],
             unit_id=int(new_expense["unit_id"]),                
         )
-        expense.save()
+        self.finalize_add(expense)
 
     def add_unit_ops(self):
         '''
@@ -794,10 +856,11 @@ class PopulateMenu:
         path = fr"./outputs/Revenue Report for {str(year)}.pdf"
 
         funcs_to_run = [
-            lambda: print("[blue]generating report...[/blue]"),
+            lambda: print("[blue]generating report...\n[/blue]"),
             lambda: generate_income_report(year, path),
             lambda: self.menu.print_output_message(path)
         ]
+        self.menu.print_page_header('Revenue Report', f'For the {year} calendar year')
         self.run_func_if_confirm(f'Create pdf revenue report for {year}?', 
                                  funcs_to_run)
 
