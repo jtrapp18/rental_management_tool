@@ -34,7 +34,7 @@ GitHub: [JTrapp18](https://github.com/jtrapp18)
 
 See this gif for an example of how the app works.
 
-![demo](img/rental_management_tool.gif)
+![demo](https://github.com/jtrapp18/rental_management_tool/blob/main/img/rental_management_tool.gif?raw=true)
 
 ## Example Outputs
 - [Revenue Report](outputs/examples/Revenue%20Report%20for%202019.pdf)
