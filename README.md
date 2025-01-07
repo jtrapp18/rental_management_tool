@@ -40,7 +40,7 @@ See this gif for an example of how the app works.
 - [Revenue Report](outputs/examples/Revenue%20Report%20for%202019.pdf)
 - [Payment Receipt](outputs/examples/RECEIPT_FOR_TAMARA_WHITE_2024-12-31.pdf)
 - [Payment Rollforward](outputs/examples/PAYMENTS_AS_OF_2025-01-02_FOR_THOMAS_MCGRATH.csv)
-- [Income Summary]([outputs/examples/INCOME_SUMMARY_AS_OF_2025-01-02_FOR_UNIT_3.csv(https://raw.githubusercontent.com/jtrapp18/rental_management_tool/refs/heads/main/outputs/examples/INCOME_SUMMARY_AS_OF_2025-01-02_FOR_UNIT_3.csv)
+- [Income Summary](https://raw.githubusercontent.com/jtrapp18/rental_management_tool/refs/heads/main/outputs/examples/INCOME_SUMMARY_AS_OF_2025-01-02_FOR_UNIT_3.csv)
 - [Transactions](outputs/examples/TRANSACTIONS_AS_OF_2025-01-02_FOR_UNIT_3.csv)
 
 ## Setup
