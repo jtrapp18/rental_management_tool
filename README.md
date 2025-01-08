@@ -67,21 +67,27 @@ See this gif for an example of how the app works.
 - **`_1_seeds.py`**: Used for seeding the database with initial test data.
 - **`_2_cli.py`**: The entry point for the CLI interface, where users interact with the application.
 - **`outputs/`**: Stores generated output files based on user selection, such as:
-  - [Revenue Report](outputs/examples/Revenue%20Report%20for%202019.pdf): report showing analytics for the year at both an aggregate and unit-level
-  <br>
-  <img src="https://github.com/jtrapp18/rental_management_tool/blob/main/img/all_unit_analytics_example.png?raw=true" alt="Revenue Report Screenshot" width="350"/>
-  - [Payment Receipt](outputs/examples/RECEIPT_FOR_TAMARA_WHITE_2024-12-31.pdf): payment receipt generated when new payment is added to database 
-  <br>
-  <img src="https://github.com/jtrapp18/rental_management_tool/blob/main/img/receipt_example.png?raw=true" alt="Payment Rollforward Screenshot" width="350"/>
-  - [Payment Rollforward](outputs/examples/PAYMENTS_AS_OF_2025-01-02_FOR_THOMAS_MCGRATH.csv): rollforward showing the amount owed at the beginning and end of each month and related payments 
-  <br>
-  <img src="https://github.com/jtrapp18/rental_management_tool/blob/main/img/payment_rollforward_example.png?raw=true" alt="Payment Rollforward Screenshot" width="350"/>
-  - [Income Summary](outputs/examples/INCOME_SUMMARY_AS_OF_2025-01-02_FOR_UNIT_3.csv): summary of income (expenses, payments, net income) broken down by year. Available on a unit or aggregate level. 
-  <br>
-  <img src="https://github.com/jtrapp18/rental_management_tool/blob/main/img/summary_of_income_example.png?raw=true" alt="Income Summary Screenshot" width="350"/>
-  - [Transactions](outputs/examples/TRANSACTIONS_AS_OF_2025-01-02_FOR_UNIT_3.csv): list of transactions (expenses, payments) filtered on user-specified dates. Available on a unit or aggregate level. 
-  <br>
-  <img src="https://github.com/jtrapp18/rental_management_tool/blob/main/img/transactions_example.png?raw=true" alt="Transactions Screenshot" width="350"/>
+
+- **Revenue Report**  
+  [Revenue Report](outputs/examples/Revenue%20Report%20for%202019.pdf): Report showing analytics for the year at both an aggregate and unit-level  
+  ![Revenue Report Screenshot](https://github.com/jtrapp18/rental_management_tool/blob/main/img/all_unit_analytics_example.png?raw=true)
+
+- **Payment Receipt**  
+  [Payment Receipt](outputs/examples/RECEIPT_FOR_TAMARA_WHITE_2024-12-31.pdf): Payment receipt generated when new payment is added to database  
+  ![Payment Receipt Screenshot](https://github.com/jtrapp18/rental_management_tool/blob/main/img/receipt_example.png?raw=true)
+
+- **Payment Rollforward**  
+  [Payment Rollforward](outputs/examples/PAYMENTS_AS_OF_2025-01-02_FOR_THOMAS_MCGRATH.csv): Rollforward showing the amount owed at the beginning and end of each month and related payments  
+  ![Payment Rollforward Screenshot](https://github.com/jtrapp18/rental_management_tool/blob/main/img/payment_rollforward_example.png?raw=true)
+
+- **Income Summary**  
+  [Income Summary](outputs/examples/INCOME_SUMMARY_AS_OF_2025-01-02_FOR_UNIT_3.csv): Summary of income (expenses, payments, net income) broken down by year. Available on a unit or aggregate level.  
+  ![Income Summary Screenshot](https://github.com/jtrapp18/rental_management_tool/blob/main/img/summary_of_income_example.png?raw=true)
+
+- **Transactions**  
+  [Transactions](outputs/examples/TRANSACTIONS_AS_OF_2025-01-02_FOR_UNIT_3.csv): List of transactions (expenses, payments) filtered on user-specified dates. Available on a unit or aggregate level.  
+  ![Transactions Screenshot](https://github.com/jtrapp18/rental_management_tool/blob/main/img/transactions_example.png?raw=true)
+
 - **`img/`**: Contains image assets used in the application.
 - **`Pipfile`**: Defines project dependencies and virtual environment setup.
 - **`rental_management_db`**: Database which stores relevant data.
